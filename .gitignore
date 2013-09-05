@@ -1,0 +1,16 @@
+*.swp
+target/*
+lib*
+*.orig
+*jar
+.idea
+.lein-failures
+dc-sdk.log
+.classpath
+.lein-deps-sum
+.lein-plugins/
+.project
+bin/
+.lein-env
+.midje.clj
+.lein-repl-history
