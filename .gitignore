@@ -15,3 +15,4 @@ bin/
 .midje.clj
 .lein-repl-history
 ec2_amazon-ebs.pem
+xxx*
