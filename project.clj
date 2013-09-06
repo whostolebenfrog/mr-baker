@@ -22,7 +22,8 @@
                  [environ "0.4.0"]
                  [nokia/ring-utils "1.0.1"]
                  [metrics-clojure "1.0.1"]
-                 [metrics-clojure-ring "1.0.1"]]
+                 [metrics-clojure-ring "1.0.1"]
+                 [me.raynes/conch "0.5.0"]]
 
   :profiles {:dev {:dependencies [[com.github.rest-driver/rest-client-driver "1.1.32"
                                    :exclusions [org.slf4j/slf4j-nop
@@ -51,7 +52,10 @@
         :service-graphite-post-interval "1"
         :service-graphite-post-unit "MINUTES"
         :service-graphite-enabled "ENABLED"
-        :service-production "false"}
+        :service-production "false"
+
+        :service-aws-access-key "AKIAIXEX2SKCBI5X2M7Q"
+        :service-aws-secret-key "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"}
 
   :lein-release {:release-tasks [:clean :uberjar :pom :rpm]
                  :clojars-url "clojars@clojars.brislabs.com:"}
