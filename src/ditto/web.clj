@@ -37,6 +37,7 @@
                                 :success true}))})
 
 (defn pokemon
+  "Print ditto"
   []
   "
                        8:,::::N   . .I,
@@ -70,7 +71,9 @@ M+++++++++??++++++++++++++++====+++++++++++??+++++++====++
       . . . . ~M++++++++++++++++++++++++++++++++++++++++O.
                   MI++++++++++++++++++++?DM?~,.+78DN7ID:
                 . . .ZN?+++++++++++$N,.. . .      ...  .
-                      . ....~: ... ..                     ")
+                      . ....~: ... ..                     \n")
+
+(spit "/tmp/xxx" (base/create-base-ami "ami-098b917d"))
 
 (defroutes routes
   (context
@@ -82,7 +85,14 @@ M+++++++++??++++++++++++++++====+++++++++++??+++++++====++
    (GET "/status"
         [] (status))
 
-   (GET "/pokemon" [] (pokemon)))
+   ;; TODO - param to just return the template not build it
+   (POST "/entertainment-ami/:parent-ami" [parent-ami]
+         (-> (base/create-base-ami "ami-098b917d")
+             (packer/build)))
+
+   (GET "/pokemon" [] {:body (pokemon)
+                       :status 200
+                       :headers {"Content-Type" "text/plain; charset=utf-8"}}))
 
   (route/not-found (error-response "Resource not found" 404)))
 
