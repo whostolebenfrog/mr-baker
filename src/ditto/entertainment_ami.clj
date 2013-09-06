@@ -23,6 +23,7 @@
    :security_group_id "sg-c453b4ab"
    :vpc_id "vpc-7bc88713"
    :subnet_id "subnet-bdc08fd5"
+   :iam_instance_profile "baking"
    :ssh_keypair_pattern "nokia-%s"})
 
 (def upload-repo-file
