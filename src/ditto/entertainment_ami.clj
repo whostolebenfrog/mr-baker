@@ -32,35 +32,43 @@
    :destination "/tmp/nokia-internal.repo"})
 
 (def append-repo-file
-  (shell "cat /tmp/nokia-internal.repo >> /etc/yum.repos.d/nokia-internal.repo"))
+  (shell "cat /tmp/nokia-internal.repo >> /etc/yum.repos.d/nokia-internal.repo"
+         "echo \"iam_role=1\" >> /etc/yum/pluginconf.d/nokia-s3yum.conf"))
 
 (def enable-nokia-repo
   (shell "yum-config-manager --enable nokia-epel >> /var/log/baking.log 2>&1"))
 
-;; manually start puppet
+;; TODO - "echo PUPPET_SERVER=puppetaws.brislabs.com >> /etc/sysconfig/puppet"
+  ;; this needs to go in the service baking stuff
 (def puppet
-  (shell "yum install -y puppet >> /var/log/baking.log 2>&1"
-         "echo PUPPET_SERVER=puppetaws.brislabs.com >> /etc/sysconfig/puppet"))
+  (shell "export LD_LIBRARY_PATH=/opt/rh/ruby193/root/usr/lib64"
+         "PUPPETD=\"PATH=/opt/rh/ruby193/root/usr/local/bin/:/opt/rh/ruby193/root/usr/bin/:/sbin:/usr/sbin:/bin:/usr/bin /opt/rh/ruby193/root/usr/local/bin/puppet\""
+         "yum install -y puppet >> /var/log/baking.log 2>&1"
+         "scl enable ruby193 ' /opt/rh/ruby193/root/usr/local/bin/puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com'"
+         "rm -rf /var/lib/puppet/ssl"))
 
-;; TODO - need to rm -rf /var/lib/puppet/ssl
-  ;; at the end, on shut down?
-;; TODO - run puppet as a one off blocking (puppet agent -server -t?)
+(def ruby-193
+  (shell "yum install -y ruby193"
+         "yum install -y ruby193-rubygem-puppet"
+         "yum install -y ruby193-rubygem-ruby-shadow"))
 
 ;; TODO - add the time
 (defn motd [parent-ami]
-  (shell "echo -e \"\\nEntertainment Base AMI\\n\" >> /etc/motd"
-         "echo -e \"\\nBake date : TODO\\n\" >> /etc/motd"
+  (shell "echo -e \"\\nEntertainment Base AMI\" >> /etc/motd"
+         "echo -e \"\\nBake date : TODO\" >> /etc/motd"
          (format "echo -e \"\\nSource AMI: %s\\n\" >> /etc/motd" parent-ami)))
 
+;; TODO - make the repo steps one part?
 (defn ami-template
   "Generate a new ami template"
   [parent-ami]
   {:builders [(ebs-builder parent-ami)]
-   :provisioners [upload-repo-file
+   :provisioners [(motd parent-ami)
+                  upload-repo-file
                   append-repo-file
                   enable-nokia-repo
-                  puppet
-                  (motd parent-ami)]})
+                  ruby-193
+                  puppet]})
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
