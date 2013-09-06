@@ -21,9 +21,9 @@
   (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
     (try
       (spit file-name template)
-      (let [validate-out (packer "validate" file-name)]
-        (prn validate-out)
-        (if validate-out
+      (let [{:keys [exit-code stout]} (packer "validate" file-name {:verbose true})]
+        (prn stout)
+        (if-not (pos? @exit-code)
           {:status 200
            :body (json/generate-string {:status 200 :message (packer-build file-name)})}
           {:status 400
