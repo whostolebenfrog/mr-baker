@@ -8,6 +8,9 @@
    :inline_shebang "/bin/sh -x"
    :inline cmds})
 
+;; TODO - alphabetize
+;; TODO - ami name, with timestamp, follow pattern?
+;; TODO - fn to return the name of the lastest ent ami for use with service baking
 (defn ebs-builder
   "Generate a new ami builder"
   [parent-ami]
