@@ -1,0 +1,10 @@
+#!/bin/bash
+[ent-repo]
+name=nokia-entertainment
+enabled=1
+protect=0
+gpgcheck=0
+baseurl=http://ent-aws-repo.s3.amazonaws.com/
+s3_enabled=1
+key_id=YOUR_ACCESS_KEY
+secret_key=YOUR_SECRET_KEY
