@@ -61,6 +61,12 @@
          "echo -e \"\\nBake date : TODO\" >> /etc/motd"
          (format "echo -e \"\\nSource AMI: %s\\n\" >> /etc/motd" parent-ami)))
 
+(def cloud-final
+  (shell "chkconfig cloud-final off"
+         "sudo sed -i \"s/# chkconfig:   - 99 01/# chkconfig:   - 98 01/\" /etc/rc.d/init.d/cloud-final"
+         "chkconfig cloud-final on"))
+
+
 ;; TODO - make the repo steps one part?
 (defn ami-template
   "Generate a new ami template"
@@ -71,7 +77,8 @@
                   append-repo-file
                   enable-nokia-repo
                   ruby-193
-                  puppet]})
+                  puppet
+                  cloud-final]})
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
