@@ -7,8 +7,6 @@
                  [ring/ring-jetty-adapter "1.2.0"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/data.json "0.2.3"]
-                 [org.clojure/data.xml "0.0.7"]
-                 [org.clojure/data.zip "0.1.1"]
                  [org.clojure/tools.logging "0.2.6"]
                  [org.slf4j/slf4j-api "1.7.5"]
                  [org.slf4j/jul-to-slf4j "1.7.5"]

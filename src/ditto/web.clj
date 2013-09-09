@@ -9,7 +9,6 @@
             [ring.middleware.format-response :refer [wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
-            [clojure.data.xml :refer [element emit-str]]
             [clojure.string :refer [split]]
             [clojure.tools.logging :refer [info warn error]]
             [environ.core :refer [env]]
