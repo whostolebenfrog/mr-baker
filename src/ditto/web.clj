@@ -29,17 +29,20 @@
    :headers {"Content-Type" content-type}
    :body data})
 
-;; TODO - make this a json status
+;; TODO - check onix status in deps
+;; TODO - check eu-west-1 status in deps
 (defn status
   []
-  {:headers {"Content-Type" "application/xml"}
-   :body    (emit-str (element :status
-                               {:serviceName "ditto"
-                                :version *version*
-                                :success true}))})
+  {:status 200
+   :body
+   {:name "ditto"
+    :version *version*
+    :success true
+    :dependencies []}})
 
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d")))
 
+;; TODO - what's the normal json response for an error etc?
 ;; TODO - can we schedule a task to create the base ami rather than having to push it?
 (defroutes routes
   (context
@@ -53,7 +56,7 @@
 
    ;; TODO - param to just return the template not build it
    (POST "/entertainment-ami/:parent-ami" [parent-ami]
-         (-> (base/create-base-ami "ami-098b917d")
+         (-> (base/create-base-ami parent-ami)
              (packer/build)))
 
    (GET "/pokemon" [] {:body pokemon/ditto
