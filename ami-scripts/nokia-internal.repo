@@ -1,4 +1,3 @@
-#!/bin/bash
 [ent-repo]
 name=nokia-entertainment
 enabled=1

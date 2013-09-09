@@ -2,7 +2,8 @@
   (:require [cheshire.core :as json]
             [environ.core :refer [env]]
             [clj-time.core :as time-core]
-            [clj-time.format :as time-format]))
+            [clj-time.format :as time-format]
+            [clojure.java.io :as io]))
 
 (defn shell [& cmds]
   "Accepts a series of strings to run as shell comands. Runs commands with -x shebang and
@@ -16,20 +17,16 @@
   "Returns the ami name for date/time now"
   []
   (str "entertainment-base-" (time-format/unparse
-                              (time-format/formatters :date-time-no-ms)
+                              (time-format/formatter "YYYY-MM-dd_HH-mm-ss")
                               (time-core/now))))
 
-(def upload-repo-file
-  {:type "file"
-   :source "ami-scripts/nokia-internal.repo"
-   :destination "/tmp/nokia-internal.repo"})
-
-(def append-repo-file
-  (shell "cat /tmp/nokia-internal.repo >> /etc/yum.repos.d/nokia-internal.repo"
-         "echo \"iam_role=1\" >> /etc/yum/pluginconf.d/nokia-s3yum.conf"))
-
-(def enable-nokia-repo
-  (shell "yum-config-manager --enable nokia-epel >> /var/log/baking.log 2>&1"))
+(def ent-yum-repo
+  "Set up the entertainment yum repo"
+  (shell (str "echo \""
+              (slurp (io/resource "nokia-internal.repo"))
+              "\" >> /etc/yum.repos.d/nokia-internal.repo")
+         "echo \"iam_role=1\" >> /etc/yum/pluginconf.d/nokia-s3yum.conf"
+         "yum-config-manager --enable nokia-epel >> /var/log/baking.log 2>&1"))
 
 (def puppet
   "Set up puppet and run once, blocking"
@@ -61,29 +58,25 @@
 (defn ami-template
   "Generate a new ami template"
   [parent-ami]
-  {:builders
-   [{:access_key (env :service-aws-access-key)
-     :ami_name (ent-ami-name)
-     :iam_instance_profile "baking"
-     :instance_type "t1.micro"
-     :region "eu-west-1"
-     :secret_key (env :service-aws-secret-key)
-     :security_group_id "sg-c453b4ab"
-     :source_ami parent-ami
-     :ssh_keypair_pattern "nokia-%s"
-     :ssh_timeout "5m"
-     :ssh_username "nokia"
-     :subnet_id "subnet-bdc08fd5"
-     :type "amazon-ebs"
-     :vpc_id "vpc-7bc88713"}]
-   :provisioners
-   [(motd parent-ami)
-    upload-repo-file
-    append-repo-file
-    enable-nokia-repo
-    ruby-193
-    puppet
-    cloud-final]})
+  {:builders [{:access_key (env :service-aws-access-key)
+               :ami_name (ent-ami-name)
+               :iam_instance_profile "baking"
+               :instance_type "t1.micro"
+               :region "eu-west-1"
+               :secret_key (env :service-aws-secret-key)
+               :security_group_id "sg-c453b4ab"
+               :source_ami parent-ami
+               :ssh_keypair_pattern "nokia-%s"
+               :ssh_timeout "5m"
+               :ssh_username "nokia"
+               :subnet_id "subnet-bdc08fd5"
+               :type "amazon-ebs"
+               :vpc_id "vpc-7bc88713"}]
+   :provisioners [(motd parent-ami)
+                  ent-yum-repo
+                  ruby-193
+                  puppet
+                  cloud-final]})
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"

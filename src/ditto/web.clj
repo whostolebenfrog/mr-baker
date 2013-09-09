@@ -19,6 +19,8 @@
             [metrics.ring.expose :refer [expose-metrics-as-json]]
             [metrics.ring.instrument :refer [instrument]]))
 
+;; TODO - schedule a task to create the base ami rather than having to push it
+
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
   (alter-var-root #'*version* (fn [_] version)))
@@ -41,7 +43,6 @@
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d")))
 
 ;; TODO - what's the normal json response for an error etc?
-;; TODO - can we schedule a task to create the base ami rather than having to push it?
 (defroutes routes
   (context
    "/1.x" []
