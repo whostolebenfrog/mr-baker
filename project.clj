@@ -8,6 +8,7 @@
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/data.json "0.2.3"]
                  [org.clojure/tools.logging "0.2.6"]
+                 [org.clojure/data.zip "0.1.1"]
                  [org.slf4j/slf4j-api "1.7.5"]
                  [org.slf4j/jul-to-slf4j "1.7.5"]
                  [ch.qos.logback/logback-classic "1.0.13"]
@@ -38,6 +39,8 @@
   :plugins [[lein-ring "0.8.6"]
             [lein-environ "0.4.0"]
             [lein-release "1.0.73"]]
+
+  :resource-paths ["shared"]
 
   ;; development token values
   :env {:environment-name "Dev"

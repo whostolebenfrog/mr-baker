@@ -60,10 +60,16 @@
            (response (base/create-base-ami parent-ami))))
 
    (GET "/pokemon" []
-        (response pokemon/ditto "text/plain")))
+        (response pokemon/ditto "text/plain"))
+
+   (GET "/icon" []
+        {:status 200
+         :headers {"Content-Type" "image/jpeg"}
+         :body (-> (clojure.java.io/resource "ditto.jpg")
+                   (.getFile)
+                   (java.io.FileInputStream.))}))
 
   (route/not-found (error-response "Resource not found" 404)))
-
 
 (def app
   (-> routes
