@@ -41,8 +41,6 @@
 (def enable-nokia-repo
   (shell "yum-config-manager --enable nokia-epel >> /var/log/baking.log 2>&1"))
 
-;; TODO - "echo PUPPET_SERVER=puppetaws.brislabs.com >> /etc/sysconfig/puppet"
-  ;; this needs to go in the service baking stuff
 (def puppet
   (shell "export LD_LIBRARY_PATH=/opt/rh/ruby193/root/usr/lib64"
          "PUPPETD=\"PATH=/opt/rh/ruby193/root/usr/local/bin/:/opt/rh/ruby193/root/usr/bin/:/sbin:/usr/sbin:/bin:/usr/bin /opt/rh/ruby193/root/usr/local/bin/puppet\""
