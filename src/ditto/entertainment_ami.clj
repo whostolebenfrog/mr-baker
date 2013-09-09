@@ -2,6 +2,8 @@
   (:require [cheshire.core :as json]
             [environ.core :refer [env]]))
 
+;; TODO - make this file read more like the JSON schema
+
 (defn shell [& cmds]
   {:type "shell"
    :execute_command "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'"
@@ -65,7 +67,6 @@
          "chkconfig cloud-final on"))
 
 
-;; TODO - make the repo steps one part?
 (defn ami-template
   "Generate a new ami template"
   [parent-ami]
