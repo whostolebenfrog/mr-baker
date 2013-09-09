@@ -32,10 +32,11 @@
 
 ;; TODO - check onix status in deps
 ;; TODO - check eu-west-1 status in deps
-;; TODO - toggle dependencies as a param
 (defn status
-  []
-  (response {:name "ditto" :version *version* :success true :dependencies []}))
+  [recursive]
+  (response (merge
+             {:name "ditto" :version *version* :success true}
+             (when recursive {:dependencies []}))))
 
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d")))
 
@@ -49,7 +50,7 @@
         [] "pong")
 
    (GET "/status"
-        [] (status))
+        [recursive] (status recursive))
 
    (POST "/entertainment-ami/:parent-ami" [parent-ami dry-run]
          (if-not dry-run
