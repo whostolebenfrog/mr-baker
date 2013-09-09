@@ -12,26 +12,30 @@
    :inline_shebang "/bin/sh -x"
    :inline cmds})
 
-;; TODO - alphabetize
-;; TODO - ami name, with timestamp, follow pattern?
-;; TODO - fn to return the name of the lastest ent ami for use with service baking
+(defn ent-ami-name
+  "Returns the ami name for date/time now"
+  []
+  (str "entertainment-base-" (time-format/unparse
+                              (time-format/formatters :date-time-no-ms)
+                              (time-core/now))))
+
 (defn ebs-builder
   "Generate a new ami builder"
   [parent-ami]
-  {:type "amazon-ebs"
-   :access_key (env :service-aws-access-key)
-   :secret_key (env :service-aws-secret-key)
-   :region "eu-west-1"
-   :source_ami parent-ami
-   :instance_type "t1.micro"
-   :ssh_username "nokia"
-   :ami_name "ditto-ami-testing {{timestamp}}"
-   :ssh_timeout "5m"
-   :security_group_id "sg-c453b4ab"
-   :vpc_id "vpc-7bc88713"
-   :subnet_id "subnet-bdc08fd5"
+  {:access_key (env :service-aws-access-key)
+   :ami_name (ent-ami-name)
    :iam_instance_profile "baking"
-   :ssh_keypair_pattern "nokia-%s"})
+   :instance_type "t1.micro"
+   :region "eu-west-1"
+   :secret_key (env :service-aws-secret-key)
+   :security_group_id "sg-c453b4ab"
+   :source_ami parent-ami
+   :ssh_keypair_pattern "nokia-%s"
+   :ssh_timeout "5m"
+   :ssh_username "nokia"
+   :subnet_id "subnet-bdc08fd5"
+   :type "amazon-ebs"
+   :vpc_id "vpc-7bc88713"})
 
 (def upload-repo-file
   {:type "file"
