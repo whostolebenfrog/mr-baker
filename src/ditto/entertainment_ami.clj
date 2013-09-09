@@ -1,8 +1,12 @@
 (ns ditto.entertainment-ami
   (:require [cheshire.core :as json]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [clj-time.core :as time-core]
+            [clj-time.format :as time-format]))
 
 ;; TODO - make this file read more like the JSON schema
+
+
 
 (defn shell [& cmds]
   {:type "shell"
@@ -55,10 +59,10 @@
          "yum install -y ruby193-rubygem-puppet"
          "yum install -y ruby193-rubygem-ruby-shadow"))
 
-;; TODO - add the time
 (defn motd [parent-ami]
   (shell "echo -e \"\\nEntertainment Base AMI\" >> /etc/motd"
-         "echo -e \"\\nBake date : TODO\" >> /etc/motd"
+         (format "echo -e \"\\nBake date: %s\" >> /etc/motd"
+                 (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nSource AMI: %s\\n\" >> /etc/motd" parent-ami)))
 
 (def cloud-final
