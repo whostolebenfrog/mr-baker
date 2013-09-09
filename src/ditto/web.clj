@@ -23,21 +23,19 @@
 (defn set-version! [version]
   (alter-var-root #'*version* (fn [_] version)))
 
-(defn response [data content-type & [status]]
+(defn response
+  "Accepts a body an optionally a content type and status. Returns a response object."
+  [body & [content-type status]]
   {:status (or status 200)
-   :headers {"Content-Type" content-type}
-   :body data})
+   :headers {"Content-Type" (or content-type "application/json")}
+   :body body})
 
 ;; TODO - check onix status in deps
 ;; TODO - check eu-west-1 status in deps
+;; TODO - toggle dependencies as a param
 (defn status
   []
-  {:status 200
-   :body
-   {:name "ditto"
-    :version *version*
-    :success true
-    :dependencies []}})
+  (response {:name "ditto" :version *version* :success true :dependencies []}))
 
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d")))
 
@@ -53,14 +51,15 @@
    (GET "/status"
         [] (status))
 
-   ;; TODO - param to just return the template not build it
-   (POST "/entertainment-ami/:parent-ami" [parent-ami]
-         (-> (base/create-base-ami parent-ami)
-             (packer/build)))
+   (POST "/entertainment-ami/:parent-ami" [parent-ami dry-run]
+         (if-not dry-run
+           (-> (base/create-base-ami parent-ami)
+               (packer/build)
+               (response))
+           (response (base/create-base-ami parent-ami))))
 
-   (GET "/pokemon" [] {:body pokemon/ditto
-                       :status 200
-                       :headers {"Content-Type" "text/plain; charset=utf-8"}}))
+   (GET "/pokemon" []
+        (response pokemon/ditto "text/plain")))
 
   (route/not-found (error-response "Resource not found" 404)))
 
