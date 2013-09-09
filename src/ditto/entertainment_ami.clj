@@ -6,8 +6,6 @@
 
 ;; TODO - make this file read more like the JSON schema
 
-
-
 (defn shell [& cmds]
   {:type "shell"
    :execute_command "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'"
