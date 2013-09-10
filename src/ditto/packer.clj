@@ -15,7 +15,7 @@
          (re-matches #"(?s).*AMIs were created.*(ami-[A-Za-z0-9]+).*$")
          (second))))
 
-;; TODO - needs to return the full response
+;; TODO - return the output from the packer build
 (defn build
   "Build the provided template and respond with the created ami id"
   [template]

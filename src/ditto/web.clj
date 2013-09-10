@@ -20,6 +20,10 @@
             [metrics.ring.instrument :refer [instrument]]))
 
 ;; TODO - schedule a task to create the base ami rather than having to push it
+;; TODO - get resource for latest ent ami
+;; TODO - testing, we can generate the whole template and test that at least
+   ;;   - we could also try mocking out the packer method although it's generated with a macro...
+   ;;   - could always put it behind a function that calls it and say that's good enough
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
