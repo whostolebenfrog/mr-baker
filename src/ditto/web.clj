@@ -24,6 +24,9 @@
 ;; TODO - testing, we can generate the whole template and test that at least
    ;;   - we could also try mocking out the packer method although it's generated with a macro...
    ;;   - could always put it behind a function that calls it and say that's good enough
+;; TODO - packer supports copying of an ami to multiple regions, can we use to this
+   ;;   - copy our ami beteween accounts? or extend?
+;; TODO - update to use the latest version of packer with fix
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
