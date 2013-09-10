@@ -48,6 +48,7 @@
              (when recursive {:dependencies []}))))
 
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d")))
+(comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
 
 ;; TODO - what's the normal json response for an error etc?
 (defroutes routes

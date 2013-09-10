@@ -18,7 +18,6 @@
   "Set up the message of the day"
   [service-name service-version])
 
-
 (defn service-template
   "Generates a new ami template for the servivce"
   [service-name service-version]
@@ -34,7 +33,7 @@
                :ssh_timeout "5m"
                :ssh_username "nokia"
                :subnet_id "subnet-bdc08fd5"
-               :type "amazon-ebs"
+               :type "amazon-chroot"
                :vpc_id "vpc-7bc88713"}]
    :provisioners [(motd service-name service-version)]})
 
