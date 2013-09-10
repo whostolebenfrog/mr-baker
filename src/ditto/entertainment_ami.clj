@@ -13,6 +13,12 @@
    :inline_shebang "/bin/sh -x"
    :inline cmds})
 
+;; TODO - implement this for real
+(defn entertainment-base-ami-id
+  "Returns the id of the latest entertainment base ami"
+  []
+  "ami-8acd28fd")
+
 (defn ent-ami-name
   "Returns the ami name for date/time now"
   []

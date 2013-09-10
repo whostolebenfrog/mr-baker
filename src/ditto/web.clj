@@ -1,6 +1,7 @@
 (ns ditto.web
   (:require [ditto
              [entertainment-ami :as base]
+             [bake-service-ami :as service-ami]
              [packer :as packer]
              [pokemon :as pokemon]]
             [compojure.core :refer [defroutes context GET PUT POST DELETE]]
@@ -67,7 +68,7 @@
            (response (base/create-base-ami parent-ami))))
 
    (POST "/bake/:service-name/:service-version/" [service-name service-version dry-run]
-         ())
+         (-> (service-ami/create-service-ami service-name service-version)))
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))

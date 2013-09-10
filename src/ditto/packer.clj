@@ -7,6 +7,8 @@
 
 ;; TODO - add time outs for the packer task so it can't lock indefinitely
 ;; TODO - check for the word Error: in here somewhere, if appears then fail
+;; TODO - it looks like the ami can fail occasionally. In that case we need to exit
+   ;; packer (using the timeout) and clean up the ami manually.
 (defn packer-build
   "Builds the template and returns the ami-id from the output"
   [template-path]
