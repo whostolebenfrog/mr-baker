@@ -1,17 +1,10 @@
 (ns ditto.entertainment-ami
-  (:require [cheshire.core :as json]
+  (:require [ditto.bake-common :refer :all]
+            [cheshire.core :as json]
             [environ.core :refer [env]]
             [clj-time.core :as time-core]
             [clj-time.format :as time-format]
             [clojure.java.io :as io]))
-
-(defn shell [& cmds]
-  "Accepts a series of strings to run as shell comands. Runs commands with -x shebang and
-   with sudo."
-  {:type "shell"
-   :execute_command "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'"
-   :inline_shebang "/bin/sh -x"
-   :inline cmds})
 
 ;; TODO - implement this for real
 (defn entertainment-base-ami-id

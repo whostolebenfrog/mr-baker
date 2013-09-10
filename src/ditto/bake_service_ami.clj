@@ -1,5 +1,7 @@
 (ns ditto.bake-service-ami
-  (:require [ditto.entertainment-ami :as base]
+  (:require [ditto
+             [entertainment-ami :as base]
+             [bake-common :refer :all]]
             [cheshire.core :as json]
             [environ.core :refer [env]]
             [clj-time
@@ -16,7 +18,11 @@
 ;; TODO
 (defn motd
   "Set up the message of the day"
-  [service-name service-version])
+  [service-name service-version]
+  (shell (format "echo -e \"\\nEntertainment %s AMI\" >> /etc/motd" service-name)
+         (format "echo -e \"\\nBake date: %s\" >> /etc/motd"
+                 (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
+         (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
 (defn service-template
   "Generates a new ami template for the servivce"
