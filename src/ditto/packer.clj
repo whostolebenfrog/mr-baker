@@ -5,6 +5,7 @@
 
 (conch/programs packer)
 
+;; TODO - add time outs for the packer task so it can't lock indefinitely
 ;; TODO - check for the word Error: in here somewhere, if appears then fail
 (defn packer-build
   "Builds the template and returns the ami-id from the output"
