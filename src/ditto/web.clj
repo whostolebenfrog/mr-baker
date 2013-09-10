@@ -60,12 +60,15 @@
    (GET "/status"
         [recursive] (status recursive))
 
-   (POST "/entertainment-ami/:parent-ami" [parent-ami dry-run]
+   (POST "/bake/entertainment-ami/:parent-ami" [parent-ami dry-run]
          (if-not dry-run
            (-> (base/create-base-ami parent-ami)
                (packer/build)
                (response))
            (response (base/create-base-ami parent-ami))))
+
+   (POST "/bake/:service-name/:service-version/" [service-name service-version dry-run]
+         ())
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))
