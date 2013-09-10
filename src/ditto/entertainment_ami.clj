@@ -66,7 +66,7 @@
                :secret_key (env :service-aws-secret-key)
                :security_group_id "sg-c453b4ab"
                :source_ami parent-ami
-               :ssh_keypair_pattern "nokia-%s"
+               :temporary_key_pair_name "nokia-{{uuid}}"
                :ssh_timeout "5m"
                :ssh_username "nokia"
                :subnet_id "subnet-bdc08fd5"
