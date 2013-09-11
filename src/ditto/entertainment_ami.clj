@@ -1,16 +1,19 @@
 (ns ditto.entertainment-ami
-  (:require [ditto.bake-common :refer :all]
+  (:require [ditto
+             [bake-common :refer :all]
+             [aws :as aws]]
             [cheshire.core :as json]
             [environ.core :refer [env]]
             [clj-time.core :as time-core]
             [clj-time.format :as time-format]
             [clojure.java.io :as io]))
 
-;; TODO - implement this for real
 (defn entertainment-base-ami-id
   "Returns the id of the latest entertainment base ami"
   []
-  "ami-8acd28fd")
+  ( -> (aws/get-images-by-name "entertainment*")
+       (last)
+       :ImageId))
 
 (defn ent-ami-name
   "Returns the ami name for date/time now"
