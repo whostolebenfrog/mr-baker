@@ -18,3 +18,14 @@
                     "--filters" (str "Name=name,Values=" name))
                (json/parse-string true)
                :Images)))
+
+(defn get-private-images-by-name
+  "Returns a list of private images that match the supplied name.
+   Accepts * as a wild card.
+
+   Returns an array of matching images or []"
+  [name]
+  (-> (aws "ec2" "describe-images"
+           "--filters" (str "Name=name,Values=" name) " Name=is-public,Values=false")
+      (json/parse-string true)
+      :Images))

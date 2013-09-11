@@ -28,6 +28,11 @@
 ;; TODO - packer supports copying of an ami to multiple regions, can we use to this
    ;;   - copy our ami beteween accounts? or extend?
 ;; TODO - need to call Al's clean up puppet ip code
+;; TODO - build an instance backed ami over ebs - uses a seperate base nokia ami
+   ;;   - centos-6-x86_64-09112013
+   ;;   - ami-0638dd71
+   ;;   - FYI current ebs is ami-4638dd31
+
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
