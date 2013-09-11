@@ -27,6 +27,7 @@
    ;;   - could always put it behind a function that calls it and say that's good enough
 ;; TODO - packer supports copying of an ami to multiple regions, can we use to this
    ;;   - copy our ami beteween accounts? or extend?
+;; TODO - need to call Al's clean up puppet ip code
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]

@@ -1,6 +1,5 @@
 (ns ditto.packer
-  (:require [clojure.java.shell :as shell]
-            [me.raynes.conch :as conch]
+  (:require [me.raynes.conch :as conch]
             [cheshire.core :as json]))
 
 (conch/programs packer)
