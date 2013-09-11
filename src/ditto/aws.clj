@@ -4,8 +4,8 @@
 
 (conch/programs aws)
 
-(defn get-images-by-name
-  "Returns a list of images owned by the current account and filtered by the supplied name
+(defn get-owned-images-by-name
+  "Returns a list of images owned by the current account and filtered by the supplied name.
    Accepts * as a wild card.
 
    Returns an array of matching images or [].

@@ -11,7 +11,7 @@
 (defn entertainment-base-ami-id
   "Returns the id of the latest entertainment base ami"
   []
-  ( -> (aws/get-images-by-name "entertainment*")
+  ( -> (aws/get-owned-images-by-name "entertainment*")
        (last)
        :ImageId))
 
