@@ -11,6 +11,7 @@ dc-sdk.log
 .lein-plugins/
 .project
 bin/
+.settings/
 .lein-env
 .midje.clj
 .lein-repl-history
