@@ -40,7 +40,7 @@
             [lein-environ "0.4.0"]
             [lein-release "1.0.73"]]
 
-  :resource-paths ["shared" "ami-scripts"]
+  :resource-paths ["shared" "ami-scripts" "puppet"]
 
   ;; development token values
   :env {:environment-name "Dev"
@@ -56,7 +56,8 @@
         :service-production "false"
 
         :service-aws-access-key "AKIAIXEX2SKCBI5X2M7Q"
-        :service-aws-secret-key "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"}
+        :service-aws-secret-key "H0iaopbtSkuHklLEg7ls1s8x+4aGM7XQS5bXbvsw"
+        :service-puppet-host "10.216.138.189"}
 
   :lein-release {:release-tasks [:clean :uberjar :pom :rpm]
                  :clojars-url "clojars@clojars.brislabs.com:"}

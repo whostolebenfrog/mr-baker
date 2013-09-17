@@ -13,6 +13,7 @@ dc-sdk.log
 bin/
 .settings/
 .lein-env
+.lein-repl-history
 .midje.clj
 .lein-repl-history
 ec2_amazon-ebs.pem
