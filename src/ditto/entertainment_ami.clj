@@ -1,26 +1,29 @@
 (ns ditto.entertainment-ami
   (:require [ditto
              [bake-common :refer :all]
-             [aws :as aws]]
+             [aws :as aws]
+             [nokia :as nokia]]
             [cheshire.core :as json]
             [environ.core :refer [env]]
-            [clj-time.core :as time-core]
-            [clj-time.format :as time-format]
+            [clj-time
+             [core :as time-core]
+             [format :as time-format]]
             [clojure.java.io :as io]))
 
 (defn entertainment-base-ami-id
   "Returns the id of the latest entertainment base ami"
-  []
-  ( -> (aws/get-owned-images-by-name "entertainment*")
+  [type]
+  ( -> (aws/owned-images-by-name (str "entertainment-base-" (name type) "*"))
        (last)
        :ImageId))
 
 (defn ent-ami-name
   "Returns the ami name for date/time now"
-  []
-  (str "entertainment-base-" (time-format/unparse
-                              (time-format/formatter "YYYY-MM-dd_HH-mm-ss")
-                              (time-core/now))))
+  [type]
+  (str "entertainment-base-"
+       (name type)
+       "-"
+       (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (def ent-yum-repo
   "Set up the entertainment yum repo"
@@ -64,11 +67,11 @@
          "unzip /tmp/packer.zip -d /opt/packer"
          "chmod -R 777 /opt/packer"))
 
-(defn ami-template
-  "Generate a new ami template"
+(defn ebs-template
+  "Generate a new ami ebs backed packer builder template"
   [parent-ami]
   {:builders [{:access_key (env :service-aws-access-key)
-               :ami_name (ent-ami-name)
+               :ami_name (ent-ami-name :ebs)
                :iam_instance_profile "baking"
                :instance_type "t1.micro"
                :region "eu-west-1"
@@ -88,7 +91,40 @@
                   cloud-final
                   puppet]})
 
+;; TODO - get account id from env - remember to remove the hyphens!
+(defn instance-template
+  "Generate a new ami instance backed packer builder template"
+  []
+  (let [parent-ami (nokia/latest-nokia-ami :instance)]
+    {:builders [{:access_key (env :service-aws-access-key)
+                 :account_id "513894612423"
+                 :ami_name (ent-ami-name :instance)
+                 :iam_instance_profile "baking"
+                 :instance_type "t1.micro"
+                 :region "eu-west-1"
+                 :s3_bucket "ent-instance-amis"
+                 :secret_key (env :service-aws-secret-key)
+                 :security_group_id "sg-c453b4ab"
+                 :source_ami parent-ami
+                 :ssh_timeout "5m"
+                 :ssh_username "nokia"
+                 :subnet_id "subnet-bdc08fd5"
+                 :temporary_key_pair_name "nokia-{{uuid}}"
+                 :type "amazon-instance"
+                 :vpc_id "vpc-7bc88713"
+                 :x509_cert_path "/home/bgriffit/.ssh/certificate.pem"
+                 :x509_key_path  "/home/bgriffit/.ssh/bgriffit-awspem.pem"}]
+     :provisioners [(motd parent-ami)
+                    ent-yum-repo
+                    ruby-193
+                    packer
+                    cloud-final
+                    puppet]}))
+
+;; TODO - this is loading the latest ami not using the passed in ami
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
-  [parent-ami]
-  (json/generate-string (ami-template parent-ami)))
+  [parent-ami & [server-type]]
+  (if (= server-type :ebs)
+    (json/generate-string (ebs-template parent-ami))
+    (json/generate-string (instance-template))))

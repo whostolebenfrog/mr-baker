@@ -53,7 +53,8 @@
              {:name "ditto" :version *version* :success true}
              (when recursive {:dependencies []}))))
 
-(comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d")))
+(comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d" :ebs)))
+(comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d" :instance)))
 (comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
 
 ;; TODO - what's the normal json response for an error etc?
@@ -88,6 +89,8 @@
                    (java.io.FileInputStream.))}))
 
   (route/not-found (error-response "Resource not found" 404)))
+
+(comment (service-ami/create-service-ami "skeleton1" "1.0.2-1"))
 
 (def app
   (-> routes
