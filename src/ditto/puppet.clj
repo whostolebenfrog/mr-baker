@@ -4,39 +4,40 @@
             [environ.core :refer [env]]
             [clojure.java.io :as io]))
 
-(conch/programs ssh hostname ls pwd)
+(conch/programs ssh hostname)
 
-;; This is the real one
-;(def puppet-username "janitor")
-(def puppet-username "bakins")
+(def puppet-username "janitor")
 
-(def fully-qualified-hostname
-  (string/trim-newline (hostname "--fqdn")))
+;; The fully-qualified hostname of this box
+;(def fully-qualified-hostname
+;  (string/trim-newline (hostname "--fqdn")))
+
+(def fully-qualified-hostname "ip-10-216-138-219.brislabs.com")
 
 (def puppet-host 
   (env :service-puppet-host))
 
-(def temp-key-file "/tmp/bakins-key.pem")
+(def user-at-puppet
+  (str puppet-username "@" puppet-host))
 
-;; This is the real one
-;(def ssh-command
-;  (str puppet-username "@" puppet-host " -i " temp-key-file " " fully-qualified-hostname))
-(def ssh-command
-  (str puppet-username "@" puppet-host " -i " temp-key-file))
+(def temp-key-file "/tmp/ditto_rsa")
+
+(def use-key-file 
+  (str "-i " temp-key-file))
 
 (defn move-key-file
   "Copies the SSH key file to a temporary folder where the SSH shell command can read it."
   []
-  (let [key (slurp (io/resource "bakins-key.pem"))]
+  (let [key (slurp (io/resource "ditto_rsa"))]
     (spit temp-key-file key)))
 
-(defn call-puppet
-  "There must be a better name for this..."
+;; TODO fully-qualified-hostname will be passed in & must be formatted
+(defn update-puppet-ip-record
+  "Calls the Puppet server (via SSH) with the IP address of this box, so Puppet can update its records."
   []
   (try
     (move-key-file)
-    (let [response (ssh ssh-command '(pwd))]
-      (prn (str "RESPONSE: " response)))
+    (let [response (ssh use-key-file user-at-puppet fully-qualified-hostname)]
+      response)
     (finally
-      (io/delete-file temp-key-file)))
-  )
+      (io/delete-file temp-key-file))))
