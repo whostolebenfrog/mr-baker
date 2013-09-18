@@ -8,16 +8,12 @@
              [core :as time-core]
              [format :as time-format]]))
 
-;; TODO - presumably we are going to have to start an instance for this baking task
-   ;; when we provision the new base-ami
-
-;; TODO _ put the service name in here!
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
   [service-name]
-  (str "entertainment-base-" (time-format/unparse
-                              (time-format/formatter "YYYY-MM-dd_HH-mm-ss")
-                              (time-core/now))))
+  (str "ent-" service-name "-" (time-format/unparse
+                                (time-format/formatter "YYYY-MM-dd_HH-mm-ss")
+                                (time-core/now))))
 
 (defn motd
   "Set up the message of the day"
@@ -27,6 +23,7 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
+;; TODO - update this to handle ebs / instance style
 (defn service-template
   "Generates a new ami template for the servivce"
   [service-name service-version]
@@ -37,7 +34,7 @@
                :region "eu-west-1"
                :secret_key (env :service-aws-secret-key)
                :security_group_id "sg-c453b4ab"
-               :source_ami (base/entertainment-base-ami-id)
+               :source_ami (base/entertainment-base-ami-id :ebs)
                :temporary_key_pair_name "nokia-{{uuid}}"
                :ssh_timeout "5m"
                :ssh_username "nokia"
