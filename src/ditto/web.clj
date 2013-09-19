@@ -53,7 +53,7 @@
              {:name "ditto" :version *version* :success true}
              (when recursive {:dependencies []}))))
 
-(comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d" :ebs)))
+(comment (spit "/home/bgriffit/workspace/ditto/ebs" (base/create-base-ami "ami-098b917d" :ebs)))
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d" :instance)))
 (comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
 
@@ -76,7 +76,11 @@
            (response (base/create-base-ami parent-ami))))
 
    (POST "/bake/:service-name/:service-version/" [service-name service-version dry-run]
-         (-> (service-ami/create-service-ami service-name service-version)))
+         (if-not dry-run
+           (-> (service-ami/create-service-ami service-name service-version)
+               (packer/build)
+               (response))
+           (response (service-ami/create-service-ami service-name service-version))))
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))
@@ -90,7 +94,8 @@
 
   (route/not-found (error-response "Resource not found" 404)))
 
-(comment (service-ami/create-service-ami "skeleton1" "1.0.2-1"))
+(comment (spit "/home/bgriffit/workspace/ditto/sss"
+               (service-ami/create-service-ami "skeleton1" "1.0.2-1")))
 
 (def app
   (-> routes
