@@ -34,12 +34,17 @@
          "yum-config-manager --enable nokia-epel >> /var/log/baking.log 2>&1"))
 
 (def puppet
-  "Set up puppet and run once, blocking"
+  "Set up puppet and run once, blocking
+
+   We also need to do all our cleanup in this step as we don't have root after this has run!
+   Due to puppet setting up the various auth concerns."
   (shell "export LD_LIBRARY_PATH=/opt/rh/ruby193/root/usr/lib64"
          "PUPPETD=\"PATH=/opt/rh/ruby193/root/usr/local/bin/:/opt/rh/ruby193/root/usr/bin/:/sbin:/usr/sbin:/bin:/usr/bin /opt/rh/ruby193/root/usr/local/bin/puppet\""
          "yum install -y puppet >> /var/log/baking.log 2>&1"
          "scl enable ruby193 ' /opt/rh/ruby193/root/usr/local/bin/puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com'"
-         "rm -rf /var/lib/puppet/ssl"))
+         "rm -rf /var/lib/puppet/ssl"
+         "echo \"nokia2 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
+         "rm /tmp/script.sh"))
 
 (def ruby-193
   "Install ruby-193 - required to run puppet faster"
@@ -67,6 +72,10 @@
          "unzip /tmp/packer.zip -d /opt/packer"
          "chmod -R 777 /opt/packer"))
 
+(def user-cleanup
+  "Cleanup the nokia baking user and reset the lock file so that a new one is created on next bake"
+  (shell "rm /var/lib/nokia-tools/init.lock"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami]
@@ -89,6 +98,7 @@
                   ruby-193
                   packer
                   cloud-final
+                  user-cleanup
                   puppet]})
 
 ;; TODO - get account id from env - remember to remove the hyphens!
