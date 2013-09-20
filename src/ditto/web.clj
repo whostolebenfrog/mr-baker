@@ -78,12 +78,12 @@
    (POST "/abc" []
          (packer/build (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
 
-   (POST "/bake/entertainment-ami/:parent-ami" [parent-ami dry-run]
+   (POST "/bake/entertainment-ami/" [dry-run]
          (if-not dry-run
-           (-> (base/create-base-ami parent-ami)
+           (-> (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)
                (packer/build)
                (response))
-           (response (base/create-base-ami parent-ami))))
+           (response (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs))))
 
    (POST "/bake/:service-name/:service-version/" [service-name service-version dry-run]
          (if-not dry-run
