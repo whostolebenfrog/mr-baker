@@ -87,6 +87,7 @@
                :secret_key (env :service-aws-secret-key)
                :security_group_id "sg-c453b4ab"
                :source_ami parent-ami
+               :tags {:Name (ent-ami-name :ebs) :Baking "Baking"}
                :temporary_key_pair_name "nokia-{{uuid}}"
                :ssh_timeout "5m"
                :ssh_username "nokia"
