@@ -1,37 +1,33 @@
 (ns ditto.packer
   (:require [me.raynes.conch :as conch]
+            [me.raynes.conch.low-level :as sh]
             [cheshire.core :as json]))
 
 (conch/programs packer)
 
-;; TODO - add time outs for the packer task so it can't lock indefinitely
-;; TODO - check for the word Error: in here somewhere, if appears then fail
-;; TODO - it looks like the ami can fail occasionally. In that case we need to exit
-   ;; packer (using the timeout) and clean up the ami manually.
+;; TODO - it's painful to handle and means we have to return a 200 response
+;; but I'd really like to stream the response here.
+
 (defn packer-build
   "Builds the template and returns the ami-id from the output"
   [template-path]
-  (let [packer-out (packer "build" template-path)]
-    (prn packer-out)
-    (->> packer-out
-         (re-matches #"(?s).*AMIs were created.*(ami-[A-Za-z0-9]+).*$")
-         (second))))
-
-;; TODO - return the output from the packer build
+  (let [{:keys [exit-code stdout]} (packer "build" template-path {:verbose true
+                                                                  :timeout (* 1000 60 15)})
+        out-list (clojure.string/split stdout "\n")]
+    (if-not (pos? @exit-code)
+      {:status 200 :body out-list}
+      {:status 400
+       :body (json/generate-string {:message "Unknown error creating ami"
+                                    :packer-output out-list})})))
 (defn build
   "Build the provided template and respond with the created ami id"
   [template]
   (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
     (try
       (spit file-name template)
-      (let [{:keys [exit-code stdout] :as xx} (packer "validate" file-name {:verbose true})]
-        (prn "printing validation")
-        (prn xx)
-        (prn @exit-code)
-        (prn stdout)
+      (let [{:keys [exit-code stdout]} (packer "validate" file-name {:verbose true})]
         (if-not (pos? @exit-code)
-          {:status 200
-           :body (json/generate-string {:status 200 :message (packer-build file-name)})}
+          (packer-build file-name)
           {:status 400
-           :body (json/generate-string {:status 400 :message "Invalid template file"})}))
+           :body (json/generate-string {:message "Invalid template file"})}))
       (finally (clojure.java.io/delete-file file-name)))))

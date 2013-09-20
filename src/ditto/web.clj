@@ -3,7 +3,8 @@
              [entertainment-ami :as base]
              [bake-service-ami :as service-ami]
              [packer :as packer]
-             [pokemon :as pokemon]]
+             [pokemon :as pokemon]
+             [nokia :as nokia]]
             [compojure.core :refer [defroutes context GET PUT POST DELETE]]
             [compojure.route :as route]
             [compojure.handler :as handler]
@@ -21,7 +22,6 @@
             [metrics.ring.instrument :refer [instrument]]))
 
 ;; TODO - schedule a task to create the base ami rather than having to push it
-;; TODO - get resource for latest ent ami
 ;; TODO - testing, we can generate the whole template and test that at least
    ;;   - we could also try mocking out the packer method although it's generated with a macro...
    ;;   - could always put it behind a function that calls it and say that's good enough
@@ -68,6 +68,15 @@
    (GET "/status"
         [recursive] (status recursive))
 
+   (GET "/amis/ent/latest" [type]
+        {:status 200 :body (base/entertainment-base-ami-id (or (keyword type) :ebs))})
+
+   (GET "/amis/nokia/latest" [type]
+        {:status 200 :body (nokia/latest-nokia-ami (or (keyword type) :ebs))})
+
+   (POST "/abc" []
+         (packer/build (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
+
    (POST "/bake/entertainment-ami/:parent-ami" [parent-ami dry-run]
          (if-not dry-run
            (-> (base/create-base-ami parent-ami)
@@ -104,6 +113,5 @@
       (wrap-ignore-trailing-slash)
       (wrap-keyword-params)
       (wrap-params)
-      (wrap-json-response)
       (wrap-per-resource-metrics [replace-guid replace-mongoid replace-number (replace-outside-app "/1.x")])
       (expose-metrics-as-json)))
