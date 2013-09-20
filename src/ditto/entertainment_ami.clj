@@ -43,7 +43,7 @@
          "yum install -y puppet >> /var/log/baking.log 2>&1"
          "scl enable ruby193 ' /opt/rh/ruby193/root/usr/local/bin/puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com'"
          "rm -rf /var/lib/puppet/ssl"
-         "echo \"nokia2 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
+         "echo \"nokia-rebake 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
          "rm /tmp/script.sh"))
 
 (def ruby-193
@@ -87,7 +87,6 @@
                :secret_key (env :service-aws-secret-key)
                :security_group_id "sg-c453b4ab"
                :source_ami parent-ami
-               :tags {:Name (ent-ami-name :ebs) :Baking "Baking"}
                :temporary_key_pair_name "nokia-{{uuid}}"
                :ssh_timeout "5m"
                :ssh_username "nokia"

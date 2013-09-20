@@ -73,10 +73,9 @@
                :secret_key (env :service-aws-secret-key)
                :security_group_id "sg-c453b4ab"
                :source_ami (base/entertainment-base-ami-id :ebs)
-               :tags {:Name (service-ami-name service-name service-version) :Baking "Baking"}
-               :temporary_key_pair_name "nokia2-{{uuid}}"
+               :temporary_key_pair_name "nokia-rebake-{{uuid}}"
                :ssh_timeout "5m"
-               :ssh_username "nokia2"
+               :ssh_username "nokia-rebake"
                :subnet_id "subnet-bdc08fd5"
                :type "amazon-ebs"
                :vpc_id "vpc-7bc88713"}]
