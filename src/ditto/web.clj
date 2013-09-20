@@ -53,7 +53,8 @@
              {:name "ditto" :version *version* :success true}
              (when recursive {:dependencies []}))))
 
-(comment (spit "/home/bgriffit/workspace/ditto/ebs" (base/create-base-ami "ami-098b917d" :ebs)))
+(comment (spit "/home/bgriffit/workspace/ditto/ebs"
+               (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
 (comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d" :instance)))
 (comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
 
@@ -113,5 +114,6 @@
       (wrap-ignore-trailing-slash)
       (wrap-keyword-params)
       (wrap-params)
+      (wrap-json-response)
       (wrap-per-resource-metrics [replace-guid replace-mongoid replace-number (replace-outside-app "/1.x")])
       (expose-metrics-as-json)))
