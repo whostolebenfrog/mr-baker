@@ -12,8 +12,8 @@
   "Builds the template and returns the ami-id from the output"
   [template-path]
   (let [{:keys [exit-code stdout]} (packer "build" template-path {:verbose true
-                                                                  :timeout (* 1000 60 15)})
-        out-list (clojure.string/split stdout "\n")]
+                                                                  :timeout (* 1000 60 30)})
+        out-list (clojure.string/split stdout #"\n")]
     (if-not (pos? @exit-code)
       {:status 200 :body out-list}
       {:status 400
