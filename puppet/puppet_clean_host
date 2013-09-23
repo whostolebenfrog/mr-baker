@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# puppet-clean-host         Script to clean this hostname from puppet for reuse
+#
+# chkconfig: 3 50 50
+# description: Ensure that puppet contains no records for our hostname
+
+ssh -o StrictHostKeyChecking=no -i /opt/puppet-clean/.ssh/janitor_rsa janitor@\${PUPPET_HOST:="puppetaws.brislabs.com"} \`facter fqdn\`
