@@ -76,6 +76,22 @@
   "Cleanup the nokia baking user and reset the lock file so that a new one is created on next bake"
   (shell "rm /var/lib/nokia-tools/init.lock"))
 
+(def puppet-clean
+  "Ensure that puppet holds no record for this IP (hostname). Due to the recycling of IPs
+   we need to clean puppet for the IP we are currently using on startup."
+  (shell "yum install -y facter"
+         "mkdir -p /opt/puppet-clean/.ssh"
+         (str "echo \""
+              (slurp (io/resource "janitor_rsa"))
+              "\" > /opt/puppet-clean/.ssh/janitor_rsa")
+         (str "echo \""
+              (slurp (io/resource "puppet_clean_host"))
+              "\" > /etc/init.d/puppet_clean_host")
+         "chmod +x /etc/init.d/puppet_clean_host"
+         "chmod 600 /opt/puppet-clean/.ssh/janitor_rsa"
+         "chkconfig --add puppet_clean_host"
+         "/etc/init.d/puppet_clean_host"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami]
@@ -99,6 +115,7 @@
                   packer
                   cloud-final
                   user-cleanup
+                  puppet-clean
                   puppet]})
 
 ;; TODO - get account id from env - remember to remove the hyphens!
