@@ -73,9 +73,9 @@
                  "rm.brislabs.com"
                  "http://rm.brislabs.com/nexus/content/groups/all-releases"}
 
-  :uberjar-name "Ditto.jar"
+  :uberjar-name "ditto.jar"
 
-  :rpm {:name "Ditto1"
+  :rpm {:name "ditto"
         :summary "RPM for Ditto service"
         :copyright "Nokia 2013"
         :preinstall {:scriptFile "scripts/rpm/preinstall.sh"}
@@ -87,13 +87,13 @@
                     :filemode "444"
                     :username "jetty"
                     :groupname "jetty"
-                    :sources {:source [{:location "target/Ditto.jar"}]}}
+                    :sources {:source [{:location "target/ditto.jar"}]}}
                    {:directory "/usr/local/jetty/bin"
                     :filemode "744"
                     :username "jetty"
                     :groupname "jetty"
                     :sources {:source [{:location "scripts/bin"}]}}
-                   {:directory "/usr/local/deployment/Ditto1/bin"
+                   {:directory "/usr/local/deployment/ditto/bin"
                     :filemode "744"
                     :sources {:source [{:location "scripts/dmt"}]}}
                    {:directory "/etc/rc.d/init.d"
