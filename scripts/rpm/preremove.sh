@@ -1,7 +1,7 @@
 /bin/echo "preremove script started [$1]"
 
 prefixDir=/usr/local/jetty
-identifier=Ditto.jar
+identifier=ditto.jar
 
 isJettyRunning=`pgrep java -lf | grep $identifier | cut -d" " -f1 | /usr/bin/wc -l`
 if [ $isJettyRunning -eq 0 ]
@@ -15,8 +15,8 @@ else
   /bin/echo "Jetty is running, stopping service"
   /sbin/service jetty stop &
   myPid=$!
-  
-  until [ `pgrep java -lf | grep $identifier | cut -d" " -f1 | /usr/bin/wc -l` -eq 0 ]  
+
+  until [ `pgrep java -lf | grep $identifier | cut -d" " -f1 | /usr/bin/wc -l` -eq 0 ]
   do
     if [ $sleepCounter -ge $waitTimeOut ]
     then
