@@ -70,11 +70,11 @@
    (GET "/status"
         [recursive] (status recursive))
 
-   (GET "/amis/ent/latest" [type]
-        {:status 200 :body (base/entertainment-base-ami-id (or (keyword type) :ebs))})
-
-   (GET "/amis/nokia/latest" [type]
-        {:status 200 :body (nokia/latest-nokia-ami (or (keyword type) :ebs))})
+   (GET "/amis" [type]
+        {:status 200 :body {:nokia-base (nokia/latest-nokia-ami (or (keyword type) :ebs))
+                            :ent-base (base/entertainment-base-ami-id (or (keyword type)
+                                                                                    :ebs))
+                            :ent-public (public-ami/entertainment-public-ami-id)}})
 
    (POST "/bake/entertainment-ami" [dry-run]
          (if-not dry-run
