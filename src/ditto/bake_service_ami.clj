@@ -8,6 +8,9 @@
              [core :as time-core]
              [format :as time-format]]))
 
+(def tyranitar-base-url
+  (env :service-tyranitar-url))
+
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
   [service-name service-version]
@@ -25,6 +28,12 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
+(defn tyranitar-properties-url
+  "Gets the URL to fetch the application properties for the given service & revision in the given env from Tyranitar."
+  [env service-name revision]
+  (str tyranitar-base-url "/" env "/" service-name "/" revision "/application-properties"))
+
+;; TODO - this is going to be replaced with a call to get this from tyranitar
 (defn service-rpm
   "Install the service rpm on to the machine"
   [service-name service-version]
@@ -44,6 +53,12 @@
   (re-find #".+[^0-9]" service-name))
 
 ;; TODO - clean all this up! Handled by tryanitar / asgard now
+;; TODO - this is the replacement call to get this from tyranitar
+(defn mv-service-properties1
+  [service-name]
+  (prn "Implement me!"))
+
+;; TODO - this is going to be replaced with a call to get this from tyranitar
 (defn mv-service-properties
   "Copy over the service properties"
   [service-name]
