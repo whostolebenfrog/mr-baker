@@ -65,13 +65,6 @@
          "sudo sed -i \"s/# chkconfig:   - 99 01/# chkconfig:   - 98 01/\" /etc/rc.d/init.d/cloud-final"
          "chkconfig cloud-final on"))
 
-(def packer
-  "Download and unzip packer into /opt/packer"
-  (shell "wget -O /tmp/packer.zip \"http://966b.http.dal05.cdn.softlayer.net/data-production/23851027b087eb4405f7fc4142c3ddda4d64aa73?filename=0.3.7_linux_amd64.zip\""
-         "mkdir /opt/packer"
-         "unzip /tmp/packer.zip -d /opt/packer"
-         "chmod -R 777 /opt/packer"))
-
 (def user-cleanup
   "Cleanup the nokia baking user and reset the lock file so that a new one is created on next bake"
   (shell "rm /var/lib/nokia-tools/init.lock"))
@@ -112,7 +105,6 @@
    :provisioners [(motd parent-ami)
                   ent-yum-repo
                   ruby-193
-                  packer
                   cloud-final
                   user-cleanup
                   puppet-clean
@@ -143,7 +135,6 @@
    :provisioners [(motd parent-ami)
                   ent-yum-repo
                   ruby-193
-                  packer
                   cloud-final
                   puppet]})
 
