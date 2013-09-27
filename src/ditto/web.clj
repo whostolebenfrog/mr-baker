@@ -49,15 +49,58 @@
 ;; TODO - check onix status in deps
 ;; TODO - check eu-west-1 status in deps
 (defn status
+  "Returns the service status"
   [recursive]
   (response (merge
              {:name "ditto" :version *version* :success true}
              (when recursive {:dependencies []}))))
 
-(comment (spit "/home/bgriffit/workspace/ditto/ebs"
-               (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
-(comment (spit "/tmp/xxx" (base/create-base-ami "ami-098b917d" :instance)))
-(comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
+(defn latest-amis
+  "Returns the latest amis that we know about"
+  [type]
+  {:status 200 :body {:nokia-base (nokia/latest-nokia-ami (or (keyword type) :ebs))
+                      :ent-base (base/entertainment-base-ami-id (or (keyword type)
+                                                                    :ebs))
+                      :ent-public (public-ami/entertainment-public-ami-id)}})
+
+(defn bake-entertainment-base-ami
+  "Create a new base entertainment ami from the latest nokia base ami.
+   If dry-run then only return the packer template, don't run it."
+  [dry-run]
+  (if-not dry-run
+    (-> (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)
+        (packer/build)
+        (response))
+    (response (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs))))
+
+(defn bake-entertainment-public-ami
+  "Create a new public entertainment ami from the latest ent base ami.
+   If dry-run then only return the packer template, don't run it."
+  [dry-run]
+  (if-not dry-run
+    (-> (public-ami/create-public-ami)
+        (packer/build)
+        (response))
+    (response (public-ami/create-public-ami))))
+
+(defn bake-service-ami
+  "Bake a new ami for the service name and version based on the latest base ent ami.
+   If dry-run then only return the packer template, don't run it."
+  [service-name service-version dry-run]
+  (if-not dry-run
+    (-> (service-ami/create-service-ami service-name service-version)
+        (packer/build)
+        (response))
+    (response (service-ami/create-service-ami service-name service-version))))
+
+(defn service-icon
+  "Returns the service icon"
+  []
+  {:status 200
+   :headers {"Content-Type" "image/jpeg"}
+   :body (-> (clojure.java.io/resource "ditto.jpg")
+             (.getFile)
+             (java.io.FileInputStream.))})
 
 ;; TODO - what's the normal json response for an error etc?
 (defroutes routes
@@ -71,46 +114,24 @@
         [recursive] (status recursive))
 
    (GET "/amis" [type]
-        {:status 200 :body {:nokia-base (nokia/latest-nokia-ami (or (keyword type) :ebs))
-                            :ent-base (base/entertainment-base-ami-id (or (keyword type)
-                                                                                    :ebs))
-                            :ent-public (public-ami/entertainment-public-ami-id)}})
+        (latest-amis type))
 
-   (POST "/bake/entertainment-ami" [dry-run]
-         (if-not dry-run
-           (-> (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)
-               (packer/build)
-               (response))
-           (response (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs))))
+   (POST "/bake/entertainment-ami" [dryrun]
+         (bake-entertainment-base-ami dryrun))
 
-   (POST "/bake/public-ami" [dry-run]
-         (if-not dry-run
-           (-> (public-ami/create-public-ami)
-               (packer/build)
-               (response))
-           (response (public-ami/create-public-ami))))
+   (POST "/bake/public-ami" [dryrun]
+         (bake-entertainment-public-ami dryrun))
 
-   (POST "/bake/:service-name/:service-version" [service-name service-version dry-run]
-         (if-not dry-run
-           (-> (service-ami/create-service-ami service-name service-version)
-               (packer/build)
-               (response))
-           (response (service-ami/create-service-ami service-name service-version))))
+   (POST "/bake/:service-name/:service-version" [service-name service-version dryrun]
+         (bake-service-ami service-name service-version dryrun))
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))
 
    (GET "/icon" []
-        {:status 200
-         :headers {"Content-Type" "image/jpeg"}
-         :body (-> (clojure.java.io/resource "ditto.jpg")
-                   (.getFile)
-                   (java.io.FileInputStream.))}))
+        (service-icon)))
 
   (route/not-found (error-response "Resource not found" 404)))
-
-(comment (spit "/home/bgriffit/workspace/ditto/sss"
-               (service-ami/create-service-ami "skeleton1" "1.0.2-1")))
 
 (def app
   (-> routes
@@ -122,3 +143,9 @@
       (wrap-json-response)
       (wrap-per-resource-metrics [replace-guid replace-mongoid replace-number (replace-outside-app "/1.x")])
       (expose-metrics-as-json)))
+
+(comment (spit "/home/bgriffit/workspace/ditto/ebs"
+               (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
+(comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
+(comment (spit "/home/bgriffit/workspace/ditto/sss"
+               (service-ami/create-service-ami "skeleton1" "1.0.2-1")))
