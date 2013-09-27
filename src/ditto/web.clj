@@ -75,9 +75,6 @@
    (GET "/amis/nokia/latest" [type]
         {:status 200 :body (nokia/latest-nokia-ami (or (keyword type) :ebs))})
 
-   (POST "/abc" []
-         (packer/build (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
-
    (POST "/bake/entertainment-ami" [dry-run]
          (if-not dry-run
            (-> (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)

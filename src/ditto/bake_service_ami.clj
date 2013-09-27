@@ -25,7 +25,6 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
-;; TODO - this is going to be replaced with a call to get this from tyranitar
 (defn service-rpm
   "Install the service rpm on to the machine"
   [service-name service-version]
@@ -39,21 +38,19 @@
   [service-name environment]
   (str "/opt/service-props/" service-name "/" environment ".properties"))
 
-;; TODO - will go away when we make things more consistent
 (defn trim-number
   [service-name]
   "Name without the version number"
   (re-find #".+[^0-9]" service-name))
 
-;; TODO - this is going to be replaced with a call to get this from tyranitar
+;; TODO - clean all this up! Handled by tryanitar / asgard now
 (defn mv-service-properties
   "Copy over the service properties"
   [service-name]
   (let [service-name (trim-number service-name)]
    (shell (str "mkdir -p /usr/local/" service-name "/etc")
           (str "mv /tmp/dev.properties /usr/local/" service-name "/etc/dev.properties")
-          (str "mv /tmp/prod.properties /usr/local/" service-name "/etc/prod.properties")
-          (str "chkconfig " service-name " off"))))
+          (str "mv /tmp/prod.properties /usr/local/" service-name "/etc/prod.properties"))))
 
 (defn upload-service-properties
   [service-name environment]
@@ -73,17 +70,14 @@
                :secret_key (env :service-aws-secret-key)
                :security_group_id "sg-c453b4ab"
                :source_ami (base/entertainment-base-ami-id :ebs)
-               :temporary_key_pair_name "nokia-rebake-{{uuid}}"
+               :temporary_key_pair_name "nokiarebake-{{uuid}}"
                :ssh_timeout "5m"
-               :ssh_username "nokia-rebake"
+               :ssh_username "nokiarebake"
                :subnet_id "subnet-bdc08fd5"
                :type "amazon-ebs"
                :vpc_id "vpc-7bc88713"}]
    :provisioners [(motd service-name service-version)
-                  (service-rpm service-name service-version)
-                  (upload-service-properties service-name "dev")
-                  (upload-service-properties service-name "prod")
-                  (mv-service-properties service-name)]})
+                  (service-rpm service-name service-version)]})
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"

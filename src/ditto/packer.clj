@@ -8,6 +8,9 @@
 ;; TODO - it's painful to handle and means we have to return a 200 response
 ;; but I'd really like to stream the response here.
 
+;; TODO - ssh handshake fail gives us a 200 response here?! does packer return a non 0 exit code?
+;; do we need to scan the output for the word error?
+
 (defn packer-build
   "Builds the template and returns the ami-id from the output"
   [template-path]

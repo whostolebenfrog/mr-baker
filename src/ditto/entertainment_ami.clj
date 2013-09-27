@@ -43,7 +43,7 @@
          "yum install -y puppet >> /var/log/baking.log 2>&1"
          "scl enable ruby193 ' /opt/rh/ruby193/root/usr/local/bin/puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com'"
          "rm -rf /var/lib/puppet/ssl"
-         "echo \"nokia-rebake 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
+         "echo \"nokiarebake 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
          "rm /tmp/script.sh"))
 
 (def ruby-193
