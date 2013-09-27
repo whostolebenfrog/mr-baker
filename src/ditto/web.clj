@@ -2,6 +2,7 @@
   (:require [ditto
              [entertainment-ami :as base]
              [bake-service-ami :as service-ami]
+             [public-ami :as public-ami]
              [packer :as packer]
              [pokemon :as pokemon]
              [nokia :as nokia]]
@@ -81,6 +82,13 @@
                (packer/build)
                (response))
            (response (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs))))
+
+   (POST "/bake/public-ami" [dry-run]
+         (if-not dry-run
+           (-> (public-ami/create-public-ami)
+               (packer/build)
+               (response))
+           (response (public-ami/create-public-ami))))
 
    (POST "/bake/:service-name/:service-version" [service-name service-version dry-run]
          (if-not dry-run
