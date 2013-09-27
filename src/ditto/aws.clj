@@ -1,7 +1,6 @@
 (ns ditto.aws
   (:require [me.raynes.conch :as conch]
-            [cheshire.core :as json]
-            ))
+            [cheshire.core :as json]))
 
 (conch/programs aws)
 
