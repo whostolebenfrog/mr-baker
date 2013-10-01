@@ -52,7 +52,7 @@
         :environment-entertainment-graphite-port "8080"
         :service-graphite-post-interval "1"
         :service-graphite-post-unit "MINUTES"
-        :service-graphite-enabled "ENABLED"
+        :service-graphite-enabled "DISABLED"
         :service-production "false"
 
         :service-aws-access-key "AKIAIXEX2SKCBI5X2M7Q"

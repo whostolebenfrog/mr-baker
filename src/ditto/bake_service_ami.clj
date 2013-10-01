@@ -67,6 +67,10 @@
           (str "mv /tmp/dev.properties /usr/local/" service-name "/etc/dev.properties")
           (str "mv /tmp/prod.properties /usr/local/" service-name "/etc/prod.properties"))))
 
+(def puppet-on
+  "Enable puppet once we're done"
+  (shell "chkconfig puppet on"))
+
 (defn upload-service-properties
   [service-name environment]
   "Upload the properties files"
@@ -92,7 +96,8 @@
                :type "amazon-ebs"
                :vpc_id "vpc-7bc88713"}]
    :provisioners [(motd service-name service-version)
-                  (service-rpm service-name service-version)]})
+                  (service-rpm service-name service-version)
+                  puppet-on]})
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
