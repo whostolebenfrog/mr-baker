@@ -99,8 +99,7 @@
   {:status 200
    :headers {"Content-Type" "image/jpeg"}
    :body (-> (clojure.java.io/resource "ditto.jpg")
-             (.getFile)
-             (java.io.FileInputStream.))})
+             (clojure.java.io/input-stream))})
 
 ;; TODO - what's the normal json response for an error etc?
 (defroutes routes
