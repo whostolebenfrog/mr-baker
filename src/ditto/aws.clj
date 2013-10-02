@@ -15,6 +15,7 @@
   (sort-by :Name
            (-> (aws "ec2" "describe-images"
                     "--region" "eu-west-1"
+                    "--output" "json"
                     "--owner" "self"
                     "--filters" (str "Name=name,Values=" name))
                (json/parse-string true)
@@ -28,6 +29,8 @@
    Returns an array of matching images or nil"
   [name]
   (-> (aws "ec2" "describe-images"
+           "--region" "eu-west-1"
+           "--output" "json"
            "--filters" (str "Name=name,Values=" name) " Name=is-public,Values=false")
       (json/parse-string true)
       :Images
