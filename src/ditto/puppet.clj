@@ -11,6 +11,9 @@
 ;; The fully-qualified hostname of this box
 ;(def fully-qualified-hostname
 ;  (string/trim-newline (hostname "--fqdn")))
+;  (st
+
+;; TODO: delete this file!
 
 (def fully-qualified-hostname "ip-10-216-138-219.brislabs.com")
 

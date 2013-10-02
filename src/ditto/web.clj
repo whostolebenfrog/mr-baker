@@ -148,4 +148,4 @@
                (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
 (comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
 (comment (spit "/home/bgriffit/workspace/ditto/sss"
-               (service-ami/create-service-ami "skeleton1" "1.0.2-1")))
+               (service-ami/create-service-ami "ditto" "0.3-1")))
