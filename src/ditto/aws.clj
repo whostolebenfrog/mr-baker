@@ -14,6 +14,7 @@
   [name]
   (sort-by :Name
            (-> (aws "ec2" "describe-images"
+                    "--region" "eu-west-1"
                     "--owner" "self"
                     "--filters" (str "Name=name,Values=" name))
                (json/parse-string true)
