@@ -81,23 +81,23 @@
 (defn service-template
   "Generates a new ami template for the servivce"
   [service-name service-version]
-  {:builders [{:access_key (env :service-aws-access-key)
-               :ami_name (service-ami-name service-name service-version)
-               :iam_instance_profile "baking"
-               :instance_type "t1.micro"
-               :region "eu-west-1"
-               :secret_key (env :service-aws-secret-key)
-               :security_group_id "sg-c453b4ab"
-               :source_ami (base/entertainment-base-ami-id :ebs)
-               :temporary_key_pair_name "nokiarebake-{{uuid}}"
-               :ssh_timeout "5m"
-               :ssh_username "nokiarebake"
-               :subnet_id "subnet-bdc08fd5"
-               :type "amazon-ebs"
-               :vpc_id "vpc-7bc88713"}]
-   :provisioners [(motd service-name service-version)
-                  (service-rpm service-name service-version)
-                  puppet-on]})
+  (let [builder (-> {:ami_name (service-ami-name service-name service-version)
+                     :iam_instance_profile "baking"
+                     :instance_type "t1.micro"
+                     :region "eu-west-1"
+                     :secret_key (env :service-aws-secret-key)
+                     :source_ami (base/entertainment-base-ami-id :ebs)
+                     :temporary_key_pair_name "nokiarebake-{{uuid}}"
+                     :ssh_timeout "5m"
+                     :ssh_username "nokiarebake"
+                     :subnet_id "subnet-bdc08fd5"
+                     :type "amazon-ebs"
+                     :vpc_id "vpc-7bc88713"}
+                    (maybe-with-keys))]
+    {:builders [builder]
+     :provisioners [(motd service-name service-version)
+                    (service-rpm service-name service-version)
+                    puppet-on]}))
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"

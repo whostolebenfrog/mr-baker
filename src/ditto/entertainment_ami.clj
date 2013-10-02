@@ -88,27 +88,27 @@
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami]
-  {:builders [{:access_key (env :service-aws-access-key)
-               :ami_name (ent-ami-name :ebs)
-               :iam_instance_profile "baking"
-               :instance_type "t1.micro"
-               :region "eu-west-1"
-               :secret_key (env :service-aws-secret-key)
-               :security_group_id "sg-c453b4ab"
-               :source_ami parent-ami
-               :temporary_key_pair_name "nokia-{{uuid}}"
-               :ssh_timeout "5m"
-               :ssh_username "nokia"
-               :subnet_id "subnet-bdc08fd5"
-               :type "amazon-ebs"
-               :vpc_id "vpc-7bc88713"}]
-   :provisioners [(motd parent-ami)
-                  ent-yum-repo
-                  ruby-193
-                  cloud-final
-                  user-cleanup
-                  puppet-clean
-                  puppet]})
+  (let [builder (-> {:ami_name (ent-ami-name :ebs)
+                     :iam_instance_profile "baking"
+                     :instance_type "t1.micro"
+                     :region "eu-west-1"
+                     :security_group_id "sg-c453b4ab"
+                     :source_ami parent-ami
+                     :temporary_key_pair_name "nokia-{{uuid}}"
+                     :ssh_timeout "5m"
+                     :ssh_username "nokia"
+                     :subnet_id "subnet-bdc08fd5"
+                     :type "amazon-ebs"
+                     :vpc_id "vpc-7bc88713"}
+                    (maybe-with-keys))]
+    {:builders [builder]
+     :provisioners [(motd parent-ami)
+                    ent-yum-repo
+                    ruby-193
+                    cloud-final
+                    user-cleanup
+                    puppet-clean
+                    puppet]}))
 
 ;; TODO - get account id from env - remember to remove the hyphens!
 (defn instance-template

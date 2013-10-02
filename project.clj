@@ -58,7 +58,9 @@
         :service-aws-access-key "AKIAIXEX2SKCBI5X2M7Q"
         :service-aws-secret-key "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"
         :service-puppet-host "puppetaws.brislabs.com"
-        
+
+       :service-packer-use-iam "false"
+
         :service-tyranitar-url "http://internal-tyranitar-680289871.eu-west-1.elb.amazonaws.com:8080"}
 
   :lein-release {:release-tasks [:clean :uberjar :pom :rpm]
