@@ -59,7 +59,7 @@
         :service-aws-secret-key "H0iaopbtSkuHklLEg7ls1s8x+4aGM7XQS5bXbvsw"
         :service-puppet-host "puppetaws.brislabs.com"
 
-       :service-packer-use-iam "false"
+        :service-packer-use-iam "false"
 
         :service-tyranitar-url "http://internal-tyranitar-680289871.eu-west-1.elb.amazonaws.com:8080"}
 
