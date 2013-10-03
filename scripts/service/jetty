@@ -16,6 +16,12 @@
 # processname: jetty
 
 #define where jetty is
+
+logger "Starting the init script"
+logger "Start ditto properties"
+cat /etc/ditto.properties | logger
+logger "End ditto properties"
+
 GIVEN_HOME="/usr/local/jetty"
 
 JETTY_HOME=${JETTY_HOME:-"$GIVEN_HOME"}
@@ -77,3 +83,5 @@ restart)
 *)
     echo "usage: $0 (start|stop|restart)"
 esac
+
+logger "Finishing init script"  
