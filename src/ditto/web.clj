@@ -28,12 +28,6 @@
    ;;   - could always put it behind a function that calls it and say that's good enough
 ;; TODO - packer supports copying of an ami to multiple regions, can we use to this
    ;;   - copy our ami beteween accounts? or extend?
-;; TODO - need to call Al's clean up puppet ip code
-;; TODO - build an instance backed ami over ebs - uses a seperate base nokia ami
-   ;;   - centos-6-x86_64-09112013
-   ;;   - ami-0638dd71
-   ;;   - FYI current ebs is ami-4638dd31
-
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
@@ -57,10 +51,9 @@
 
 (defn latest-amis
   "Returns the latest amis that we know about"
-  [type]
-  {:status 200 :body {:nokia-base (nokia/latest-nokia-ami (or (keyword type) :ebs))
-                      :ent-base (base/entertainment-base-ami-id (or (keyword type)
-                                                                    :ebs))
+  []
+  {:status 200 :body {:nokia-base (nokia/latest-nokia-ami)
+                      :ent-base (base/entertainment-base-ami-id)
                       :ent-public (public-ami/entertainment-public-ami-id)}})
 
 (defn bake-entertainment-base-ami
@@ -68,10 +61,10 @@
    If dry-run then only return the packer template, don't run it."
   [dry-run]
   (if-not dry-run
-    (-> (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)
+    (-> (base/create-base-ami (nokia/latest-nokia-ami) :ebs)
         (packer/build)
         (response))
-    (response (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs))))
+    (response (base/create-base-ami (nokia/latest-nokia-ami) :ebs))))
 
 (defn bake-entertainment-public-ami
   "Create a new public entertainment ami from the latest ent base ami.
@@ -112,8 +105,8 @@
    (GET "/status"
         [recursive] (status recursive))
 
-   (GET "/amis" [type]
-        (latest-amis type))
+   (GET "/amis" []
+        (latest-amis))
 
    (POST "/bake/entertainment-ami" [dryrun]
          (bake-entertainment-base-ami dryrun))
@@ -144,7 +137,7 @@
       (expose-metrics-as-json)))
 
 (comment (spit "/home/bgriffit/workspace/ditto/ebs"
-               (base/create-base-ami (nokia/latest-nokia-ami :ebs) :ebs)))
+               (base/create-base-ami (nokia/latest-nokia-ami) :ebs)))
 (comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
 (comment (spit "/home/bgriffit/workspace/ditto/sss"
-               (service-ami/create-service-ami "ditto" "0.13-1")))
+               (service-ami/create-service-ami "ditto" "0.14-1")))

@@ -20,9 +20,10 @@
           (name type)))
 
 (defn latest-nokia-ami
-  "Returns the latest nokia base ami image-id. Accepts server type of either :ebs or :instance"
-  [server-type]
-  (let [ami-names (take 2 (map (partial nokia-ami-name server-type) (past-wednesdays)))]
+  "Returns the latest nokia base ami image-id. Accepts server type of either :ebs or :instance.
+   Defaults to :ebs if not specified."
+  [& [server-type]]
+  (let [ami-names (take 2 (map (partial nokia-ami-name (or server-type :ebs)) (past-wednesdays)))]
     (->> (map aws/private-images-by-name ami-names)
          (some identity)
          (first)
