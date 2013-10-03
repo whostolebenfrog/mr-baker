@@ -17,5 +17,5 @@
    For example, when not running in aws."
   [builder]
   (merge builder (when-not (Boolean/valueOf (env :service-packer-use-iam))
-                                 {:access_key (env :service-aws-access-key)
-                                  :secret_key (env :service-aws-secret-key)})))
+                   {:access_key (env :service-aws-access-key)
+                    :secret_key (env :service-aws-secret-key)})))
