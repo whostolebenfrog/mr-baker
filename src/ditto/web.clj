@@ -133,7 +133,10 @@
       (wrap-keyword-params)
       (wrap-params)
       (wrap-json-response)
-      (wrap-per-resource-metrics [replace-guid replace-mongoid replace-number (replace-outside-app "/1.x")])
+      (wrap-per-resource-metrics [replace-guid
+                                  replace-mongoid
+                                  replace-number
+                                  (replace-outside-app "/1.x")])
       (expose-metrics-as-json)))
 
 (comment (spit "/home/bgriffit/workspace/ditto/ebs"

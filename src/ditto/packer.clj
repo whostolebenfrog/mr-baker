@@ -1,28 +1,75 @@
 (ns ditto.packer
   (:require [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
-            [cheshire.core :as json]))
+            [cheshire.core :as json]
+            [clojure.java.io :as io])
+  (:import (java.io FileInputStream InputStream File PipedInputStream PipedOutputStream)
+           (javax.servlet.http HttpServletResponse)))
 
-;; TODO - it's painful to handle and means we have to return a 200 response
-;; but I'd really like to stream the response here.
+(defn flush-on-timer
+  "Flushes the output stream of the supplied http servlet response every second."
+  [response]
+  (try
+    (Thread/sleep 1000)
+    (.flushBuffer response)
+    (flush-on-timer response)
+    (catch Exception e)))
 
-;; TODO - ssh handshake fail gives us a 200 response here?! does packer return a non 0 exit code?
-;; do we need to scan the output for the word error?
+;; We need to alter the behavior of compojure to flush streams every second
+;; rather than the default of every ~32KB (completely useless for our purposes)
+;; This allows us to stream response data as it arrives, rather than
+;; just sending packer's response in one go after about 5 minutes of waiting!
+(alter-var-root
+ #'ring.util.servlet/set-body
+ (fn [v] (fn [^HttpServletResponse response, body]
+          (cond
+           (string? body)
+           (with-open [writer (.getWriter response)]
+             (.print writer body))
+           (seq? body)
+           (with-open [writer (.getWriter response)]
+             (doseq [chunk body]
+               (.print writer (str chunk))
+               (.flush writer)))
+           (instance? PipedInputStream body)
+           (try
+             (with-open [^PipedInputStream b body]
+               (future (flush-on-timer response))
+               (io/copy b (.getOutputStream response)))
+             (catch Exception e))
+           (instance? InputStream body)
+           (with-open [^InputStream b body]
+             (io/copy b (.getOutputStream response)))
+           (instance? File body)
+           (let [^File f body]
+             (with-open [stream (FileInputStream. f)]
+               (#'ring.util.servlet/set-body response stream)))
+           (nil? body)
+           nil
+           :else
+           (throw (Exception. ^String (format "Unrecognized body: %s" body)))))))
 
-;; We have to specifiy the exact path of packer here as another program called packer
-;; is already on the path and is required for auth purposes
+(extend-type PipedOutputStream
+  conch/Redirectable
+  (redirect [out-stream options k proc]
+    (doseq [line (get proc k)]
+      (let [bytes (.getBytes line)]
+        (.write out-stream bytes 0 (count bytes))
+        (.flush out-stream)))
+    (.close out-stream)))
+
 (defn packer-build
-  "Builds the template and returns the ami-id from the output"
+  "Builds the template and returns the ami-id from the output
+
+   Note: We have to specifiy the exact path of packer here as another program called
+   packer is already on the path and is required for auth purposes"
   [template-path]
-  (conch/let-programs [packer "/opt/packer/packer"]
-    (let [{:keys [exit-code stdout]} (packer "build" template-path {:verbose true
-                                                                    :timeout (* 1000 60 30)})
-          out-list (clojure.string/split stdout #"\n")]
-      (if-not (pos? @exit-code)
-        {:status 200 :body out-list}
-        {:status 400
-         :body (json/generate-string {:message "Unknown error creating ami"
-                                      :packer-output out-list})}))))
+  (conch/let-programs
+   [packer "/opt/packer/packer"]
+   (let [out-stream (PipedOutputStream.)
+         in-stream (PipedInputStream. out-stream)]
+     (future (packer "build" template-path {:out out-stream :timeout (* 1000 60 30)}))
+     in-stream)))
 
 (defn build
   "Build the provided template and respond with the created ami id"
@@ -38,4 +85,4 @@
              :body (json/generate-string {:message "Invalid template file"
                                           :out stdout
                                           :error stderr})}))
-        (finally (clojure.java.io/delete-file file-name))))))
+        (finally (comment (clojure.java.io/delete-file file-name)))))))
