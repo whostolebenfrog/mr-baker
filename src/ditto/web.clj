@@ -138,9 +138,3 @@
                                   replace-number
                                   (replace-outside-app "/1.x")])
       (expose-metrics-as-json)))
-
-(comment (spit "/home/bgriffit/workspace/ditto/ebs"
-               (base/create-base-ami (nokia/latest-nokia-ami) :ebs)))
-(comment (spit "/tmp/rrr" (service-ami/create-service-ami "service-name" "1.5")))
-(comment (spit "/home/bgriffit/workspace/ditto/sss"
-               (service-ami/create-service-ami "ditto" "0.14-1")))
