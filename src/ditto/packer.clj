@@ -2,7 +2,8 @@
   (:require [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
             [cheshire.core :as json]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [ring.util.servlet :as ring-servlet])
   (:import (java.io FileInputStream InputStream File PipedInputStream PipedOutputStream)
            (javax.servlet.http HttpServletResponse)))
 
@@ -20,8 +21,8 @@
 ;; This allows us to stream response data as it arrives, rather than
 ;; just sending packer's response in one go after about 5 minutes of waiting!
 (alter-var-root
- #'ring.util.servlet/set-body
- (fn [v] (fn [^HttpServletResponse response, body]
+  #'ring-servlet/set-body
+  (fn [v] (fn [^HttpServletResponse response, body]
           (cond
            (string? body)
            (with-open [writer (.getWriter response)]
@@ -42,8 +43,9 @@
              (io/copy b (.getOutputStream response)))
            (instance? File body)
            (let [^File f body]
-             (with-open [stream (FileInputStream. f)]
-               (#'ring.util.servlet/set-body response stream)))
+             (with-open [f-stream (FileInputStream. f)]
+               (with-open [^InputStream b f-stream]
+                 (io/copy b (.getOutputStream response)))))
            (nil? body)
            nil
            :else
