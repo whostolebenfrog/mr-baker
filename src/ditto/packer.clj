@@ -69,7 +69,7 @@
   (conch/let-programs
    [packer "/opt/packer/packer"]
    (let [out-stream (PipedOutputStream.)
-         in-stream (PipedInputStream. out-stream)]
+         in-stream  (PipedInputStream. out-stream)]
      (future (packer "build" template-path {:out out-stream :timeout (* 1000 60 30)}))
      in-stream)))
 
@@ -78,13 +78,11 @@
   [template]
   (conch/let-programs [packer "/opt/packer/packer"]
     (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
-      (try
-        (spit file-name template)
-        (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
+      (spit file-name template)
+      (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
           (if-not (pos? @exit-code)
             (packer-build file-name)
-            {:status 400
-             :body (json/generate-string {:message "Invalid template file"
-                                          :out stdout
-                                          :error stderr})}))
-        (finally (comment (clojure.java.io/delete-file file-name)))))))
+            {:status 400 :body (json/generate-string
+                                {:message "Invalid template file"
+                                 :out stdout
+                                 :error stderr})})))))
