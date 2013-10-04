@@ -49,6 +49,8 @@
            :else
            (throw (Exception. ^String (format "Unrecognized body: %s" body)))))))
 
+;; Extend conch redirectable protocol to handle PipedOutputStream
+;; Allows us to pass an output stream to write the response to
 (extend-type PipedOutputStream
   conch/Redirectable
   (redirect [out-stream options k proc]
