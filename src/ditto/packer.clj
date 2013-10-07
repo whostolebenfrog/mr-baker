@@ -69,7 +69,7 @@
 
 (defn timeout-fn
   "Schedule a task to write waiting to the output stream if nothing has been
-   written for > 50 seconds"
+   written for > 45 seconds"
   [out-stream timeout]
   (let [wait (.getBytes "==> waiting...\n")]
     (at/after 45000
