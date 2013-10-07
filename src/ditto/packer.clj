@@ -72,7 +72,7 @@
    written for > 50 seconds"
   [out-stream timeout]
   (let [wait (.getBytes "==> waiting...\n")]
-    (at/after 10000
+    (at/after 45000
               (fn []
                 (.write out-stream wait 0 (count wait))
                 (schedule-and-kill! out-stream timeout))
