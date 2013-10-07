@@ -9,8 +9,8 @@
              [core :as time-core]
              [format :as time-format]]))
 
-(def tyranitar-base-url
-  (env :service-tyranitar-url))
+(def onix-base-url
+  (env :service-onix-url))
 
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
@@ -29,16 +29,18 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
-(defn tyranitar-properties-url
-  "Gets the URL to fetch the application properties for the given service & revision in the given env from Tyranitar."
-  [env service-name revision]
-  (str tyranitar-base-url "/" env "/" service-name "/" revision "/application-properties"))
+(defn rpm-name
+  [service-name service-version]
+  (format "%s-%s.noarch.rpm" service-name service-version))
 
-;; TODO - this is going to be replaced with a call to get this from tyranitar
+(defn rpm-url
+  [service-name service-version]
+  (str "http://yumrepo.brislabs.com/ovimusic/" (rpm-name service-name service-version)))
+
 (defn service-rpm
   "Install the service rpm on to the machine"
   [service-name service-version]
-  (let [rpm-name (format "%s-%s.noarch.rpm" service-name service-version)]
+  (let [rpm-name (rpm-name service-name service-version)]
     (shell (str "wget http://yumrepo.brislabs.com/ovimusic/" rpm-name)
            (str "yum -y install " rpm-name)
            (str "rm -fv " rpm-name))))
@@ -53,31 +55,9 @@
   "Name without the version number"
   (re-find #".+[^0-9]" service-name))
 
-;; TODO - clean all this up! Handled by tryanitar / asgard now
-;; TODO - this is the replacement call to get this from tyranitar
-(defn mv-service-properties1
-  [service-name]
-  (prn "Implement me!"))
-
-;; TODO - this is going to be replaced with a call to get this from tyranitar
-(defn mv-service-properties
-  "Copy over the service properties"
-  [service-name]
-  (let [service-name (trim-number service-name)]
-   (shell (str "mkdir -p /usr/local/" service-name "/etc")
-          (str "mv /tmp/dev.properties /usr/local/" service-name "/etc/dev.properties")
-          (str "mv /tmp/prod.properties /usr/local/" service-name "/etc/prod.properties"))))
-
 (def puppet-on
   "Enable puppet once we're done"
   (shell "chkconfig puppet on"))
-
-(defn upload-service-properties
-  [service-name environment]
-  "Upload the properties files"
-  {:type "file"
-   :source (props-path service-name environment)
-   :destination (str "/tmp/" environment ".properties")})
 
 (defn service-template
   "Generates a new ami template for the service"
@@ -108,7 +88,14 @@
 (defn ami-exists?
   "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
   [service-name service-version]
-  (let [rpm-url (str "http://yumrepo.brislabs.com/ovimusic/" service-name "-" service-version ".noarch.rpm")
-        response (client/head rpm-url {:throw-exceptions false})
+  (let [response (client/head (rpm-url service-name service-version) {:throw-exceptions false})
+        status (:status response)]
+    (= status 200)))
+
+(defn service-exists?
+  "Returns true if the service is known to onix; otherwise returns false."
+  [service-name]
+  (let [app-url (str onix-base-url "/1.x/applications/" service-name)
+        response (client/get app-url {:throw-exceptions false})
         status (:status response)]
     (= status 200)))

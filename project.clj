@@ -61,7 +61,7 @@
 
         :service-packer-use-iam "false"
 
-        :service-tyranitar-url "http://internal-tyranitar-680289871.eu-west-1.elb.amazonaws.com:8080"}
+        :service-onix-url "http://onix.brislabs.com:8080"}
 
   :lein-release {:release-tasks [:clean :uberjar :pom :rpm]
                  :clojars-url "clojars@clojars.brislabs.com:"}

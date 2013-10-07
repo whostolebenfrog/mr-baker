@@ -80,13 +80,15 @@
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
   [service-name service-version dry-run]
-  (if-not (service-ami/ami-exists? service-name service-version)
-    (error-response (str "Are you baking too soon? No RPM in the yum repo for '" service-name "' version '" service-version "'.") 404)
-    (if-not dry-run
-      (-> (service-ami/create-service-ami service-name service-version)
-          (packer/build)
-          (response))
-      (response (service-ami/create-service-ami service-name service-version)))))
+  (if-not (service-ami/service-exists? service-name)
+    (error-response (str "The service '" service-name "' doesn't exist. Can't bake it for you!") 404)
+    (if-not (service-ami/ami-exists? service-name service-version)
+      (error-response (str "Are you baking too soon? No RPM in the yum repo for '" service-name "' version '" service-version "'.") 404)
+      (if-not dry-run
+        (-> (service-ami/create-service-ami service-name service-version)
+            (packer/build)
+            (response))
+        (response (service-ami/create-service-ami service-name service-version))))))
 
 (defn service-icon
   "Returns the service icon"
