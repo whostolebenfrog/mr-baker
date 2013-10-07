@@ -22,6 +22,7 @@
                  [nokia/ring-utils "1.0.1"]
                  [metrics-clojure "1.0.1"]
                  [metrics-clojure-ring "1.0.1"]
+                 [overtone/at-at "1.2.0"]
                  [me.raynes/conch "0.5.0"]]
 
   :profiles {:dev {:dependencies [[com.github.rest-driver/rest-client-driver "1.1.32"

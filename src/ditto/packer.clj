@@ -1,9 +1,11 @@
 (ns ditto.packer
+  "Here be dragons... Some gnarly code in here to get response streaming to work as we want."
   (:require [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
             [cheshire.core :as json]
             [clojure.java.io :as io]
-            [ring.util.servlet :as ring-servlet])
+            [ring.util.servlet :as ring-servlet]
+            [overtone.at-at :as at])
   (:import (java.io FileInputStream InputStream File PipedInputStream PipedOutputStream)
            (javax.servlet.http HttpServletResponse)))
 
@@ -51,16 +53,45 @@
            :else
            (throw (Exception. ^String (format "Unrecognized body: %s" body)))))))
 
+;; The timeout stuff is to get around the AWS load balancer closing the connection
+;; if it's idle for more than 60 seconds (e.g. whilst waiting for ssh to become available)
+;; We could also get amazon to configure the load balancer but it seems like
+;; we'd be creating a snowflake that would be forgotten about
+(def timeout-pool (at/mk-pool))
+(declare timeout-fn)
+
+(defn schedule-and-kill!
+  "Stop any running tasks and schedule the next one"
+  [out-stream timeout]
+  (when (deref (:scheduled? @timeout))
+    (at/stop @timeout))
+  (reset! timeout (timeout-fn out-stream timeout)))
+
+(defn timeout-fn
+  "Schedule a task to write waiting to the output stream if nothing has been
+   written for > 50 seconds"
+  [out-stream timeout]
+  (let [wait (.getBytes "==> waiting...\n")]
+    (at/after 10000
+              (fn []
+                (.write out-stream wait 0 (count wait))
+                (schedule-and-kill! out-stream timeout))
+              timeout-pool)))
+
 ;; Extend conch redirectable protocol to handle PipedOutputStream
-;; Allows us to pass an output stream to write the response to
+;; Allows us to pass an output stream to write the response to.
 (extend-type PipedOutputStream
   conch/Redirectable
   (redirect [out-stream options k proc]
-    (doseq [line (get proc k)]
-      (let [bytes (.getBytes line)]
-        (.write out-stream bytes 0 (count bytes))
-        (.flush out-stream)))
-    (.close out-stream)))
+    (let [timeout (atom {:scheduled? (atom false)})]
+      (doseq [line (get proc k)]
+        (when (deref (:scheduled? @timeout))
+          (at/stop timeout))
+        (let [bytes (.getBytes line)]
+          (.write out-stream bytes 0 (count bytes))
+          (.flush out-stream))
+        (schedule-and-kill! out-stream timeout))
+      (.close out-stream))))
 
 (defn packer-build
   "Builds the template and returns the ami-id from the output
