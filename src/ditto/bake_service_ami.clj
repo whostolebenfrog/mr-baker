@@ -4,6 +4,7 @@
              [bake-common :refer :all]]
             [cheshire.core :as json]
             [environ.core :refer [env]]
+            [clj-http.client :as client]
             [clj-time
              [core :as time-core]
              [format :as time-format]]))
@@ -103,3 +104,11 @@
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version]
   (json/generate-string (service-template service-name service-version)))
+
+(defn ami-exists?
+  "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
+  [service-name service-version]
+  (let [rpm-url (str "http://yumrepo.brislabs.com/ovimusic/" service-name "-" service-version ".noarch.rpm")
+        response (client/head rpm-url {:throw-exceptions false})
+        status (:status response)]
+    (= status 200)))
