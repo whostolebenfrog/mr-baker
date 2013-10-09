@@ -7,11 +7,12 @@
   (:require [clj-time.core :refer [now day-of-week today-at-midnight days plus]]
             [clj-time.coerce :refer [to-long]]
             [clojure.tools.logging :refer [info warn error]]
-            [overtone.at-at :refer [mk-pool every]]))
+            [overtone.at-at :refer [mk-pool every scheduled-jobs show-schedule]]))
 
 (def thursday 4)
-
 (def week-in-ms (* 60 60 24 7 1000))
+(def day-in-ms (* 60 60 24 1000))
+(def half-an-hour-in-ms (* 30 60 1000))
 
 (def scheduler-pool (mk-pool))
 
@@ -56,6 +57,11 @@
   (bake-base-ami)
   (bake-public-ami))
 
+(defn kill-amis
+  []
+  (info "Starting process to kill old amis for all services")
+  ())
+
 (defn start-bake-scheduler
   "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before
    the first bake of initial-delay-ms ms. No parameter variant sets the bakes to occur a the start
@@ -65,6 +71,23 @@
      (every time-ms
             bake-amis
             scheduler-pool
-            :initial-delay initial-delay-ms))
+            :initial-delay initial-delay-ms
+            :desc "baker"))
   ([]
      (start-bake-scheduler week-in-ms (initial-delay))))
+
+(defn start-deregister-old-amis-scheduler
+  "Starts a scheduler for a task that deregisters old amis for all services. The most recent 10 are kept
+   along with, if different, the currently live ami."
+  ([time-ms initial-delay-ms]
+     (every time-ms
+            kill-amis
+            scheduler-pool
+            :initial-delay initial-delay-ms
+            :desc "killer"))
+  ([]
+     (start-deregister-old-amis-scheduler day-in-ms half-an-hour-in-ms)))
+
+(defn job-is-scheduled?
+  [name]
+  (= true (some #(= (:desc %) name) (scheduled-jobs scheduler-pool))))

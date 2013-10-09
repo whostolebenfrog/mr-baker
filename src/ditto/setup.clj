@@ -51,7 +51,8 @@
   (web/set-version! @version)
   (configure-logging)
   (start-graphite-reporting)
-  (scheduler/start-bake-scheduler))
+  (scheduler/start-bake-scheduler)
+  (scheduler/start-deregister-old-amis-scheduler))
 
 (def server (atom nil))
 

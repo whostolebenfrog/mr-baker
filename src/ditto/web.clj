@@ -1,5 +1,6 @@
 (ns ditto.web
   (:require [ditto
+             [scheduler :as scheduler]
              [entertainment-ami :as base]
              [bake-service-ami :as service-ami]
              [public-ami :as public-ami]
@@ -44,10 +45,17 @@
 ;; TODO - check eu-west-1 status in deps
 (defn status
   "Returns the service status"
-  [recursive]
-  (response (merge
-             {:name "ditto" :version *version* :success true}
-             (when recursive {:dependencies []}))))
+  []
+  (let [baking-scheduled (scheduler/job-is-scheduled? "baker")
+        ami-killing-scheduled (scheduler/job-is-scheduled? "killer")
+        success (and true baking-scheduled ami-killing-scheduled)]
+    (->
+     {:name "ditto"
+      :version *version*
+      :success success
+      :dependencies [{:name "baking-schedule" :success baking-scheduled}
+                     {:name "ami-killing-schedule" :success ami-killing-scheduled}]}
+     (response))))
 
 (defn latest-amis
   "Returns the latest amis that we know about"
@@ -107,7 +115,7 @@
         [] "pong")
 
    (GET "/status"
-        [recursive] (status recursive))
+        [] (status))
 
    (GET "/amis" []
         (latest-amis))
