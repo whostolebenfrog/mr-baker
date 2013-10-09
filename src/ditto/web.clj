@@ -61,10 +61,10 @@
    If dry-run then only return the packer template, don't run it."
   [dry-run]
   (if-not dry-run
-    (-> (base/create-base-ami (nokia/latest-nokia-ami) :ebs)
+    (-> (base/create-base-ami (nokia/latest-nokia-ami))
         (packer/build)
         (response))
-    (response (base/create-base-ami (nokia/latest-nokia-ami) :ebs))))
+    (response (base/create-base-ami (nokia/latest-nokia-ami)))))
 
 (defn bake-entertainment-public-ami
   "Create a new public entertainment ami from the latest ent base ami.

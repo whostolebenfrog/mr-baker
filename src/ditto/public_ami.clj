@@ -9,6 +9,7 @@
             [clj-time
              [core :as time-core]
              [format :as time-format]]
+            [cheshire.core :as json]
             [environ.core :refer [env]]))
 
 (defn entertainment-public-ami-id
@@ -40,7 +41,7 @@
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
   []
-  (let [parent-ami (base/entertainment-base-ami-id :ebs)
+  (let [parent-ami (base/entertainment-base-ami-id)
         builder (-> {:access_key (env :service-aws-access-key)
                      :ami_name (ami-name)
                      :iam_instance_profile "baking"
@@ -56,6 +57,6 @@
                      :type "amazon-ebs"
                      :vpc_id "vpc-7bc88713"}
                     (maybe-with-keys))]
-    {:builders [builder]
-     :provisioners [(motd parent-ami)
-                    puppet-on]}))
+    (json/generate-string {:builders [builder]
+                           :provisioners [(motd parent-ami)
+                                          puppet-on]})))

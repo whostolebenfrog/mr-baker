@@ -4,6 +4,7 @@
             [me.raynes.conch.low-level :as sh]
             [cheshire.core :as json]
             [clojure.java.io :as io]
+            [clojure.tools.logging :refer [info warn error]]
             [ring.util.servlet :as ring-servlet]
             [overtone.at-at :as at])
   (:import (java.io FileInputStream InputStream File PipedInputStream PipedOutputStream)
@@ -110,12 +111,15 @@
   "Build the provided template and respond with the created ami id"
   [template]
   (conch/let-programs [packer "/opt/packer/packer"]
+    (info "Building ami using packer.")
     (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
       (spit file-name template)
       (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
           (if-not (pos? @exit-code)
             (packer-build file-name)
-            {:status 400 :body (json/generate-string
-                                {:message "Invalid template file"
-                                 :out stdout
-                                 :error stderr})})))))
+            (do
+              (error "Invalid template file.")
+              {:status 400 :body (json/generate-string
+                                  {:message "Invalid template file"
+                                   :out stdout
+                                   :error stderr})}))))))
