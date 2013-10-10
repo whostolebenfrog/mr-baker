@@ -3,6 +3,7 @@
              [bake-common :refer :all]
              [aws :as aws]
              [nokia :as nokia]]
+            [clojure.tools.logging :refer [info warn error]]
             [cheshire.core :as json]
             [environ.core :refer [env]]
             [clj-time
@@ -111,4 +112,5 @@
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
   [parent-ami]
+  (info "Creating base ami definition from nokia parent" parent-ami)
   (json/generate-string (ebs-template parent-ami)))
