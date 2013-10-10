@@ -68,7 +68,10 @@
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
   [service-name]
-  (take 10 (aws/owned-images-by-name (str "ent-" service-name "-*"))))
+  (->> (aws/owned-images-by-name (str "ent-" service-name "-*"))
+       (map #(select-keys % [:Name :ImageId]))
+       (reverse)
+       (take 10)))
 
 (defn bake-entertainment-base-ami
   "Create a new base entertainment ami from the latest nokia base ami.
