@@ -93,6 +93,7 @@
         (schedule-and-kill! out-stream timeout))
       (.close out-stream))))
 
+;; TODO - with open the output stream?
 (defn packer-build
   "Builds the template and returns the ami-id from the output
 

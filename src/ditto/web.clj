@@ -4,6 +4,7 @@
              [bake-service-ami :as service-ami]
              [public-ami :as public-ami]
              [packer :as packer]
+             [aws :as aws]
              [pokemon :as pokemon]
              [nokia :as nokia]]
             [compojure.core :refer [defroutes context GET PUT POST DELETE]]
@@ -55,6 +56,11 @@
   {:status 200 :body {:nokia-base (nokia/latest-nokia-ami)
                       :ent-base (base/entertainment-base-ami-id)
                       :ent-public (public-ami/entertainment-public-ami-id)}})
+
+(defn latest-service-amis
+  "Returns the list of amis for the supplied service name"
+  [service-name]
+  (take 10 (aws/owned-images-by-name (str "ent-" service-name "-*"))))
 
 (defn bake-entertainment-base-ami
   "Create a new base entertainment ami from the latest nokia base ami.
@@ -111,6 +117,9 @@
 
    (GET "/amis" []
         (latest-amis))
+
+   (GET "/amis/:service-name" [service-name]
+        (latest-service-amis service-name))
 
    (POST "/bake/entertainment-ami" [dryrun]
          (bake-entertainment-base-ami dryrun))
