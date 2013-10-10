@@ -1,6 +1,7 @@
 (ns ditto.aws
   (:require [me.raynes.conch :as conch]
-            [cheshire.core :as json]))
+            [cheshire.core :as json]
+            [clojure.tools.logging :refer [info warn error]]))
 
 (conch/programs aws)
 
@@ -35,3 +36,18 @@
       (json/parse-string true)
       :Images
       seq))
+
+(defn deregister-ami
+  "Deregister an ami. Returns true if successful, otherwise false"
+  [name]
+  (prn "Deleting AMI" name)
+  (info "Deregistering AMI " name)
+  (comment (let [result (aws "ec2" "deregister-image"
+                             "--region" "eu-west-1"
+                             "--output" "json"
+                             "--image-id" name)]
+             (if (empty? result)
+               false
+               (-> (json/parse-string result true)
+                   (:return)
+                   (read-string))))))
