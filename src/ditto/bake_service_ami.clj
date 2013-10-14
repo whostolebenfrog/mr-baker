@@ -9,9 +9,6 @@
              [core :as time-core]
              [format :as time-format]]))
 
-(def onix-base-url
-  (env :service-onix-url))
-
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
   [service-name service-version]
@@ -32,10 +29,6 @@
 (defn rpm-name
   [service-name service-version]
   (format "%s-%s.noarch.rpm" service-name service-version))
-
-(defn rpm-url
-  [service-name service-version]
-  (str "http://yumrepo.brislabs.com/ovimusic/" (rpm-name service-name service-version)))
 
 (defn service-rpm
   "Install the service rpm on to the machine"
@@ -84,18 +77,3 @@
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version]
   (json/generate-string (service-template service-name service-version)))
-
-(defn ami-exists?
-  "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
-  [service-name service-version]
-  (let [response (client/head (rpm-url service-name service-version) {:throw-exceptions false})
-        status (:status response)]
-    (= status 200)))
-
-(defn service-exists?
-  "Returns true if the service is known to onix; otherwise returns false."
-  [service-name]
-  (let [app-url (str onix-base-url "/1.x/applications/" service-name)
-        response (client/get app-url {:throw-exceptions false})
-        status (:status response)]
-    (= status 200)))

@@ -7,6 +7,8 @@
              [packer :as packer]
              [aws :as aws]
              [pokemon :as pokemon]
+             [onix :as onix]
+             [yum :as yum]
              [nokia :as nokia]]
             [compojure.core :refer [defroutes context GET PUT POST DELETE]]
             [compojure.route :as route]
@@ -24,12 +26,9 @@
             [metrics.ring.expose :refer [expose-metrics-as-json]]
             [metrics.ring.instrument :refer [instrument]]))
 
-;; TODO - schedule a task to create the base ami rather than having to push it
 ;; TODO - testing, we can generate the whole template and test that at least
    ;;   - we could also try mocking out the packer method although it's generated with a macro...
    ;;   - could always put it behind a function that calls it and say that's good enough
-;; TODO - packer supports copying of an ami to multiple regions, can we use to this
-   ;;   - copy our ami beteween accounts? or extend?
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
@@ -49,14 +48,13 @@
   []
   (let [baking-scheduled (scheduler/job-is-scheduled? "baker")
         ami-killing-scheduled (scheduler/job-is-scheduled? "killer")
-        success (and true baking-scheduled ami-killing-scheduled)]
-    (->
-     {:name "ditto"
-      :version *version*
-      :success success
-      :dependencies [{:name "baking-schedule" :success baking-scheduled}
-                     {:name "ami-killing-schedule" :success ami-killing-scheduled}]}
-     (response))))
+        success (and baking-scheduled ami-killing-scheduled)]
+    (-> {:name "ditto"
+         :version *version*
+         :success success
+         :dependencies [{:name "baking-schedule" :success baking-scheduled}
+                        {:name "ami-killing-schedule" :success ami-killing-scheduled}]}
+        (response))))
 
 (defn latest-amis
   "Returns the latest amis that we know about"
@@ -97,10 +95,10 @@
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
   [name version dry-run]
-  (cond (not (service-ami/service-exists? name))
+  (cond (not (onix/service-exists? name))
         (error-response (str "The service '" name "' doesn't exist.") 404)
 
-        (not (service-ami/ami-exists? name version))
+        (not (yum/ami-exists? name version))
         (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)
 
         dry-run
