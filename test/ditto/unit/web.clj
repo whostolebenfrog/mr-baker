@@ -1,16 +1,25 @@
 (ns ditto.unit.web
   "Test the web namespace. We're using these in place of rest-driver tests"
-  (:require [ditto.web :refer :all]
-            [midje.sweet :refer :all]))
+  (:require [ditto
+             [web :refer :all]
+             [yum :as yum]
+             [bake-service-ami :as service-ami]
+             [packer :as packer]
+             [onix :as onix]]
+            [midje.sweet :refer :all]
+            [cheshire.core :as json]))
 
 (defn request
   "Creates a compojure request map and applies it to our routes.
    Accepets method, resource and optionally an extended map"
   [method resource & [{:keys [params]
                   :or {:params {}}}]]
-  (app {:request-method method
-        :uri (str "/1.x/" resource)
-        :params params}))
+  (let [{:keys [body] :as res} (app {:request-method method
+                                     :uri (str "/1.x/" resource)
+                                     :params params})]
+    (cond-> res
+            (instance? java.io.InputStream body)
+            (assoc :body (json/parse-string (slurp body))))))
 
 (fact-group :unit
   (fact "Ping pongs"
@@ -18,4 +27,15 @@
 
   ;; TODO: this needs to do more
   (fact "Status returns true"
-        (request :get "status") => (contains {:status 200})) )
+        (request :get "status") => (contains {:status 200}))
+
+  (future-fact "Service must exist to be baked")
+
+  (future-fact "Service rpm must exist to be baked")
+
+  (fact "Bake service gets the latest iteration"
+        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
+        (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
+                  (onix/service-exists? "serv") => true
+                  (service-ami/create-service-ami "serv" "0.13-1") => ..template..
+                  (packer/build ..template..) => "template")))
