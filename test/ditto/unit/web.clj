@@ -26,7 +26,7 @@
             (instance? java.io.InputStream body)
             (assoc :body (json/parse-string (slurp body) true)))))
 
-(fact-group [:unit :general]
+(fact-group :unit
 
   (fact "Ping pongs"
         (request :get "ping") => (contains {:body "pong" :status 200}))
@@ -45,7 +45,7 @@
           status => 500
           body => (contains {:success false}))))
 
-(fact-group [:unit :service-baking]
+(fact-group :unit
 
   (fact "Service must exist to be baked"
         (request :post "bake/serv/0.13") => (contains {:status 404})
@@ -63,7 +63,7 @@
                   (service-ami/create-service-ami "serv" "0.13-1") => ..template..
                   (packer/build ..template..) => "template")))
 
-(fact-group [:unit :amis]
+(fact-group :unit
   (fact "Get latest amis returns amis for nokia base, base and public"
         (:body (request :get "amis")) => {:nokia-base "nokia-base"
                                           :ent-base "ent-base"
@@ -81,3 +81,21 @@
           amis => (contains [{:ImageId 1 :Name 1}
                              {:ImageId 2 :Name 2}
                              {:ImageId 10 :Name 10}] :gaps-ok))))
+
+(fact-group :unit
+  (fact "Passing dry-run to bake entertainment ami just returns the ami definition,
+         it doesn't perform the task"
+        (:body (request :post "bake/entertainment-ami" {:params {:dryrun true}})) => "ami-definition"
+        (provided (nokia/latest-nokia-ami) => ..latest-ami..
+                  (base/create-base-ami ..latest-ami..) => "ami-definition"))
+
+  (fact "Calling bake entertainment bakes a new entertainment ami"
+        (:body (request :post "bake/entertainment-ami")) => "packer-response"
+        (provided (nokia/latest-nokia-ami) => ..latest-ami..
+                  (base/create-base-ami ..latest-ami..) => "ami-definition"
+                  (packer/build "ami-definition") => "packer-response"))
+
+  (fact "Calling bake public bakes a new public ami"
+        (:body (request :post "bake/public-ami")) => "packer-response"
+        (provided (public-ami/create-public-ami) => "ami-definition"
+                  (packer/build "ami-definition") => "packer-response")))

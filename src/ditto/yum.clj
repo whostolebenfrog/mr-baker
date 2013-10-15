@@ -13,7 +13,6 @@
 (defn rpm-exists?
   "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
   [url]
-  (prn url)
   (= 200 (:status (client/head url {:throw-exceptions false}))))
 
 (defn rpm-version
