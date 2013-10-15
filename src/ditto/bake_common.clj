@@ -9,9 +9,6 @@
    :inline_shebang "/bin/sh -x"
    :inline cmds})
 
-;; TODO: I really need to get these from environment variables rather than
-;; having them in the project. I don't want my keys in the version people use
-;; following that I also need to revoke my own access keys as it's in the git history
 (defn maybe-with-keys
   "Includes access keys in the map if iam authentication isn't enabled.
    For example, when not running in aws."
