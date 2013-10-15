@@ -26,6 +26,8 @@
             [metrics.ring.expose :refer [expose-metrics-as-json]]
             [metrics.ring.instrument :refer [instrument]]))
 
+;; TODO - remove the ATs and ITs, fix the jenkins jobs and remove scripts
+
 ;; TODO - testing, we can generate the whole template and test that at least
    ;;   - we could also try mocking out the packer method although it's generated with a macro...
    ;;   - could always put it behind a function that calls it and say that's good enough
@@ -43,6 +45,7 @@
 
 ;; TODO - check onix status in deps
 ;; TODO - check eu-west-1 status in deps
+;; TODO - non 200 response if status fails
 (defn status
   "Returns the service status"
   []
@@ -159,7 +162,6 @@
       (wrap-params)
       (wrap-json-response)
       (wrap-per-resource-metrics [replace-guid
-                                  replace-mongoid
                                   replace-number
                                   (replace-outside-app "/1.x")])
       (expose-metrics-as-json)))
