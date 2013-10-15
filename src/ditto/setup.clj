@@ -25,7 +25,6 @@
 
 (defn configure-logging []
   (.reset (LogManager/getLogManager))
-  ;Route all java.util.logging log statements to slf4j
   (SLF4JBridgeHandler/install))
 
 (defn start-graphite-reporting []
@@ -43,7 +42,8 @@
      (ReporterState/valueOf (env :service-graphite-enabled)))))
 
 (def version
-  (delay (if-let [path (.getResource (ClassLoader/getSystemClassLoader) "META-INF/maven/ditto/ditto/pom.properties")]
+  (delay (if-let [path (.getResource (ClassLoader/getSystemClassLoader)
+                                     "META-INF/maven/ditto/ditto/pom.properties")]
            ((read-file-to-properties path) "version")
            "localhost")))
 
