@@ -111,4 +111,4 @@
 (defn job-is-scheduled?
   "Returns truthy if the named job is scheduled"
   [name]
-  (= true (some #(= (:desc %) name) (at-at/scheduled-jobs scheduler-pool))))
+  (some #(= (:desc %) name) (at-at/scheduled-jobs scheduler-pool)))
