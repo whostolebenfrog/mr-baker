@@ -35,7 +35,7 @@
                                   [rest-cljer "0.1.7"]]
                    :plugins [[lein-rpm "0.0.4"]
                              [lein-midje "3.0.1"]
-                             [jonase/kibit "0.0.8"]]}}
+                             [lein-kibit "0.0.8"]]}}
 
   :plugins [[lein-ring "0.8.6"]
             [lein-environ "0.4.0"]

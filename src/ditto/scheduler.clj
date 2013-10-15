@@ -87,19 +87,20 @@
   (let [response (client/get (str asgard-base-url "/eu-west-1/cluster/show/" name ".json") {:throw-exceptions false :as :json})]
     (image-ids-from-json (:body response))))
 
+;; TODO: if we can fix the subvec we can remove the (vec) call.
 (defn kill-amis-for-application
   "Deregisters amis for an application apart from the latest 10. Doesn't deregister the ami that is deployed
    according to asgard. Note: amis are retrieved from AWS in latest first order."
   [name]
   (info "Killing amis for" name)
-  (let [amis (into [] (map #(:ImageId %) (aws/owned-images-by-name (str "ent-" name "*"))))
+  (let [amis (vec (map :ImageId (aws/owned-images-by-name (str "ent-" name "*"))))
         amis-count (count amis)]
     (when (> amis-count 10)
       (let [candidate-amis (subvec amis 0 (- amis-count 11))
             live-amis (active-amis-for-application name)
             amis-to-delete (clojure.set/difference (set candidate-amis) live-amis)
             delete-count (count amis-to-delete)]
-        (when (> delete-count 0)
+        (when (pos? delete-count)
           (info (str "For application " name " deleting amis: " amis-to-delete))
           (map aws/deregister-ami amis-to-delete))))))
 
@@ -119,8 +120,7 @@
             scheduler-pool
             :initial-delay initial-delay-ms
             :desc "baker"))
-  ([]
-     (start-bake-scheduler week-in-ms (initial-delay))))
+  ([] (start-bake-scheduler week-in-ms (initial-delay))))
 
 (defn start-deregister-old-amis-scheduler
   "Starts a scheduler for a task that deregisters old amis for all services. The most recent 10 are kept
@@ -131,9 +131,9 @@
             scheduler-pool
             :initial-delay initial-delay-ms
             :desc "killer"))
-  ([]
-     (start-deregister-old-amis-scheduler day-in-ms half-an-hour-in-ms)))
+  ([] (start-deregister-old-amis-scheduler half-an-hour-in-ms half-an-hour-in-ms)))
 
 (defn job-is-scheduled?
+  "Returns truthy if the named job is scheduled"
   [name]
   (= true (some #(= (:desc %) name) (scheduled-jobs scheduler-pool))))
