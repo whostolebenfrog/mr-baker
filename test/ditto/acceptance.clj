@@ -38,8 +38,4 @@
    (fact "Status returns all required elements"
          (let [response (client/get (url+ "/status") {:throw-exceptions false})
                body (read-body response)]
-           response => (contains {:status 200})))
-
-
-
-         )
+           response => (contains {:status 200}))))

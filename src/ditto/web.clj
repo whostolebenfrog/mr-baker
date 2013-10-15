@@ -95,19 +95,18 @@
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
   [name version dry-run]
-  (cond (not (onix/service-exists? name))
-        (error-response (str "The service '" name "' doesn't exist.") 404)
+  (if-let [version (yum/get-latest-iteration name version)]
+    (cond (not (onix/service-exists? name))
+          (error-response (str "The service '" name "' doesn't exist.") 404)
 
-        (not (yum/ami-exists? name version))
-        (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)
+          dry-run
+          (response (service-ami/create-service-ami name version))
 
-        dry-run
-        (response (service-ami/create-service-ami name version))
-
-        :else
-        (-> (service-ami/create-service-ami name version)
-            (packer/build)
-            (response))))
+          :else
+          (-> (service-ami/create-service-ami name version)
+              (packer/build)
+              (response)))
+    (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))
 
 (defn service-icon
   "Returns the service icon"

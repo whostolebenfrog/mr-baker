@@ -1,16 +1,28 @@
 (ns ditto.yum
+  "Functions pertaining to our intergration with yum repo"
   (:require [ditto
              [bake-service-ami :as bake-service]]
             [environ.core :refer [env]]
             [clj-http.client :as client]))
 
 (defn rpm-url
-  [service-name service-version]
-  (str (env :service-yum-url) "/" (bake-service/rpm-name service-name service-version)))
+  "Returns the rpm url for a given service-name, version and iteration."
+  [name version]
+  (str (env :service-yum-url) "/" (bake-service/rpm-name name version)))
 
-(defn ami-exists?
+(defn rpm-exists?
   "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
-  [service-name service-version]
-  (let [response (client/head (rpm-url service-name service-version) {:throw-exceptions false})
-        status (:status response)]
-    (= status 200)))
+  [url]
+  (prn url)
+  (= 200 (:status (client/head url {:throw-exceptions false}))))
+
+(defn rpm-version
+  "Returns the combined rpm version and iteration"
+  [version iteration]
+  (str version "-" iteration))
+
+(defn get-latest-iteration
+  "Gets the latest iteration of the rpm version or nil if the rpm does not exist."
+  [name version]
+  (let [iversion (map (partial rpm-version version) (range 1 100))]
+    (last (take-while (partial (comp rpm-exists? rpm-url) name) iversion))))
