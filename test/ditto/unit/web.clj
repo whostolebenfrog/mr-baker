@@ -21,17 +21,24 @@
             (instance? java.io.InputStream body)
             (assoc :body (json/parse-string (slurp body))))))
 
-(fact-group :unit
+(fact-group [:unit :general]
+
   (fact "Ping pongs"
         (request :get "ping") => (contains {:body "pong" :status 200}))
 
-  ;; TODO: this needs to do more
   (fact "Status returns true"
-        (request :get "status") => (contains {:status 200}))
+        (request :get "status") => (contains {:status 200})))
 
-  (future-fact "Service must exist to be baked")
+(fact-group [:unit :service-baking]
 
-  (future-fact "Service rpm must exist to be baked")
+  (fact "Service must exist to be baked"
+        (request :post "bake/serv/0.13") => (contains {:status 404})
+        (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
+                  (onix/service-exists? "serv") => false))
+
+  (fact "Service rpm must exist to be baked"
+        (request :post "bake/serv/0.13") => (contains {:status 404})
+        (provided (yum/get-latest-iteration "serv" "0.13") => nil))
 
   (fact "Bake service gets the latest iteration"
         (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
