@@ -45,7 +45,7 @@
                     "--region" "eu-west-1"
                     "--output" "json"
                     "--image-id" name)]
-    (when-not (empty? result)
+    (when (seq result)
       (-> (json/parse-string result true)
           (:return)
           (read-string)))))
