@@ -26,8 +26,6 @@
             [metrics.ring.expose :refer [expose-metrics-as-json]]
             [metrics.ring.instrument :refer [instrument]]))
 
-;; TODO - remove the ATs and ITs, fix the jenkins jobs and remove scripts
-
 ;; TODO - testing, we can generate the whole template and test that at least
    ;;   - we could also try mocking out the packer method although it's generated with a macro...
    ;;   - could always put it behind a function that calls it and say that's good enough
