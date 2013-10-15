@@ -4,6 +4,7 @@
              [entertainment-ami :as base]
              [nokia :as nokia]
              [public-ami :as public-ami]
+             [onix :as onix]
              [packer :as packer]])
   (:require [clj-time.core :refer [now day-of-week today-at-midnight days plus]]
             [clj-time.coerce :refer [to-long]]
@@ -17,11 +18,7 @@
 (def day-in-ms (* 60 60 24 1000))
 (def half-an-hour-in-ms (* 30 60 1000))
 
-(def onix-base-url
-  (env :service-onix-url))
-
-(def asgard-base-url
-  (env :service-asgard-url))
+(def asgard-base-url (env :service-asgard-url))
 
 (def scheduler-pool (mk-pool))
 
@@ -66,12 +63,6 @@
   (bake-base-ami)
   (bake-public-ami))
 
-(defn get-applications
-  []
-  (-> (client/get (str onix-base-url "/1.x/applications") {:throw-exceptions false :as :json})
-      (:body)
-      (:applications)))
-
 (defn- image-ids-from-json
   "This walks any structure and extracts all values of :imageId into a set, which means
    that duplicates are thrown away."
@@ -107,7 +98,7 @@
 (defn kill-amis
   []
   (info "Starting process to kill old amis for all services")
-  (map kill-amis-for-application (get-applications)))
+  (map kill-amis-for-application (onix/get-applications)))
 
 (defn start-bake-scheduler
   "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before

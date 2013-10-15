@@ -12,3 +12,9 @@
         response (client/head app-url {:throw-exceptions false})
         status (:status response)]
     (= status 200)))
+
+(defn get-applications
+  "Returns the list of all applications in onix"
+  []
+  (get-in (client/get (str onix-base-url "/1.x/applications") {:throw-exceptions false :as :json})
+          [:body :applications]))
