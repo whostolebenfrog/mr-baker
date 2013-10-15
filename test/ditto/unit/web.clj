@@ -2,10 +2,14 @@
   "Test the web namespace. We're using these in place of rest-driver tests"
   (:require [ditto
              [web :refer :all]
+             [aws :as aws]
              [yum :as yum]
              [bake-service-ami :as service-ami]
+             [public-ami :as public-ami]
              [packer :as packer]
              [scheduler :as scheduler]
+             [nokia :as nokia]
+             [entertainment-ami :as base]
              [onix :as onix]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]))
@@ -58,3 +62,22 @@
                   (onix/service-exists? "serv") => true
                   (service-ami/create-service-ami "serv" "0.13-1") => ..template..
                   (packer/build ..template..) => "template")))
+
+(fact-group [:unit :amis]
+  (fact "Get latest amis returns amis for nokia base, base and public"
+        (:body (request :get "amis")) => {:nokia-base "nokia-base"
+                                          :ent-base "ent-base"
+                                          :ent-public "ent-public"}
+        (provided (nokia/latest-nokia-ami) => "nokia-base"
+                  (base/entertainment-base-ami-id) =>  "ent-base"
+                  (public-ami/entertainment-public-ami-id) => "ent-public"))
+
+  (fact "latest service amis searches for service amis, returns the first
+         10 of the reversed list"
+        (against-background (aws/owned-images-by-name anything) =>
+                            (map (fn [x] {:Name x :ImageId x}) (range 20 0 -1)))
+        (let [{amis :body} (request :get "amis/ditto")]
+          (count amis) => 10
+          amis => (contains [{:ImageId 1 :Name 1}
+                             {:ImageId 2 :Name 2}
+                             {:ImageId 10 :Name 10}] :gaps-ok))))
