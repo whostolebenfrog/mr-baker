@@ -12,7 +12,8 @@
             [clj-http.client :as client]
             [clojure.tools.logging :refer [info warn error]]
             [environ.core :refer [env]]
-            [overtone.at-at :as at-at]))
+            [overtone.at-at :as at-at]
+            [clojure.set :refer [difference]]))
 
 (def thursday 4)
 (def week-in-ms (* 60 60 24 7 1000))
@@ -62,22 +63,17 @@
   (bake-base-ami)
   (bake-public-ami))
 
-;; TODO: if we can fix the subvec we can remove the (vec) call.
 (defn kill-amis-for-application
   "Deregisters amis for an application apart from the latest 10. Doesn't deregister the ami that is deployed
    according to asgard. Note: amis are retrieved from AWS in latest first order."
   [name]
-  (info "Killing amis for" name)
-  (let [amis (vec (map :ImageId (aws/owned-images-by-name (str "ent-" name "*"))))
-        amis-count (count amis)]
-    (when (> amis-count 10)
-      (let [candidate-amis (subvec amis 0 (- amis-count 11))
-            live-amis (active-amis-for-application name)
-            amis-to-delete (clojure.set/difference (set candidate-amis) live-amis)
-            delete-count (count amis-to-delete)]
-        (when (pos? delete-count)
-          (info (str "For application " name " deleting amis: " amis-to-delete))
-          (map aws/deregister-ami amis-to-delete))))))
+  (let [amis (->> (map :ImageId (aws/service-images "ditto"))
+                  (reverse)
+                  (drop 5))
+        amis (difference (set amis) (asgard/active-amis-for-application name))]
+    (when (seq amis)
+      (info (format "Deregistering amis: %s for :%s" name amis))
+      (map aws/deregister-ami amis))))
 
 (defn kill-amis
   []
