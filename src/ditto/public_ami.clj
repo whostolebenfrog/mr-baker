@@ -42,21 +42,21 @@
    Enabled puppet and sets the motd"
   []
   (let [parent-ami (base/entertainment-base-ami-id)
-        builder (-> {:access_key (env :service-aws-access-key)
-                     :ami_name (ami-name)
-                     :iam_instance_profile "baking"
-                     :instance_type "t1.micro"
-                     :region "eu-west-1"
-                     :secret_key (env :service-aws-secret-key)
-                     :security_group_id "sg-c453b4ab"
-                     :source_ami parent-ami
-                     :temporary_key_pair_name "nokiarebake-{{uuid}}"
-                     :ssh_timeout "5m"
-                     :ssh_username "nokiarebake"
-                     :subnet_id "subnet-bdc08fd5"
-                     :type "amazon-ebs"
-                     :vpc_id "vpc-7bc88713"}
-                    (maybe-with-keys))]
+        builder (maybe-with-keys
+                 {:access_key (env :service-aws-access-key)
+                  :ami_name (ami-name)
+                  :iam_instance_profile "baking"
+                  :instance_type "t1.micro"
+                  :region "eu-west-1"
+                  :secret_key (env :service-aws-secret-key)
+                  :security_group_id "sg-c453b4ab"
+                  :source_ami parent-ami
+                  :temporary_key_pair_name "nokiarebake-{{uuid}}"
+                  :ssh_timeout "5m"
+                  :ssh_username "nokiarebake"
+                  :subnet_id "subnet-bdc08fd5"
+                  :type "amazon-ebs"
+                  :vpc_id "vpc-7bc88713"})]
     (json/generate-string {:builders [builder]
                            :provisioners [(motd parent-ami)
                                           puppet-on]})))

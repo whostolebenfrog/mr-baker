@@ -49,12 +49,14 @@
   (let [baking-scheduled (scheduler/job-is-scheduled? "baker")
         ami-killing-scheduled (scheduler/job-is-scheduled? "killer")
         success (and baking-scheduled ami-killing-scheduled)]
-    (-> {:name "ditto"
-         :version *version*
-         :success success
-         :dependencies [{:name "baking-schedule" :success baking-scheduled}
-                        {:name "ami-killing-schedule" :success ami-killing-scheduled}]}
-        (response "application/json" (if success 200 500)))))
+    (response
+     {:name "ditto"
+      :version *version*
+      :success success
+      :dependencies [{:name "baking-schedule" :success baking-scheduled}
+                     {:name "ami-killing-schedule" :success ami-killing-scheduled}]}
+     "application/json"
+     (if success 200 500))))
 
 (defn latest-amis
   "Returns the latest amis that we know about"

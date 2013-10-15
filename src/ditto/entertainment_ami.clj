@@ -87,19 +87,19 @@
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami]
-  (let [builder (-> {:ami_name (ent-ami-name)
-                     :iam_instance_profile "baking"
-                     :instance_type "t1.micro"
-                     :region "eu-west-1"
-                     :security_group_id "sg-c453b4ab"
-                     :source_ami parent-ami
-                     :temporary_key_pair_name "nokia-{{uuid}}"
-                     :ssh_timeout "5m"
-                     :ssh_username "nokia"
-                     :subnet_id "subnet-bdc08fd5"
-                     :type "amazon-ebs"
-                     :vpc_id "vpc-7bc88713"}
-                    (maybe-with-keys))]
+  (let [builder (maybe-with-keys
+                 {:ami_name (ent-ami-name)
+                  :iam_instance_profile "baking"
+                  :instance_type "t1.micro"
+                  :region "eu-west-1"
+                  :security_group_id "sg-c453b4ab"
+                  :source_ami parent-ami
+                  :temporary_key_pair_name "nokia-{{uuid}}"
+                  :ssh_timeout "5m"
+                  :ssh_username "nokia"
+                  :subnet_id "subnet-bdc08fd5"
+                  :type "amazon-ebs"
+                  :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
      :provisioners [(motd parent-ami)
                     ent-yum-repo
