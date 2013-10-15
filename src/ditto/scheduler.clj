@@ -3,6 +3,7 @@
              [aws :as aws]
              [entertainment-ami :as base]
              [nokia :as nokia]
+             [asgard :as asgard]
              [public-ami :as public-ami]
              [onix :as onix]
              [packer :as packer]])
@@ -17,8 +18,6 @@
 (def week-in-ms (* 60 60 24 7 1000))
 (def day-in-ms (* 60 60 24 1000))
 (def half-an-hour-in-ms (* 30 60 1000))
-
-(def asgard-base-url (env :service-asgard-url))
 
 (def scheduler-pool (mk-pool))
 
@@ -62,21 +61,6 @@
   []
   (bake-base-ami)
   (bake-public-ami))
-
-(defn- image-ids-from-json
-  "This walks any structure and extracts all values of :imageId into a set, which means
-   that duplicates are thrown away."
-  [json]
-  (let [result (atom #{})]
-    (clojure.walk/postwalk
-     #(do (if-let [ami-id (:imageId %)] (swap! result conj ami-id)) %)
-     json)
-    @result))
-
-(defn- active-amis-for-application
-  [name]
-  (let [response (client/get (str asgard-base-url "/eu-west-1/cluster/show/" name ".json") {:throw-exceptions false :as :json})]
-    (image-ids-from-json (:body response))))
 
 ;; TODO: if we can fix the subvec we can remove the (vec) call.
 (defn kill-amis-for-application
