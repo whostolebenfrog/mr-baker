@@ -37,6 +37,11 @@
       :Images
       seq))
 
+(defn service-images
+  "Returns the images for a service"
+  [name]
+  (owned-images-by-name (str "ent*-" name "-*")))
+
 (defn deregister-ami
   "Deregister an ami. Returns true if successful, otherwise false"
   [name]

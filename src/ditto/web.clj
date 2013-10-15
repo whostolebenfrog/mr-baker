@@ -68,7 +68,7 @@
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
   [service-name]
-  (->> (aws/owned-images-by-name (str "ent*-" service-name "-*"))
+  (->> (aws/service-images service-name)
        (map #(select-keys % [:Name :ImageId]))
        (reverse)
        (take 10)))
