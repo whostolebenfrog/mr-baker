@@ -45,7 +45,6 @@
 
 ;; TODO - check onix status in deps
 ;; TODO - check eu-west-1 status in deps
-;; TODO - non 200 response if status fails
 (defn status
   "Returns the service status"
   []
@@ -57,7 +56,7 @@
          :success success
          :dependencies [{:name "baking-schedule" :success baking-scheduled}
                         {:name "ami-killing-schedule" :success ami-killing-scheduled}]}
-        (response))))
+        (response "application/json" (if success 200 500)))))
 
 (defn latest-amis
   "Returns the latest amis that we know about"

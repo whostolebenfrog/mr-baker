@@ -5,6 +5,7 @@
              [yum :as yum]
              [bake-service-ami :as service-ami]
              [packer :as packer]
+             [scheduler :as scheduler]
              [onix :as onix]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]))
@@ -19,15 +20,26 @@
                                      :params params})]
     (cond-> res
             (instance? java.io.InputStream body)
-            (assoc :body (json/parse-string (slurp body))))))
+            (assoc :body (json/parse-string (slurp body) true)))))
 
 (fact-group [:unit :general]
 
   (fact "Ping pongs"
         (request :get "ping") => (contains {:body "pong" :status 200}))
 
-  (fact "Status returns true"
-        (request :get "status") => (contains {:status 200})))
+  (fact "Status returns true if all dependencies met"
+        (against-background (scheduler/job-is-scheduled? "baker") => true
+                            (scheduler/job-is-scheduled? "killer") => true)
+        (let [{:keys [status body]} (request :get "status")]
+          status => 200
+          body => (contains {:success true})))
+
+  (fact "Status returns false if scheduler is down"
+        (against-background (scheduler/job-is-scheduled? "baker") => false
+                            (scheduler/job-is-scheduled? "killer") => true)
+        (let [{:keys [status body]} (request :get "status")]
+          status => 500
+          body => (contains {:success false}))))
 
 (fact-group [:unit :service-baking]
 
