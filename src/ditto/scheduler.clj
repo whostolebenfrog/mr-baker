@@ -85,8 +85,7 @@
 (defn- active-amis-for-application
   [name]
   (let [response (client/get (str asgard-base-url "/eu-west-1/cluster/show/" name ".json") {:throw-exceptions false :as :json})]
-    (image-ids-from-json (:body response)))
-  )
+    (image-ids-from-json (:body response))))
 
 (defn kill-amis-for-application
   "Deregisters amis for an application apart from the latest 10. Doesn't deregister the ami that is deployed
