@@ -41,12 +41,11 @@
   "Deregister an ami. Returns true if successful, otherwise false"
   [name]
   (info "Deregistering AMI " name)
-  (comment (let [result (aws "ec2" "deregister-image"
-                             "--region" "eu-west-1"
-                             "--output" "json"
-                             "--image-id" name)]
-             (if (empty? result)
-               false
-               (-> (json/parse-string result true)
-                   (:return)
-                   (read-string))))))
+  (let [result (aws "ec2" "deregister-image"
+                    "--region" "eu-west-1"
+                    "--output" "json"
+                    "--image-id" name)]
+    (when-not (empty? result)
+      (-> (json/parse-string result true)
+          (:return)
+          (read-string)))))
