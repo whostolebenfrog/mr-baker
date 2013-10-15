@@ -56,8 +56,8 @@
         :service-graphite-enabled "DISABLED"
         :service-production "false"
 
-        :service-aws-access-key "AKIAIXEX2SKCBI5X2M7Q"
-        :service-aws-secret-key "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"
+        :service-aws-access-key "key"
+        :service-aws-secret-key "secret"
         :service-puppet-host "puppetaws.brislabs.com"
 
         :service-packer-use-iam "false"
