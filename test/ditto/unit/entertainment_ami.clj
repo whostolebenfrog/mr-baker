@@ -3,6 +3,7 @@
              [entertainment-ami :refer :all]
              [aws :as aws]]
             [midje.sweet :refer :all]
+            [cheshire.core :as json]
             [clj-time.core :as core-time]))
 
 (fact-group :unit
@@ -43,4 +44,10 @@
 
           provisioners => (contains [ruby-193 ..motd.. ent-yum-repo cloud-final
                                      user-cleanup puppet-clean puppet]
-                                    :in-any-order :gaps-ok))))
+                                    :in-any-order :gaps-ok)))
+
+  (fact "create-base-ami returns a json string of the packer template"
+        (create-base-ami ..parent-ami..) => ..json..
+        (provided
+         (ebs-template ..parent-ami..) => ..packer-template..
+         (json/generate-string ..packer-template..) => ..json..)))
