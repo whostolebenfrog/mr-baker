@@ -55,12 +55,6 @@
           type => (has-prefix "amazon")
           vpc_id => (has-prefix "vpc")))
 
-  (fact "access keys are potentially added"
-        (:builders (service-template ..name.. ..version..)) =>
-        (contains ..might-have-keys..)
-        (provided
-         (maybe-with-keys anything) => ..might-have-keys..))
-
   (fact "create-service-ami returns a json string of the packer template"
         (create-service-ami ..name.. ..version..) => ..json..
         (provided

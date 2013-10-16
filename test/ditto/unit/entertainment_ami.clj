@@ -47,12 +47,6 @@
                                      user-cleanup puppet-clean puppet]
                                     :in-any-order :gaps-ok)))
 
-  (fact "access keys are potentially added"
-        (:builders (ebs-template ..parent-ami..)) =>
-        (contains ..might-have-keys..)
-        (provided
-         (maybe-with-keys anything) => ..might-have-keys..))
-
   (fact "create-base-ami returns a json string of the packer template"
         (create-base-ami ..parent-ami..) => ..json..
         (provided

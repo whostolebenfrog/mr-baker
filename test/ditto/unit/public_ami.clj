@@ -45,11 +45,6 @@
            type => (has-prefix "amazon")
            vpc_id => (has-prefix "vpc")))
 
-   (fact "access keys are potentially added"
-         (:builders (public-ami)) => (contains ..might-have-keys..)
-         (provided
-          (maybe-with-keys anything) => ..might-have-keys..))
-
    (fact "create-public-ami generates a json string of the public-ami template"
          (create-public-ami) => ..json..
          (provided
