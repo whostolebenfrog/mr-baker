@@ -30,8 +30,8 @@
         (kill-amis-for-application ..app..) => truthy
         (provided
          (aws/service-images ..app..) => seven-amis
-         (aws/deregister-ami 1) => nil :times 1
-         (aws/deregister-ami 2) => nil :times 1
+         (aws/deregister-ami ..app.. 1) => nil :times 1
+         (aws/deregister-ami ..app.. 2) => nil :times 1
          (aws/deregister-ami anything) => nil :times 0
          (asgard/active-amis-for-application ..app..) => ..other..))
 
@@ -39,8 +39,8 @@
         (kill-amis-for-application ..app..) => truthy
         (provided
          (aws/service-images ..app..) => seven-amis
-         (aws/deregister-ami 2) => nil :times 0
-         (aws/deregister-ami 1) => nil :times 1
+         (aws/deregister-ami ..app.. 2) => nil :times 0
+         (aws/deregister-ami ..app.. 1) => nil :times 1
          (aws/deregister-ami anything) => nil :times 0
          (asgard/active-amis-for-application ..app..) => #{2}))
 

@@ -82,13 +82,13 @@
    the first bake of initial-delay-ms ms. No parameter variant sets the bakes to occur a the start
    of every Thursday, as a new Nokia ami is made available every Wednesday. "
   ([time-ms initial-delay-ms]
-     (info "Setting next base and public api bake time, initial-delay:" initial-delay "interval:" time-ms)
+     (info "Setting next base and public api bake time, initial-delay:" initial-delay-ms "interval:" time-ms)
      (at-at/every time-ms
             bake-amis
             scheduler-pool
             :initial-delay initial-delay-ms
             :desc "baker"))
-  ([] (start-bake-scheduler week-in-ms (initial-delay))))
+  ([] (start-bake-scheduler week-in-ms (ms-until-next-thursday))))
 
 (defn start-deregister-old-amis-scheduler
   "Starts a scheduler for a task that deregisters old amis for all services. The most recent 10 are kept
