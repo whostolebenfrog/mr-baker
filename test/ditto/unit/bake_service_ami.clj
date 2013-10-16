@@ -1,6 +1,7 @@
 (ns ditto.unit.bake-service-ami
   (:require [ditto
              [bake-service-ami :refer :all]
+             [bake-common :refer :all]
              [entertainment-ami :as base]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
@@ -53,6 +54,12 @@
           subnet_id => (has-prefix "subnet")
           type => (has-prefix "amazon")
           vpc_id => (has-prefix "vpc")))
+
+  (fact "access keys are potentially added"
+        (:builders (service-template ..name.. ..version..)) =>
+        (contains ..might-have-keys..)
+        (provided
+         (maybe-with-keys anything) => ..might-have-keys..))
 
   (fact "create-service-ami returns a json string of the packer template"
         (create-service-ami ..name.. ..version..) => ..json..

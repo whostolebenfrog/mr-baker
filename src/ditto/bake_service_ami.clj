@@ -18,7 +18,7 @@
         (time-core/now))))
 
 (defn motd
-  "Set up the message of the day."
+  "Set up the message of the day"
   [service-name service-version]
   (shell (format "echo -e \"\\nEntertainment %s AMI\" >> /etc/motd" service-name)
          (format "echo -e \"\\nBake date: %s\" >> /etc/motd"

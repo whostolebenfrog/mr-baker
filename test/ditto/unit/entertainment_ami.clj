@@ -1,6 +1,7 @@
 (ns ditto.unit.entertainment-ami
   (:require [ditto
              [entertainment-ami :refer :all]
+             [bake-common :refer :all]
              [aws :as aws]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
@@ -45,6 +46,12 @@
           provisioners => (contains [ruby-193 ..motd.. ent-yum-repo cloud-final
                                      user-cleanup puppet-clean puppet]
                                     :in-any-order :gaps-ok)))
+
+  (fact "access keys are potentially added"
+        (:builders (ebs-template ..parent-ami..)) =>
+        (contains ..might-have-keys..)
+        (provided
+         (maybe-with-keys anything) => ..might-have-keys..))
 
   (fact "create-base-ami returns a json string of the packer template"
         (create-base-ami ..parent-ami..) => ..json..
