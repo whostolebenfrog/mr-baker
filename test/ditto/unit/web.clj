@@ -61,11 +61,7 @@
         (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
                   (onix/service-exists? "serv") => true
                   (service-ami/create-service-ami "serv" "0.13-1") => ..template..
-                  (packer/build ..template..) => "template"))
-
-  (future-fact "Service returns 400 if name missing")
-
-  (future-fact "Serivce returns 400 if version missing"))
+                  (packer/build ..template..) => "template")))
 
 (fact-group :unit
   (fact "Get latest amis returns amis for nokia base, base and public"
