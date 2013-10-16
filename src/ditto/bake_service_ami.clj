@@ -3,7 +3,6 @@
              [entertainment-ami :as base]
              [bake-common :refer :all]]
             [cheshire.core :as json]
-            [environ.core :refer [env]]
             [clj-http.client :as client]
             [clj-time
              [core :as time-core]
@@ -38,16 +37,6 @@
            (str "yum -y install " rpm-name)
            (str "rm -fv " rpm-name))))
 
-(defn props-path
-  "Returnst the path of the properties file"
-  [service-name environment]
-  (str "/opt/service-props/" service-name "/" environment ".properties"))
-
-(defn trim-number
-  [service-name]
-  "Name without the version number"
-  (re-find #".+[^0-9]" service-name))
-
 (def puppet-on
   "Enable puppet once we're done"
   (shell "chkconfig puppet on"))
@@ -60,7 +49,6 @@
                   :iam_instance_profile "baking"
                   :instance_type "t1.micro"
                   :region "eu-west-1"
-                  :secret_key (env :service-aws-secret-key)
                   :source_ami (base/entertainment-base-ami-id)
                   :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :ssh_timeout "5m"
