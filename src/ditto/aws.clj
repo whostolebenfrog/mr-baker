@@ -44,12 +44,12 @@
 
 (defn deregister-ami
   "Deregister an ami. Returns true if successful, otherwise false"
-  [name]
-  (info "Deregistering AMI " name)
+  [service image-id]
+  (info (format "Deregistering ami %s for service %s") image-id service)
   (let [result (aws "ec2" "deregister-image"
                     "--region" "eu-west-1"
                     "--output" "json"
-                    "--image-id" name)]
+                    "--image-id" image-id)]
     (when (seq result)
       (-> (json/parse-string result true)
           (:return)

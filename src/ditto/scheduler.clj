@@ -13,38 +13,34 @@
             [clojure.tools.logging :refer [info warn error]]
             [environ.core :refer [env]]
             [overtone.at-at :as at-at]
-            [clojure.set :refer [difference]]))
+            [clojure.set :refer [difference]])
+  (:import [org.joda.time DateTimeConstants]))
 
-(def thursday 4)
 (def week-in-ms (* 60 60 24 7 1000))
-(def day-in-ms (* 60 60 24 1000))
 (def half-an-hour-in-ms (* 30 60 1000))
 
 (def scheduler-pool (at-at/mk-pool))
 
-(defn next-day-start
-  "Returns the start of the next day after the specified time, where day = 1 for Monday to 7 for Sunday."
-  [time day]
-  (let [dow (core-time/day-of-week time)]
-    (if (< dow day)
-      (core-time/plus (core-time/today-at-midnight) (core-time/days (- day dow)))
-      (core-time/plus (core-time/today-at-midnight) (core-time/days (- (+ day 7) dow))))))
-
-(defn initial-delay
+(defn ms-until-next-thursday
+  "Returns the number of milliseconds until the next instance of Thursday at midnight"
   []
-  (let [current-time (core-time/now)
-        next-thursday-start (next-day-start current-time thursday)]
-    (- (coerce-time/to-long next-thursday-start) (coerce-time/to-long current-time))))
+  (let [now (core-time/now)]
+    (-> (cond-> now
+                (>= (.getDayOfWeek now) (DateTimeConstants/THURSDAY))
+                (.plusWeeks 1))
+        (.withDayOfWeek (DateTimeConstants/THURSDAY))
+        (.toDateMidnight)
+        ((fn [thurs] (core-time/interval now thurs)))
+        (core-time/in-millis))))
 
 (defn output-piped-input-stream
+  "Writes the supplied output stream to the logger"
   [stream]
-  (info "I'll try to read the input stream")
-  (let [rdr (clojure.java.io/reader stream)]
-    (doseq [line (line-seq rdr)]
-      (info line))))
-
+  (doseq [line (line-seq (clojure.java.io/reader stream))]
+    (info line)))
 
 (defn bake-base-ami
+  "Bake the base ami"
   []
   (info "Starting scheduled bake of base ami.")
   (-> (base/create-base-ami (nokia/latest-nokia-ami))
@@ -52,6 +48,7 @@
       (output-piped-input-stream)))
 
 (defn bake-public-ami
+  "Bake the public ami"
   []
   (info "Starting scheduled bake of public ami.")
   (-> (public-ami/create-public-ami)
@@ -59,6 +56,7 @@
       (output-piped-input-stream)))
 
 (defn bake-amis
+  "Bake a new base ami, followed by its public counterpart"
   []
   (bake-base-ami)
   (bake-public-ami))
@@ -67,15 +65,14 @@
   "Deregisters amis for an application apart from the latest 10. Doesn't deregister the ami that is deployed
    according to asgard. Note: amis are retrieved from AWS in latest first order."
   [name]
-  (let [amis (->> (map :ImageId (aws/service-images "ditto"))
+  (let [amis (->> (map :ImageId (aws/service-images name))
                   (reverse)
                   (drop 5))
         amis (difference (set amis) (asgard/active-amis-for-application name))]
-    (when (seq amis)
-      (info (format "Deregistering amis: %s for :%s" name amis))
-      (map aws/deregister-ami amis))))
+    (map (partial aws/deregister-ami name) amis)))
 
 (defn kill-amis
+  "Deregister any sufficiently old amis"
   []
   (info "Starting process to kill old amis for all services")
   (map kill-amis-for-application (onix/get-applications)))
