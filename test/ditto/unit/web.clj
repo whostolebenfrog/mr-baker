@@ -66,7 +66,7 @@
         (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
                   (onix/service-exists? "serv") => true
                   (service-ami/create-service-ami "serv" "0.13-1") => ..template..
-                  (packer/build ..template..) => "template")))
+                  (packer/build ..template.. "serv") => "template")))
 
 (fact-group :unit
   (fact "Get latest amis returns amis for nokia base, base and public"
@@ -98,9 +98,9 @@
         (:body (request :post "bake/entertainment-ami")) => "packer-response"
         (provided (nokia/latest-nokia-ami) => ..latest-ami..
                   (base/create-base-ami ..latest-ami..) => "ami-definition"
-                  (packer/build "ami-definition") => "packer-response"))
+                  (packer/build "ami-definition" "base") => "packer-response"))
 
   (fact "Calling bake public bakes a new public ami"
         (:body (request :post "bake/public-ami")) => "packer-response"
         (provided (public-ami/create-public-ami) => "ami-definition"
-                  (packer/build "ami-definition") => "packer-response")))
+                  (packer/build "ami-definition" "public") => "packer-response")))

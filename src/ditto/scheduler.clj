@@ -44,7 +44,7 @@
   []
   (info "Starting scheduled bake of base ami.")
   (-> (base/create-base-ami (nokia/latest-nokia-ami))
-      (packer/build)
+      (packer/build "base")
       (output-piped-input-stream)))
 
 (defn bake-public-ami
@@ -52,7 +52,7 @@
   []
   (info "Starting scheduled bake of public ami.")
   (-> (public-ami/create-public-ami)
-      (packer/build)
+      (packer/build "public")
       (output-piped-input-stream)))
 
 (defn bake-amis

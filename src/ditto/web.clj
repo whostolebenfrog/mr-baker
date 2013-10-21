@@ -75,7 +75,7 @@
   [dry-run]
   (if-not dry-run
     (-> (base/create-base-ami (nokia/latest-nokia-ami))
-        (packer/build)
+        (packer/build "base")
         (response))
     (response (base/create-base-ami (nokia/latest-nokia-ami)))))
 
@@ -85,7 +85,7 @@
   [dry-run]
   (if-not dry-run
     (-> (public-ami/create-public-ami)
-        (packer/build)
+        (packer/build "public")
         (response))
     (response (public-ami/create-public-ami))))
 
@@ -102,7 +102,7 @@
 
           :else
           (-> (service-ami/create-service-ami name version)
-              (packer/build)
+              (packer/build name)
               (response)))
     (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))
 

@@ -1,6 +1,7 @@
 (ns ditto.packer
   "Here be dragons... Some gnarly code in here to get response streaming to work as we want."
-  (:require [me.raynes.conch :as conch]
+  (:require [ditto.aws :as aws]
+            [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]
             [cheshire.core :as json]
             [clojure.java.io :as io]
@@ -94,30 +95,41 @@
         (schedule-and-kill! out-stream timeout))
       (.close out-stream))))
 
+(defn on-complete [future-to-watch fn-to-call]
+  "Takes a future and a callback function. Calls the fn-to-call when the future completes."
+  (future @future-to-watch (fn-to-call)))
+
 ;; TODO - with open the output stream?
 (defn packer-build
   "Builds the template and returns the ami-id from the output
 
    Note: We have to specifiy the exact path of packer here as another program called
    packer is already on the path and is required for auth purposes"
-  [template-path]
+  [template-path name]
   (conch/let-programs
    [packer "/opt/packer/packer"]
    (let [out-stream (PipedOutputStream.)
          in-stream  (PipedInputStream. out-stream)]
-     (future (packer "build" template-path {:out out-stream :timeout (* 1000 60 30)}))
+     ;; On complete we need to give prod access to the ami. It's a pain to parse the ami
+     ;; from the stream here and I don't want to hack it into the extension of conch
+     ;; from ealier. Just use the service name and get the latest amis from aws and
+     ;; make them public.
+     (on-complete (future (packer "build"
+                                  template-path
+                                  {:out out-stream :timeout (* 1000 60 30)}))
+                  #(aws/allow-prod-access-to-service name))
      in-stream)))
 
 (defn build
   "Build the provided template and respond with the created ami id"
-  [template]
+  [template name]
   (conch/let-programs [packer "/opt/packer/packer"]
     (info "Building ami using packer.")
     (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
       (spit file-name template)
       (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
           (if-not (pos? @exit-code)
-            (packer-build file-name)
+            (packer-build file-name name)
             (do
               (error "Invalid template file.")
               {:status 400 :body (json/generate-string

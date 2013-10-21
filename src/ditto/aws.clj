@@ -56,8 +56,8 @@
           (:return)
           (read-string)))))
 
-(defn allow-prod-access
-  "Sets the ami permissions to allow the prod account access to the ami"
+(defn allow-prod-access-to-ami
+  "Allows prod access to the supplied ami"
   [ami]
   (aws "ec2" "modify-image-attribute"
        "--image-id" ami
@@ -65,3 +65,10 @@
        "--user-ids" (env :service-prod-account)
        "--attribute" "launchPermission"
        "--region" "eu-west-1"))
+
+(defn allow-prod-access-to-service
+  "Allows prod access to the amis for a service."
+  [service]
+  (map
+   (comp allow-prod-access-to-ami :ImageId)
+   (service-images service)))
