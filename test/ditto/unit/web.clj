@@ -43,7 +43,12 @@
                             (scheduler/job-is-scheduled? "killer") => true)
         (let [{:keys [status body]} (request :get "status")]
           status => 500
-          body => (contains {:success false}))))
+          body => (contains {:success false})))
+
+  (fact "Health check returns status"
+        (app {:request-method :get :uri "/healthcheck"}) => (contains {:status 200})
+        (provided (scheduler/job-is-scheduled? "baker") => true
+                            (scheduler/job-is-scheduled? "killer") => true)))
 
 (fact-group :unit
 

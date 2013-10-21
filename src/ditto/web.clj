@@ -26,10 +26,6 @@
             [metrics.ring.expose :refer [expose-metrics-as-json]]
             [metrics.ring.instrument :refer [instrument]]))
 
-;; TODO - testing, we can generate the whole template and test that at least
-   ;;   - we could also try mocking out the packer method although it's generated with a macro...
-   ;;   - could always put it behind a function that calls it and say that's good enough
-
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
   (alter-var-root #'*version* (fn [_] version)))
@@ -120,14 +116,16 @@
 
 ;; TODO - what's the normal json response for an error etc?
 (defroutes routes
+  (GET "/healthcheck" []
+       (status))
   (context
    "/1.x" []
 
-   (GET "/ping"
-        [] "pong")
+   (GET "/ping" []
+        "pong")
 
-   (GET "/status"
-        [] (status))
+   (GET "/status" []
+        (status))
 
    (GET "/amis" []
         (latest-amis))
