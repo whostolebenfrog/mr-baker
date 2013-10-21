@@ -1,6 +1,7 @@
 (ns ditto.aws
   (:require [me.raynes.conch :as conch]
             [cheshire.core :as json]
+            [environ.core :refer [env]]
             [clojure.tools.logging :refer [info warn error]]))
 
 (conch/programs aws)
@@ -54,3 +55,13 @@
       (-> (json/parse-string result true)
           (:return)
           (read-string)))))
+
+(defn allow-prod-access
+  "Sets the ami permissions to allow the prod account access to the ami"
+  [ami]
+  (aws "ec2" "modify-image-attribute"
+       "--image-id" ami
+       "--operation-type" "add"
+       "--user-ids" (env :service-prod-account)
+       "--attribute" "launchPermission"
+       "--region" "eu-west-1"))
