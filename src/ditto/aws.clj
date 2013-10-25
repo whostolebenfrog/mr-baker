@@ -12,9 +12,13 @@
 
    Returns an array of matching images or nil.
 
-   Images are returned sorted alphabetically by name."
+   Images are returned sorted oldest first."
   [name]
-  (sort-by :Name
+  ;; sort by minor version number not alphabetically or 0.11 comes before  0.9 etc
+  ;; ignores major version numbers for simplicity
+  (sort-by (fn [ami-name] (-> (re-matches #"^.+-.+-.+\.([^-]+).+$" ami-name)
+                             (second)
+                             (Integer/valueOf))) <
            (-> (aws "ec2" "describe-images"
                     "--region" "eu-west-1"
                     "--output" "json"
