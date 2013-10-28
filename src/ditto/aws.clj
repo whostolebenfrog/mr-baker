@@ -72,7 +72,7 @@
 (defn deregister-ami
   "Deregister an ami. Returns true if successful, otherwise false"
   [service image-id]
-  (info (format "Deregistering ami %s for service %s") image-id service)
+  (info (format "Deregistering ami %s for service %s" image-id service))
   (let [result (aws "ec2" "deregister-image"
                     "--region" "eu-west-1"
                     "--output" "json"
