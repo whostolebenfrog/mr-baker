@@ -6,6 +6,29 @@
 
 (conch/programs aws)
 
+(defn ami-name-comparator
+  "Order by major version, then minor version numerically.
+   Followed by date chronologically (although really lexographically thanks to ISO8601)"
+  [a b]
+  (let [splitter (partial re-matches #"^[^0-9]+([^\.]+)\.([^\.]+)-.-(.+)$")
+        [_ major-a minor-a date-a] (splitter a)
+        [_ major-b minor-b date-b] (splitter b)
+        major-a (Integer/valueOf major-a)
+        major-b (Integer/valueOf major-b)
+        minor-a (Integer/valueOf minor-a)
+        minor-b (Integer/valueOf minor-b)]
+    (cond (or (nil? a) (nil? b))
+          (compare a b)
+
+          (not= 0 (compare major-a major-b))
+          (compare major-a major-b)
+
+          (not= 0 (compare minor-a minor-b))
+          (compare minor-a minor-b)
+
+          :else
+          (compare date-a date-b))))
+
 (defn owned-images-by-name
   "Returns a list of images owned by the current account and filtered by the supplied name.
    Accepts * as a wild card.
@@ -16,9 +39,8 @@
   [name]
   ;; sort by minor version number not alphabetically or 0.11 comes before  0.9 etc
   ;; ignores major version numbers for simplicity
-  (sort-by (fn [ami-name] (-> (re-matches #"^.+-.+-.+\.([^-]+).+$" ami-name)
-                             (second)
-                             (Integer/valueOf))) <
+  (sort-by :Name
+           ami-name-comparator
            (-> (aws "ec2" "describe-images"
                     "--region" "eu-west-1"
                     "--output" "json"

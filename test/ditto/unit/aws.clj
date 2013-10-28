@@ -14,14 +14,42 @@
                    (allow-prod-access-to-ami anything) => false :times 0))
 
             (fact "owned-images-by-name returns the list of images sorted numerically"
-                  (owned-images-by-name ..name..) => '("ent-exploud-0.9-1-2013-10-24_18-41-23"
-                                                       "ent-exploud-0.10-1-2013-10-24_18-41-23"
-                                                       "ent-exploud-0.11-1-2013-10-24_18-41-23")
+                  (owned-images-by-name ..name..) => '({:Name "ent-exploud-0.9-1-2013-10-24_18-41-23"}
+                                                       {:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"}
+                                                       {:Name "ent-exploud-0.11-1-2013-10-24_18-41-23"})
                   (provided
                    ;; Shame midje doesn't support varargs!
                    (aws anything anything anything anything anything
                         anything anything anything anything anything) =>
                         (json/generate-string
-                         {:Images ["ent-exploud-0.10-1-2013-10-24_18-41-23"
-                                   "ent-exploud-0.11-1-2013-10-24_18-41-23"
-                                   "ent-exploud-0.9-1-2013-10-24_18-41-23"]}))))
+                         {:Images [{:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"}
+                                   {:Name "ent-exploud-0.9-1-2013-10-24_18-41-23"}
+                                   {:Name "ent-exploud-0.11-1-2013-10-24_18-41-23"}]})))
+
+            (fact "owned-images-by-name sorts by major version first"
+                  (owned-images-by-name ..name..) => '({:Name "ent-exploud-0.1-1-2013-10-24_18-41-23"}
+                                                       {:Name "ent-exploud-0.9-1-2013-10-24_18-41-23"}
+                                                       {:Name "ent-exploud-0.14-1-2013-10-24_18-41-23"}
+                                                       {:Name "ent-exploud-1.3-1-2013-10-24_18-41-23"})
+                  (provided
+                   ;; Shame midje doesn't support varargs!
+                   (aws anything anything anything anything anything
+                        anything anything anything anything anything) =>
+                        (json/generate-string
+                         {:Images [{:Name "ent-exploud-0.1-1-2013-10-24_18-41-23"}
+                                   {:Name "ent-exploud-0.14-1-2013-10-24_18-41-23"}
+                                   {:Name "ent-exploud-1.3-1-2013-10-24_18-41-23"}
+                                   {:Name "ent-exploud-0.9-1-2013-10-24_18-41-23"}]})))
+
+            (fact "owned-images-by-name sorts by date if all else is equal"
+                  (owned-images-by-name ..name..) => '({:Name "ent-exploud-0.10-1-2012-10-24_18-41-23"}
+                                                       {:Name "ent-exploud-0.10-1-2013-10-24_18-38-23"}
+                                                       {:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"})
+                  (provided
+                   ;; Shame midje doesn't support varargs!
+                   (aws anything anything anything anything anything
+                        anything anything anything anything anything) =>
+                        (json/generate-string
+                         {:Images [{:Name "ent-exploud-0.10-1-2013-10-24_18-38-23"}
+                                   {:Name "ent-exploud-0.10-1-2012-10-24_18-41-23"}
+                                   {:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"}]}))))

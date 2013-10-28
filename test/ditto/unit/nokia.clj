@@ -6,6 +6,6 @@
 
 (fact-group :unit
   (fact "Latest-nokia-ami returns"
-        (latest-nokia-ami) => "latest-ami"
-        (provided (nokia-ami-name :ebs anything) => "ami-name"
-                  (aws/private-images-by-name "ami-name") => [{:ImageId "latest-ami"}])))
+        (latest-nokia-ami) => "ent-ditto-0.25-1-2013-10-15_10-21-19"
+        (provided (nokia-ami-name :ebs anything) => "ent-ditto-0.25-1-2013-10-15_10-21-19"
+                  (aws/private-images-by-name anything) => [{:ImageId "ent-ditto-0.25-1-2013-10-15_10-21-19"}])))
