@@ -15,8 +15,8 @@
   "Returns the id of the latest entertainment base ami"
   []
   (-> (aws/owned-images-by-name "entertainment-base-*")
-       (last)
-       :ImageId))
+      (last)
+      :ImageId))
 
 (defn ent-ami-name
   "Returns the ami name for date/time now"

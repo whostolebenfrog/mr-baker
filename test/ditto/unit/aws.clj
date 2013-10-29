@@ -32,7 +32,6 @@
                                                        {:Name "ent-exploud-0.14-1-2013-10-24_18-41-23"}
                                                        {:Name "ent-exploud-1.3-1-2013-10-24_18-41-23"})
                   (provided
-                   ;; Shame midje doesn't support varargs!
                    (aws anything anything anything anything anything
                         anything anything anything anything anything) =>
                         (json/generate-string
@@ -46,10 +45,21 @@
                                                        {:Name "ent-exploud-0.10-1-2013-10-24_18-38-23"}
                                                        {:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"})
                   (provided
-                   ;; Shame midje doesn't support varargs!
                    (aws anything anything anything anything anything
                         anything anything anything anything anything) =>
                         (json/generate-string
                          {:Images [{:Name "ent-exploud-0.10-1-2013-10-24_18-38-23"}
                                    {:Name "ent-exploud-0.10-1-2012-10-24_18-41-23"}
-                                   {:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"}]}))))
+                                   {:Name "ent-exploud-0.10-1-2013-10-24_18-41-23"}]})))
+
+            (fact "owned-images-by-name sorts basic ami names alphabetically"
+                  (owned-images-by-name ..name..) => '({:Name "entertainment-base-2012-10-24_00-00-03"}
+                                                       {:Name "entertainment-base-2013-10-24_00-00-03"}
+                                                       {:Name "entertainment-base-2013-10-25_00-00-03"})
+                  (provided
+                   (aws anything anything anything anything anything
+                        anything anything anything anything anything) =>
+                        (json/generate-string
+                         {:Images [{:Name "entertainment-base-2013-10-24_00-00-03"}
+                                   {:Name "entertainment-base-2012-10-24_00-00-03"}
+                                   {:Name "entertainment-base-2013-10-25_00-00-03"}]}))))
