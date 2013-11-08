@@ -2,9 +2,7 @@
   (:require [ditto
              [scheduler :as scheduler]
              [entertainment-ami :as base]
-             [bake-service-ami :as service-ami]
-             [public-ami :as public-ami]
-             [packer :as packer]
+             [bake-service-ami :as service-ami] [public-ami :as public-ami] [packer :as packer]
              [aws :as aws]
              [pokemon :as pokemon]
              [onix :as onix]
@@ -141,6 +139,9 @@
 
    (POST "/bake/:service-name/:service-version" [service-name service-version dryrun]
          (bake-service-ami service-name service-version dryrun))
+
+   (POST "/make-public/:service" [service]
+         (aws/allow-prod-access-to-service service))
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))
