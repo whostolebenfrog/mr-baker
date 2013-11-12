@@ -41,7 +41,7 @@
             [lein-environ "0.4.0"]
             [lein-release "1.0.73"]]
 
-  :resource-paths ["shared" "ami-scripts" "puppet"]
+  :resource-paths ["resources" "shared" "ami-scripts" "puppet"]
 
   ;; development token values
   :env {:environment-name "Dev"
