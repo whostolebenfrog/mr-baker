@@ -37,13 +37,17 @@
 
    We also need to do all our cleanup in this step as we don't have root after this has run!
    Due to puppet setting up the various auth concerns."
-  (shell "export LD_LIBRARY_PATH=/opt/rh/ruby193/root/usr/lib64"
+  (shell "mkdir -p /var/lock/linux_stats"
+         "touch /var/lock/linux_stats/lock"
+         "export LD_LIBRARY_PATH=/opt/rh/ruby193/root/usr/lib64"
          "PUPPETD=\"PATH=/opt/rh/ruby193/root/usr/local/bin/:/opt/rh/ruby193/root/usr/bin/:/sbin:/usr/sbin:/bin:/usr/bin /opt/rh/ruby193/root/usr/local/bin/puppet\""
          "yum install -y puppet >> /var/log/baking.log 2>&1"
          "scl enable ruby193 ' /opt/rh/ruby193/root/usr/local/bin/puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com'"
          "rm -rf /var/lib/puppet/ssl"
          "echo \"nokiarebake 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
-         "rm /tmp/script.sh"))
+         "rm /tmp/script.sh"
+         "rm -f /etc/cron.d/linuxstats"
+         "rm -f /var/lock/linux_stats/lock"))
 
 (def ruby-193
   "Install ruby-193 - required to run puppet faster"
