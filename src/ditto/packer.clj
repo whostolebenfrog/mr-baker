@@ -85,9 +85,11 @@
    make that ami available to our prod account. Don't match the first instance
    of the ami though (starts with amazon-ebs) as it wont be ready at this point."
   [line]
+  (info line)
   (when-let [ami (and line
                       (not (re-matches #".*amazon-ebs.*" line))
                       (last (re-matches #".+(ami-.+)$" line)))]
+    (info (str "Making AMI: " ami " available to prod account."))
     (aws/allow-prod-access-to-ami ami)))
 
 ;; Extend conch redirectable protocol to handle PipedOutputStream
