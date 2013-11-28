@@ -80,6 +80,16 @@
                 (schedule-and-kill! out-stream timeout))
               timeout-pool)))
 
+(defn allow-prod-ami-if-found
+  "Takes a line of output, if it finds that the line contains the ami then
+   make that ami available to our prod account. Don't match the first instance
+   of the ami though (starts with amazon-ebs) as it wont be ready at this point."
+  [line]
+  (when-let [ami (and line
+                      (not (re-matches #".*amazon-ebs.*" line))
+                      (last (re-matches #".+(ami-.+)$" line)))]
+    (aws/allow-prod-access-to-ami ami)))
+
 ;; Extend conch redirectable protocol to handle PipedOutputStream
 ;; Allows us to pass an output stream to write the response to.
 (extend-type PipedOutputStream
@@ -87,6 +97,7 @@
   (redirect [out-stream options k proc]
     (let [timeout (atom {:scheduled? (atom false)})]
       (doseq [line (get proc k)]
+        (allow-prod-ami-if-found line)
         (when (deref (:scheduled? @timeout))
           (at/stop timeout))
         (let [bytes (.getBytes line)]
@@ -94,10 +105,6 @@
           (.flush out-stream))
         (schedule-and-kill! out-stream timeout))
       (.close out-stream))))
-
-(defn on-complete [future-to-watch fn-to-call]
-  "Takes a future and a callback function. Calls the fn-to-call when the future completes."
-  (future @future-to-watch (fn-to-call)))
 
 ;; TODO - with open the output stream?
 (defn packer-build
@@ -114,10 +121,9 @@
      ;; from the stream here and I don't want to hack it into the extension of conch
      ;; from ealier. Just use the service name and get the latest amis from aws and
      ;; make them public.
-     (on-complete (future (packer "build"
-                                  template-path
-                                  {:out out-stream :timeout (* 1000 60 30)}))
-                  #(aws/allow-prod-access-to-service name))
+     (future (packer "build"
+                     template-path
+                     {:out out-stream :timeout (* 1000 60 30)}))
      in-stream)))
 
 (defn build
