@@ -65,10 +65,12 @@
   "Deregisters amis for an application apart from the latest 10. Doesn't deregister the ami that is deployed
    according to asgard. Note: amis are retrieved from AWS in latest first order."
   [name]
+  (info (str "Killing amis for " name))
   (let [amis (->> (map :ImageId (aws/service-images name))
                   (reverse)
                   (drop 5))
         amis (difference (set amis) (asgard/active-amis-for-application name))]
+    (info (str "List of amis to kill: " amis))
     (map (partial aws/deregister-ami name) amis)))
 
 (defn kill-amis
