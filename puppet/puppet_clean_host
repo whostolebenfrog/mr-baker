@@ -10,4 +10,3 @@ DOM=`facter domain`
 PUPPET_SERVER=puppetaws.${DOM#aws\.}
 
 ssh -o StrictHostKeyChecking=no -i /opt/puppet-clean/.ssh/janitor_rsa janitor@\${PUPPET_SERVER} \`facter fqdn\`
-
