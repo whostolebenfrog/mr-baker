@@ -2,7 +2,9 @@
   (:require [ditto
              [scheduler :as scheduler]
              [entertainment-ami :as base]
-             [bake-service-ami :as service-ami] [public-ami :as public-ami] [packer :as packer]
+             [bake-service-ami :as service-ami]
+             [public-ami :as public-ami]
+             [packer :as packer]
              [aws :as aws]
              [pokemon :as pokemon]
              [onix :as onix]
@@ -127,6 +129,11 @@
 
    (GET "/amis" []
         (latest-amis))
+
+   (POST "/clean/:service" [service]
+         (if (= service "all")
+           (scheduler/kill-amis)
+           (scheduler/kill-amis-for-application service)))
 
    (GET "/amis/:service-name" [service-name]
         (latest-service-amis service-name))
