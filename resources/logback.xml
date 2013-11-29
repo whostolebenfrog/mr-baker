@@ -43,7 +43,7 @@
     <appender-ref ref="file" />
   </logger>
 
-  <root level="${SERVICE_LOGGING_LEVEL:-debug}">
+  <root level="${SERVICE_LOGGING_LEVEL:-info}">
     <appender-ref ref="file" />
     <appender-ref ref="console" />
     <appender-ref ref="service" />
