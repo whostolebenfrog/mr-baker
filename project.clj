@@ -1,4 +1,4 @@
-(defproject ditto "0.43"
+(defproject ditto "0.44-SNAPSHOT"
   :description "Ditto service"
   :url "http://wikis.in.nokia.com/NokiaMusicArchitecture/Ditto"
 
