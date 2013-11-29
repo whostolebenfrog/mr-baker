@@ -16,5 +16,19 @@
 (defn get-applications
   "Returns the list of all applications in onix"
   []
-  (get-in (client/get (str onix-base-url "/1.x/applications") {:throw-exceptions false :as :json})
+  (get-in (client/get (str onix-base-url "/1.x/applications")
+                      {:throw-exceptions false :as :json})
           [:body :applications]))
+
+(defn service-property
+  "Returns the onix property for the supplied name and service"
+  [service-name property-name]
+  (get-in (client/get (str onix-base-url "/1.x/applications/" service-name)
+                      {:throw-exceptions false :as :json})
+          [:body :metadata (keyword property-name)]))
+
+(defn shell-commands
+  "Returns a list of shell commands to run on the service"
+  [service-name]
+  (cheshire.core/parse-string
+   (service-property service-name "customBakeCommands")))

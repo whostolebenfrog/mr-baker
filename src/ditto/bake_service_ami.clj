@@ -1,7 +1,8 @@
 (ns ditto.bake-service-ami
   (:require [ditto
              [entertainment-ami :as base]
-             [bake-common :refer :all]]
+             [bake-common :refer :all]
+             [onix :as onix]]
             [cheshire.core :as json]
             [clj-http.client :as client]
             [clj-time
@@ -41,6 +42,12 @@
   "Enable puppet once we're done"
   (shell "chkconfig puppet on"))
 
+(defn custom-shell-commands
+  "If the service defines custom shell commands "
+  [service-name]
+  (when-let [commands (onix/shell-commands service-name)]
+    (apply shell commands)))
+
 (defn service-template
   "Generates a new ami template for the service"
   [service-name service-version]
@@ -57,9 +64,12 @@
                   :type "amazon-ebs"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
-     :provisioners [(motd service-name service-version)
-                    (service-rpm service-name service-version)
-                    puppet-on]}))
+     :provisioners (filter
+                    identity
+                    [(motd service-name service-version)
+                     (service-rpm service-name service-version)
+                     (custom-shell-commands service-name)
+                     puppet-on])}))
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
