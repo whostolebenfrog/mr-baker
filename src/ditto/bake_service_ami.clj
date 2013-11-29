@@ -48,6 +48,10 @@
   (when-let [commands (onix/shell-commands service-name)]
     (apply shell commands)))
 
+(def clear-var-log-messages
+  "Clears /var/log/messages"
+  (shell "cat /dev/null > /var/log/messages"))
+
 (defn service-template
   "Generates a new ami template for the service"
   [service-name service-version]
@@ -69,6 +73,7 @@
                     [(motd service-name service-version)
                      (service-rpm service-name service-version)
                      (custom-shell-commands service-name)
+                     clear-var-log-messages
                      puppet-on])}))
 
 (defn create-service-ami
