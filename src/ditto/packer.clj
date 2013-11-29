@@ -86,7 +86,7 @@
    of the ami though (starts with amazon-ebs) as it wont be ready at this point."
   [line]
   (info line)
-  (when-let [ami (and line (last (re-matches #"(?is).*AMIs were created.+(ami-.+)" line)))]
+  (when-let [ami (and line (last (re-matches #"(?is).*AMIs were created.+(ami-[\w]+)\s*" line)))]
     (info (str "Making AMI: " ami " available to prod account."))
     (aws/allow-prod-access-to-ami ami)))
 
