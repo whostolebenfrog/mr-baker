@@ -66,7 +66,17 @@
         (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
                   (onix/service-exists? "serv") => true
                   (service-ami/create-service-ami "serv" "0.13-1") => ..template..
-                  (packer/build ..template.. "serv") => "template")))
+                  (packer/build ..template.. "serv") => "template"))
+
+  (fact "Service returns 503 if ditto is locked"
+        (request :post "lock") => (contains {:status 200})
+        (request :post "bake/serv/0.13") => (contains {:status 503})
+        (request :post "unlock") => (contains {:status 200})
+        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
+        (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1" :times 1
+                  (onix/service-exists? "serv") => true :times 1
+                  (service-ami/create-service-ami "serv" "0.13-1") => ..template.. :times 1
+                  (packer/build ..template.. "serv") => "template" :times 1)))
 
 (fact-group :unit
   (fact "Get latest amis returns amis for nokia base, base and public"

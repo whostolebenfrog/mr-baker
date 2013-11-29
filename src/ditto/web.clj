@@ -114,6 +114,17 @@
    :body (-> (clojure.java.io/resource "ditto.jpg")
              (clojure.java.io/input-stream))})
 
+(def lock (atom false))
+
+(defn lockable-bake
+  "Bake the ami if the service isn't locked"
+  [bake]
+  (if-not @lock
+    (bake)
+    {:status 503
+     :headers {"Content-Type" "text/plain"}
+     :body "Service is temporarily locked, probably for a deployment. Try again in a few minutes!"}))
+
 ;; TODO - what's the normal json response for an error etc?
 (defroutes routes
   (GET "/healthcheck" []
@@ -130,6 +141,17 @@
    (GET "/amis" []
         (latest-amis))
 
+   (POST "/lock" []
+         (reset! lock true)
+         "Ditto is locked and won't accept new builds.")
+
+   (POST "/unlock" []
+         (reset! lock false)
+         "Ditto is unlocked, builds away!")
+
+   (GET "/inprogress" []
+        @packer/timeout-pool)
+
    (POST "/clean/:service" [service]
          (if (= service "all")
            (scheduler/kill-amis)
@@ -139,13 +161,13 @@
         (latest-service-amis service-name))
 
    (POST "/bake/entertainment-ami" [dryrun]
-         (bake-entertainment-base-ami dryrun))
+         (lockable-bake #(bake-entertainment-base-ami dryrun)))
 
    (POST "/bake/public-ami" [dryrun]
-         (bake-entertainment-public-ami dryrun))
+         (lockable-bake #(bake-entertainment-public-ami dryrun)))
 
    (POST "/bake/:service-name/:service-version" [service-name service-version dryrun]
-         (bake-service-ami service-name service-version dryrun))
+         (lockable-bake #(bake-service-ami service-name service-version dryrun)))
 
    (POST "/make-public/:service" [service]
          (aws/allow-prod-access-to-service service))
