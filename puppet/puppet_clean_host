@@ -6,6 +6,7 @@
 # description: Ensure that puppet contains no records for our hostname
 
 DOM=`facter domain`
+DOM=${DOM:-brislabs.com}
 # strip off any leading "aws." from the domain name and then append to the end of the puppet master hostname
 PUPPET_SERVER=puppetaws.${DOM#aws\.}
 
