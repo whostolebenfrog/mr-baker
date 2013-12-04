@@ -5,7 +5,7 @@
 # chkconfig: 345 50 50
 # description: Ensure that puppet contains no records for our hostname
 
-DOM=`facter domain`
+DOM=\`facter domain\`
 
 # strip off any leading "aws." from the domain name and then append to the end of the puppet master hostname
 DOM=\${DOM#aws\.}
