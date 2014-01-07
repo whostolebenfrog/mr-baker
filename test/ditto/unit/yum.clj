@@ -13,7 +13,7 @@
                   (provided
                    (rpm-version ..version.. 1) => ..iversion..
                    (rpm-version ..version.. anything) => nil
-                   (rpm-url ..name.. ..iversion..) => ..url..
+                   (rpm-url ..name.. nil ..iversion..) => ..url..
                    (rpm-exists? ..url..) => false))
 
             (fact "get-last-iteration returns highest available rpm"
@@ -23,9 +23,9 @@
                    (rpm-version ..version.. 2) => ..i-latest..
                    (rpm-version ..version.. 3) => ..i-not-found..
                    (rpm-version ..version.. anything) => nil
-                   (rpm-url ..name.. ..i-prev..) => ..url-prev..
-                   (rpm-url ..name.. ..i-latest..) => ..url-latest..
-                   (rpm-url ..name.. ..i-not-found..) => ..url-not-found..
+                   (rpm-url ..name.. nil ..i-prev..) => ..url-prev..
+                   (rpm-url ..name.. nil ..i-latest..) => ..url-latest..
+                   (rpm-url ..name.. nil ..i-not-found..) => ..url-not-found..
                    (rpm-exists? ..url-prev..) => true
                    (rpm-exists? ..url-latest..) => true
                    (rpm-exists? ..url-not-found..) => false)))
