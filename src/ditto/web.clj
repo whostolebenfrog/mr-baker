@@ -95,14 +95,14 @@
   [name version dry-run]
   (if (not (onix/service-exists? name))
     (error-response (str "The service '" name "' doesn't exist.") 404)
-    (if-let [version (yum/get-latest-iteration name version)]
-      (let [rpm-name (onix/rpm-name name)]
+    (let [rpm-name (onix/rpm-name name)]
+      (if-let [version (yum/get-latest-iteration name version rpm-name)]
         (if dry-run
           (response (service-ami/create-service-ami name version rpm-name))
           (-> (service-ami/create-service-ami name version rpm-name)
               (packer/build name)
-              (response))))
-      (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404))))
+              (response)))
+        (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
 
 (defn service-icon
   "Returns the service icon"

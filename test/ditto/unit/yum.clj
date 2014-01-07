@@ -9,7 +9,7 @@
                   (provided (client/head ..url.. anything) => {:status 200}))
 
             (fact "get-last-iteration returns nil if no iterations are found"
-                  (get-latest-iteration ..name.. ..version..) => nil
+                  (get-latest-iteration ..name.. ..version.. nil) => nil
                   (provided
                    (rpm-version ..version.. 1) => ..iversion..
                    (rpm-version ..version.. anything) => nil
@@ -17,7 +17,7 @@
                    (rpm-exists? ..url..) => false))
 
             (fact "get-last-iteration returns highest available rpm"
-                  (get-latest-iteration ..name.. ..version..) => ..i-latest..
+                  (get-latest-iteration ..name.. ..version.. nil) => ..i-latest..
                   (provided
                    (rpm-version ..version.. 1) => ..i-prev..
                    (rpm-version ..version.. 2) => ..i-latest..
