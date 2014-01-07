@@ -13,12 +13,15 @@
         (provided
          (core-time/now) => (core-time/date-time 2013 10 15)))
 
-  (fact "rpm-name returns the rpm name"
-        (rpm-name "name" "version") => "name-version.noarch.rpm")
+  (fact "rpm-full-name returns the rpm name"
+        (rpm-full-name "name" "version" nil) => "name-version.noarch.rpm")
+
+  (fact "rpm-full-name allows overriding of the default rpm name"
+        (rpm-full-name "name" "version" "rpm") => "rpm-version.noarch.rpm")
 
   (fact "service-rpm installs the service"
-        (let [name (rpm-name "name" "version")
-              {:keys [type inline]} (service-rpm "name" "version")]
+        (let [name (rpm-full-name "name" "version" nil)
+              {:keys [type inline]} (service-rpm "name" "version" nil)]
 
           type => "shell"
           (first inline) => (has-prefix "wget")
@@ -36,7 +39,7 @@
         (against-background
          (service-ami-name ..name.. ..version..) => ..ami-name..
          (base/entertainment-base-ami-id) => ..base-ami..)
-        (let [template (service-template ..name.. ..version..)
+        (let [template (service-template ..name.. ..version.. ..rpm..)
               {:keys [ami_name iam_instance_profile instance_type region
                       secret_key source_ami temporary_key_pair_name ssh_timeout
                       ssh_username subnet_id type vpc_id]}
@@ -56,7 +59,7 @@
           vpc_id => (has-prefix "vpc")))
 
   (fact "create-service-ami returns a json string of the packer template"
-        (create-service-ami ..name.. ..version..) => ..json..
+        (create-service-ami ..name.. ..version.. ..rpm..) => ..json..
         (provided
-         (service-template ..name.. ..version..) => ..template..
+         (service-template ..name.. ..version.. ..rpm..) => ..template..
          (json/generate-string ..template..) => ..json..)))
