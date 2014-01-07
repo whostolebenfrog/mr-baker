@@ -30,8 +30,7 @@
 (defn rpm-name
   "Returns any overridden RPM name for the given service, or nil if not defined"
   [service-name]
-  (cheshire.core/parse-string
-   (service-property service-name "rpmName")))
+  (service-property service-name "rpmName"))
 
 (defn shell-commands
   "Returns a list of shell commands to run on the service"
