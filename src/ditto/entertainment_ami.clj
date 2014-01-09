@@ -72,6 +72,10 @@
   "Cleanup the nokia baking user and reset the lock file so that a new one is created on next bake"
   (shell "rm /var/lib/nokia-tools/init.lock"))
 
+(def dhcp-retry
+  "Set's the DHCP to retry as centos sets a low timeout and sometimes amazon takes too long. This means the box fails to start."
+  (shell "echo PERSISTENT_DHCLIENT=yes >> /etc/sysconfig/network-scripts/ifcfg-eth0"))
+
 (def puppet-clean
   "Ensure that puppet holds no record for this IP (hostname). Due to the recycling of IPs
    we need to clean puppet for the IP we are currently using on startup."
@@ -110,6 +114,7 @@
                     ruby-193
                     cloud-final
                     user-cleanup
+                    dhcp-retry
                     puppet-clean
                     puppet]}))
 
