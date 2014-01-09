@@ -27,6 +27,11 @@
                       {:throw-exceptions false :as :json})
           [:body :metadata (keyword property-name)]))
 
+(defn rpm-name
+  "Returns any overridden RPM name for the given service, or nil if not defined"
+  [service-name]
+  (service-property service-name "rpmName"))
+
 (defn shell-commands
   "Returns a list of shell commands to run on the service"
   [service-name]

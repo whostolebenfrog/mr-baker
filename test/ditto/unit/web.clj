@@ -54,18 +54,27 @@
 
   (fact "Service must exist to be baked"
         (request :post "bake/serv/0.13") => (contains {:status 404})
-        (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
-                  (onix/service-exists? "serv") => false))
+        (provided (onix/service-exists? "serv") => false))
 
   (fact "Service rpm must exist to be baked"
         (request :post "bake/serv/0.13") => (contains {:status 404})
-        (provided (yum/get-latest-iteration "serv" "0.13") => nil))
+        (provided (onix/service-exists? "serv") => true
+                  (yum/get-latest-iteration "serv" "0.13" nil) => nil))
 
   (fact "Bake service gets the latest iteration"
         (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
-        (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1"
-                  (onix/service-exists? "serv") => true
-                  (service-ami/create-service-ami "serv" "0.13-1") => ..template..
+        (provided (onix/service-exists? "serv") => true
+                  (onix/rpm-name "serv") => nil
+                  (yum/get-latest-iteration "serv" "0.13" nil) => "0.13-1"
+                  (service-ami/create-service-ami "serv" "0.13-1" nil) => ..template..
+                  (packer/build ..template.. "serv") => "template"))
+
+  (fact "Bake service attempts to get an overridden RPM name from Onix"
+        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
+        (provided (onix/service-exists? "serv") => true
+                  (onix/rpm-name "serv") => "other"
+                  (yum/get-latest-iteration "serv" "0.13" "other") => "0.13-1"
+                  (service-ami/create-service-ami "serv" "0.13-1" "other") => ..template..
                   (packer/build ..template.. "serv") => "template"))
 
   (fact "Service returns 503 if ditto is locked"
@@ -73,9 +82,10 @@
         (request :post "bake/serv/0.13") => (contains {:status 503})
         (request :post "unlock") => (contains {:status 200})
         (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
-        (provided (yum/get-latest-iteration "serv" "0.13") => "0.13-1" :times 1
-                  (onix/service-exists? "serv") => true :times 1
-                  (service-ami/create-service-ami "serv" "0.13-1") => ..template.. :times 1
+        (provided (onix/service-exists? "serv") => true :times 1
+                  (onix/rpm-name "serv") => nil
+                  (yum/get-latest-iteration "serv" "0.13" nil) => "0.13-1" :times 1
+                  (service-ami/create-service-ami "serv" "0.13-1" nil) => ..template.. :times 1
                   (packer/build ..template.. "serv") => "template" :times 1)))
 
 (fact-group :unit

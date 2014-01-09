@@ -26,17 +26,18 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
-(defn rpm-name
-  [service-name service-version]
-  (format "%s-%s.noarch.rpm" service-name service-version))
+(defn rpm-full-name
+  [service-name service-version rpm-name]
+  (let [name (or rpm-name service-name)]
+    (format "%s-%s.noarch.rpm" name service-version)))
 
 (defn service-rpm
   "Install the service rpm on to the machine"
-  [service-name service-version]
-  (let [rpm-name (rpm-name service-name service-version)]
-    (shell (str "wget http://yumrepo.brislabs.com/ovimusic/" rpm-name)
-           (str "yum -y install " rpm-name)
-           (str "rm -fv " rpm-name))))
+  [service-name service-version rpm-name]
+  (let [rpm-full-name (rpm-full-name service-name service-version rpm-name)]
+    (shell (str "wget http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
+           (str "yum -y install " rpm-full-name)
+           (str "rm -fv " rpm-full-name))))
 
 (def puppet-on
   "Enable puppet once we're done"
@@ -54,7 +55,7 @@
 
 (defn service-template
   "Generates a new ami template for the service"
-  [service-name service-version]
+  [service-name service-version rpm-name]
   (let [builder (maybe-with-keys
                  {:ami_name (service-ami-name service-name service-version)
                   :iam_instance_profile "baking"
@@ -71,12 +72,12 @@
      :provisioners (filter
                     identity
                     [(motd service-name service-version)
-                     (service-rpm service-name service-version)
+                     (service-rpm service-name service-version rpm-name)
                      (custom-shell-commands service-name)
                      clear-var-log-messages
                      puppet-on])}))
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
-  [service-name service-version]
-  (json/generate-string (service-template service-name service-version)))
+  [service-name service-version rpm-name]
+  (json/generate-string (service-template service-name service-version rpm-name)))

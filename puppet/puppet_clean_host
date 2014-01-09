@@ -5,8 +5,11 @@
 # chkconfig: 345 50 50
 # description: Ensure that puppet contains no records for our hostname
 
-DOM=`facter domain`
+DOM=\`facter domain\`
+
 # strip off any leading "aws." from the domain name and then append to the end of the puppet master hostname
-PUPPET_SERVER=puppetaws.${DOM#aws\.}
+DOM=\${DOM#aws\.}
+DOM=\${DOM:-brislabs.com}
+PUPPET_SERVER="puppetaws.\${DOM}"
 
 ssh -o StrictHostKeyChecking=no -i /opt/puppet-clean/.ssh/janitor_rsa janitor@\${PUPPET_SERVER} \`facter fqdn\`

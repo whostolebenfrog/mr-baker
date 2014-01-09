@@ -7,8 +7,8 @@
 
 (defn rpm-url
   "Returns the rpm url for a given service-name, version and iteration."
-  [name version]
-  (str (env :service-yum-url) "/" (bake-service/rpm-name name version)))
+  [service-name rpm-name version]
+  (str (env :service-yum-url) "/" (bake-service/rpm-full-name service-name version rpm-name)))
 
 (defn rpm-exists?
   "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
@@ -22,6 +22,6 @@
 
 (defn get-latest-iteration
   "Gets the latest iteration of the rpm version or nil if the rpm does not exist."
-  [name version]
+  [service-name version rpm-name]
   (let [iversion (map (partial rpm-version version) (range 1 100))]
-    (last (take-while (partial (comp rpm-exists? rpm-url) name) iversion))))
+    (last (take-while (partial (comp rpm-exists? rpm-url) service-name rpm-name) iversion))))
