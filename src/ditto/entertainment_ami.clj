@@ -63,9 +63,9 @@
          (format "echo -e \"\\nSource AMI: %s\\n\" >> /etc/motd" parent-ami)))
 
 (def cloud-final
-  "Run cloud final just before last, not last"
+  "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
-         "sudo sed -i \"s/# chkconfig:   - 99 01/# chkconfig:   - 98 01/\" /etc/rc.d/init.d/cloud-final"
+         "sudo sed -i \"s/# chkconfig:   - 99 01/# chkconfig:   - 96 01/\" /etc/rc.d/init.d/cloud-final"
          "chkconfig cloud-final on"))
 
 (def user-cleanup
