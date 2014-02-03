@@ -33,6 +33,10 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nSource AMI: %s\\n\" >> /etc/motd" source-ami)))
 
+(def numel-on
+  "Switch on Numel integration"
+  (shell "yum install numel-integration"))
+
 (def puppet-on
   "Enable puppet on the public base instance"
   (shell "chkconfig puppet on"))
@@ -56,6 +60,7 @@
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
      :provisioners [(motd parent-ami)
+                    numel-on
                     puppet-on]}))
 
 (defn create-public-ami

@@ -39,6 +39,10 @@
            (str "yum -y install " rpm-full-name)
            (str "rm -fv " rpm-full-name))))
 
+(def numel-on
+  "Switch on Numel integration"
+  (shell "yum install numel-integration"))
+
 (def puppet-on
   "Enable puppet once we're done"
   (shell "chkconfig puppet on"))
@@ -75,6 +79,7 @@
                      (service-rpm service-name service-version rpm-name)
                      (custom-shell-commands service-name)
                      clear-var-log-messages
+                     numel-on
                      puppet-on])}))
 
 (defn create-service-ami
