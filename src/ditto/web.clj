@@ -24,7 +24,8 @@
                                               replace-guid replace-mongoid replace-number]]
             [nokia.ring-utils.ignore-trailing-slash :refer [wrap-ignore-trailing-slash]]
             [metrics.ring.expose :refer [expose-metrics-as-json]]
-            [metrics.ring.instrument :refer [instrument]]))
+            [metrics.ring.instrument :refer [instrument]]
+            [overtone.at-at :refer [show-schedule]]))
 
 (def ^:dynamic *version* "none")
 (defn set-version! [version]
@@ -148,7 +149,7 @@
          "Ditto is unlocked, builds away!")
 
    (GET "/inprogress" []
-        @packer/timeout-pool)
+        (response (with-out-str (show-schedule packer/timeout-pool)) "text/plain"))
 
    (POST "/clean/:service" [service]
          (if (= service "all")
