@@ -2,7 +2,8 @@
   (:require [ditto
              [bake-service-ami :refer :all]
              [bake-common :refer :all]
-             [entertainment-ami :as base]]
+             [entertainment-ami :as base]
+             [onix :as onix]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
             [clj-time.core :as core-time]))
@@ -34,6 +35,20 @@
 
           type => "shell"
           (first inline) => "chkconfig puppet on"))
+
+  (fact "custom-shell-commands calls onix and uses that result"
+        (against-background
+         (onix/shell-commands "app") => ["echo woo" "do something"])
+        (let [{:keys [type inline]} (custom-shell-commands "app" "1.1")]
+          type => "shell"
+          (first inline) => "echo woo"
+          (second inline) => "do something"))
+
+  (fact "custom-shell-commands replaces `{{version}}` in any script"
+        (against-background
+         (onix/shell-commands "app") => ["echo {{version}}"])
+        (let [{:keys [inline]} (custom-shell-commands "app" "1.2.3")]
+          (first inline) => "echo 1.2.3"))
 
   (fact "packer template validates"
         (against-background
