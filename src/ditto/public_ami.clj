@@ -35,7 +35,7 @@
 
 (def numel-on
   "Switch on Numel integration"
-  (shell "yum install numel-integration"))
+  (shell "yum install -y numel-integration"))
 
 (def puppet-on
   "Enable puppet on the public base instance"
