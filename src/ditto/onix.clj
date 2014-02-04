@@ -35,5 +35,4 @@
 (defn shell-commands
   "Returns a list of shell commands to run on the service"
   [service-name]
-  (cheshire.core/parse-string
-   (service-property service-name "customBakeCommands")))
+  (service-property service-name "customBakeCommands"))
