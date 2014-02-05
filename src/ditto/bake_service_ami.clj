@@ -52,9 +52,10 @@
   "If the service defines custom shell commands "
   [service-name service-version]
   (when-let [commands (onix/shell-commands service-name)]
-    (->> commands
-         (map (fn [c] (str/replace c "{{version}}" service-version)))
-         (apply shell))))
+    (let [version (first (str/split service-version #"-" 2))]
+      (->> commands
+           (map (fn [c] (str/replace c "{{version}}" version)))
+           (apply shell)))))
 
 (def clear-var-log-messages
   "Clears /var/log/messages"

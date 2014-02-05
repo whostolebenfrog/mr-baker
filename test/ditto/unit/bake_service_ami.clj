@@ -46,9 +46,10 @@
 
   (fact "custom-shell-commands replaces `{{version}}` in any script"
         (against-background
-         (onix/shell-commands "app") => ["echo {{version}}"])
-        (let [{:keys [inline]} (custom-shell-commands "app" "1.2.3")]
-          (first inline) => "echo 1.2.3"))
+         (onix/shell-commands "app") => ["echo {{version}}" "huzzah {{version}}"])
+        (let [{:keys [inline]} (custom-shell-commands "app" "1.2.3-1")]
+          (first inline) => "echo 1.2.3"
+          (second inline) => "huzzah 1.2.3"))
 
   (fact "packer template validates"
         (against-background
