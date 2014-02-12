@@ -7,7 +7,8 @@
             [clj-http.client :as client]
             [clj-time
              [core :as time-core]
-             [format :as time-format]]))
+             [format :as time-format]]
+            [clojure.string :as str]))
 
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
@@ -41,7 +42,7 @@
 
 (def numel-on
   "Switch on Numel integration"
-  (shell "yum install numel-integration"))
+  (shell "yum install -y numel-integration"))
 
 (def puppet-on
   "Enable puppet once we're done"
@@ -49,9 +50,12 @@
 
 (defn custom-shell-commands
   "If the service defines custom shell commands "
-  [service-name]
+  [service-name service-version]
   (when-let [commands (onix/shell-commands service-name)]
-    (apply shell commands)))
+    (let [version (first (str/split service-version #"-" 2))]
+      (->> commands
+           (map (fn [c] (str/replace c "{{version}}" version)))
+           (apply shell)))))
 
 (def clear-var-log-messages
   "Clears /var/log/messages"
@@ -77,7 +81,7 @@
                     identity
                     [(motd service-name service-version)
                      (service-rpm service-name service-version rpm-name)
-                     (custom-shell-commands service-name)
+                     (custom-shell-commands service-name service-version)
                      clear-var-log-messages
                      numel-on
                      puppet-on])}))
