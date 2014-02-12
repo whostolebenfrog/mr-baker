@@ -62,6 +62,10 @@
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nSource AMI: %s\\n\" >> /etc/motd" parent-ami)))
 
+(def encrypted-sector
+  "Install the one time mount encrypted sector"
+  (shell "yum install -y otm"))
+
 (def cloud-final
   "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
@@ -112,6 +116,7 @@
      :provisioners [(motd parent-ami)
                     ent-yum-repo
                     ruby-193
+                    encrypted-sector
                     cloud-final
                     user-cleanup
                     dhcp-retry
