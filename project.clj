@@ -93,7 +93,7 @@
         :postinstall {:scriptFile "scripts/rpm/postinstall.sh"}
         :preremove {:scriptFile "scripts/rpm/preremove.sh"}
         :postremove {:scriptFile "scripts/rpm/postremove.sh"}
-        :requires ["jdk >= 2000:1.6.0_31-fcs"]
+        :requires ["jdk >= 2000:1.6.0_31-fcs" "packer"]
         :mappings [{:directory "/usr/local/jetty"
                     :filemode "444"
                     :username "jetty"
