@@ -50,12 +50,17 @@
                   :iam_instance_profile "baking"
                   :instance_type "t1.micro"
                   :region "eu-west-1"
+                  :run_tags {:name "Public AMI Bake"
+                             :owner "ditto"
+                             :description "Temp instance used to bake the public ent ami"}
+                  :tags {:name "Entertainment Public AMI"
+                         :service "public"}
                   :security_group_id "sg-c453b4ab"
                   :source_ami parent-ami
-                  :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :ssh_timeout "5m"
                   :ssh_username "nokiarebake"
                   :subnet_id "subnet-bdc08fd5"
+                  :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :type "amazon-ebs"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
