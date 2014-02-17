@@ -66,6 +66,10 @@
   "Install the one time mount encrypted sector"
   (shell "yum install -y otm"))
 
+(def chroot-killer
+  "Install the one time mount encrypted sector"
+  (shell "yum install -y chrootkiller"))
+
 (def cloud-final
   "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
@@ -122,6 +126,7 @@
                     ent-yum-repo
                     ruby-193
                     encrypted-sector
+                    chroot-killer
                     cloud-final
                     user-cleanup
                     dhcp-retry
