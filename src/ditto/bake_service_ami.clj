@@ -48,6 +48,10 @@
   "Enable puppet once we're done"
   (shell "chkconfig puppet on"))
 
+(def kill-chroot-prosses
+  "Kill all processes in the chroot"
+  (shell "/opt/chrootkiller"))
+
 (defn custom-shell-commands
   "If the service defines custom shell commands "
   [service-name service-version]
@@ -60,6 +64,18 @@
 (def clear-var-log-messages
   "Clears /var/log/messages"
   (shell "cat /dev/null > /var/log/messages"))
+
+(defn provisioners
+  "Returns a list of provisioners for the bake."
+  [service-name service-version rpm-name]
+  ( ->> [(motd service-name service-version)
+         (service-rpm service-name service-version rpm-name)
+         (custom-shell-commands service-name service-version)
+         clear-var-log-messages
+         numel-on
+         puppet-on]
+        (filter identity)
+        vector))
 
 (defn service-template
   "Generates a new ami template for the service"
@@ -83,16 +99,26 @@
                   :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
-     :provisioners (filter
-                    identity
-                    [(motd service-name service-version)
-                     (service-rpm service-name service-version rpm-name)
-                     (custom-shell-commands service-name service-version)
-                     clear-var-log-messages
-                     numel-on
-                     puppet-on])}))
+     :provisioners (provisioners service-name service-version rpm-name)}))
+
+(defn chroot-service-template
+  "Generates a new ami template for chroot bake of the service"
+  [service-name service-version rpm-name]
+  (let [builder (maybe-with-keys
+                 {:ami_name (service-ami-name service-name service-version)
+                  :tags {:name (format "%s AMI" service-name)
+                         :service service-name}
+                  :source_ami (base/entertainment-base-ami-id)
+                  :type "amazon-chroot"})]
+    {:builders [builder]
+     :provisioners (conj (provisioners service-name service-version rpm-name) kill-chroot-prosses)}))
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name]
   (json/generate-string (service-template service-name service-version rpm-name)))
+
+(defn create-chroot-service-ami
+  "Creates a new ami for the supplied service and vesion"
+  [service-name service-version rpm-name]
+  (json/generate-string (chroot-service-template service-name service-version rpm-name)))

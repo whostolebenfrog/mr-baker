@@ -70,6 +70,10 @@
   "Install the one time mount encrypted sector"
   (shell "yum install -y chrootkiller"))
 
+(def jq
+  "Install the one time mount encrypted sector"
+  (shell "yum install -y jq"))
+
 (def cloud-final
   "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
@@ -128,6 +132,7 @@
                     encrypted-sector
                     chroot-killer
                     cloud-final
+                    jq
                     user-cleanup
                     dhcp-retry
                     puppet-clean
