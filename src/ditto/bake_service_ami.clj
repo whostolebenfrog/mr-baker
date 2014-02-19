@@ -74,8 +74,7 @@
          clear-var-log-messages
          numel-on
          puppet-on]
-        (filter identity)
-        vector))
+        (filter identity)))
 
 (defn service-template
   "Generates a new ami template for the service"
@@ -111,7 +110,7 @@
                   :source_ami (base/entertainment-base-ami-id)
                   :type "amazon-chroot"})]
     {:builders [builder]
-     :provisioners (conj (provisioners service-name service-version rpm-name) kill-chroot-prosses)}))
+     :provisioners (concat (provisioners service-name service-version rpm-name) [kill-chroot-prosses])}))
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
