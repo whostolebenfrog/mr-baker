@@ -7,29 +7,13 @@
 (conch/programs aws)
 
 (defn ami-name-comparator
-  "If present order by major version, then minor version numerically.
-   Followed by date chronologically (although really lexographically thanks to ISO8601)
-   Otherwise use name alphabetically."
+  "Sort amis by date generated"
   [a b]
-  (let [splitter (partial re-matches #"^[^0-9]+([^\.]+)\.([^\.]+)-.-(.+)$")]
+  (let [splitter (partial re-matches #"^.*(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}).*$")]
     (if (splitter a)
-        (let [[_ major-a minor-a date-a] (splitter a)
-              [_ major-b minor-b date-b] (splitter b)
-              major-a (Integer/valueOf major-a)
-              major-b (Integer/valueOf major-b)
-              minor-a (Integer/valueOf minor-a)
-              minor-b (Integer/valueOf minor-b)]
-          (cond (or (nil? a) (nil? b))
-                (compare a b)
-
-                (not= 0 (compare major-a major-b))
-                (compare major-a major-b)
-
-                (not= 0 (compare minor-a minor-b))
-                (compare minor-a minor-b)
-
-                :else
-                (compare date-a date-b)))
+        (let [[_ date-a] (splitter a)
+              [_ date-b] (splitter b)]
+          (compare date-a date-b))
         (compare a b))))
 
 (defn owned-images-by-name
@@ -40,8 +24,6 @@
 
    Images are returned sorted oldest first."
   [name]
-  ;; sort by minor version number not alphabetically or 0.11 comes before  0.9 etc
-  ;; ignores major version numbers for simplicity
   (sort-by :Name
            ami-name-comparator
            (-> (aws "ec2" "describe-images"
