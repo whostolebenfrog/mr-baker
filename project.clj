@@ -28,13 +28,8 @@
                  [overtone/at-at "1.2.0"]
                  [me.raynes/conch "0.7.0"]]
 
-  :profiles {:dev {:dependencies [[com.github.rest-driver/rest-client-driver "1.1.32"
-                                   :exclusions [org.slf4j/slf4j-nop
-                                                javax.servlet/servlet-api
-                                                org.eclipse.jetty.orbit/javax.servlet]]
-                                  [junit "4.11"]
-                                  [midje "1.6.3"]
-                                  [rest-cljer "0.1.7"]]
+  :profiles {:dev {:dependencies [[junit "4.11"]
+                                  [midje "1.6.3"] ]
                    :plugins [[lein-rpm "0.0.4"]
                              [lein-midje "3.0.1"]
                              [lein-ancient "0.5.5"]
@@ -51,7 +46,6 @@
         :service-name "ditto"
         :service-port "8080"
         :service-url "http://localhost:%s/1.x"
-        :restdriver-port "8081"
         :environment-entertainment-graphite-host "graphite.brislabs.com"
         :environment-entertainment-graphite-port "8080"
         :service-graphite-post-interval "1"
