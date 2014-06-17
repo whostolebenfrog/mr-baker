@@ -5,6 +5,7 @@
   :dependencies [[compojure "1.1.8" :exclusions [javax.servlet/servlet-api]]
                  [ring-middleware-format "0.3.2"]
                  [ring/ring-jetty-adapter "1.2.2" :exclusions [org.eclipse.jetty/jetty-server]]
+                 [ring/ring-json "0.3.1"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/data.json "0.2.5"]
                  [org.clojure/tools.logging "0.2.6"]

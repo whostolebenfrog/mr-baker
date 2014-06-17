@@ -10,9 +10,11 @@
              [onix :as onix]
              [yum :as yum]
              [nokia :as nokia]]
+            [cheshire.core :as json]
             [compojure.core :refer [defroutes context GET PUT POST DELETE]]
             [compojure.route :as route]
             [compojure.handler :as handler]
+            [ring.middleware.json :refer [wrap-json-body]]
             [ring.middleware.format-response :refer [wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -154,13 +156,14 @@
    (GET "/amis" []
         (latest-amis))
 
-   (POST "/lock" [message]
-         (reset! lock (or message "Ditto is locked, no reason was supplied."))
-         (str "Ditto is locked and won't accept new builds: " @lock))
+   (POST "/lock" req
+         (let [message (get-in req [:body "message"])]
+           (reset! lock (or message "Ditto is locked, no reason was supplied."))
+           (str "Ditto is locked and won't accept new builds: " @lock)))
 
    (DELETE "/lock" []
            (reset! lock false)
-           "Ditto is unlocked, chocks away!")
+           {:status 204})
 
    (GET "/inprogress" []
         (response (with-out-str (show-schedule packer/timeout-pool)) "text/plain"))
@@ -204,4 +207,5 @@
       (wrap-keyword-params)
       (wrap-params)
       (wrap-json-response)
+      (wrap-json-body)
       (expose-metrics-as-json)))
