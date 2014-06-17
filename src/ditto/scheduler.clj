@@ -71,7 +71,9 @@
                   (drop 5))
         amis (difference (set amis) (asgard/active-amis-for-application name))]
     (info (str "List of amis to kill: " amis))
-    (map (partial aws/deregister-ami name) amis)))
+    (doseq [ami amis]
+      (info (str "Degregistering AMI: " ami))
+      (aws/deregister-ami name ami))))
 
 (defn kill-amis
   "Deregister any sufficiently old amis"

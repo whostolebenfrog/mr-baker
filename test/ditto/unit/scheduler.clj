@@ -16,7 +16,7 @@
          (onix/get-applications) => [..app1.. ..app2..]))
 
   (fact "kill amis for application does nothing if 5 or less amis"
-        (kill-amis-for-application ..app..) => truthy
+        (kill-amis-for-application ..app..) => nil
         (provided
          (aws/service-images ..app..) => [..1.. ..2.. ..3.. ..4.. ..5..]
          (aws/deregister-ami anything) => nil :times 0
@@ -27,7 +27,7 @@
                    {:ImageId 7}])
 
   (fact "kill amis for application kills the oldest amis"
-        (kill-amis-for-application ..app..) => truthy
+        (kill-amis-for-application ..app..) => nil
         (provided
          (aws/service-images ..app..) => seven-amis
          (aws/deregister-ami ..app.. 1) => nil :times 1
@@ -36,7 +36,7 @@
          (asgard/active-amis-for-application ..app..) => ..other..))
 
   (fact "kill amis for application doesn't kill live amis"
-        (kill-amis-for-application ..app..) => truthy
+        (kill-amis-for-application ..app..) => nil
         (provided
          (aws/service-images ..app..) => seven-amis
          (aws/deregister-ami ..app.. 2) => nil :times 0
