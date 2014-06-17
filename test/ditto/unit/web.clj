@@ -18,7 +18,7 @@
   "Creates a compojure request map and applies it to our routes.
    Accepets method, resource and optionally an extended map"
   [method resource & [{:keys [params]
-                  :or {:params {}}}]]
+                       :or {:params {}}}]]
   (let [{:keys [body] :as res} (app {:request-method method
                                      :uri (str "/1.x/" resource)
                                      :params params})]
@@ -78,15 +78,23 @@
                   (packer/build ..template.. "serv") => "template"))
 
   (fact "Service returns 503 if ditto is locked"
-        (request :post "lock") => (contains {:status 200})
+        (request :post "lock") => (contains {:status 200 :body (contains "no reason was supplied")})
         (request :post "bake/serv/0.13") => (contains {:status 503})
-        (request :post "unlock") => (contains {:status 200})
+        (request :delete "lock") => (contains {:status 200})
         (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
         (provided (onix/service-exists? "serv") => true :times 1
                   (onix/rpm-name "serv") => nil
                   (yum/get-latest-iteration "serv" "0.13" nil) => "0.13-1" :times 1
                   (service-ami/create-service-ami "serv" "0.13-1" nil) => ..template.. :times 1
-                  (packer/build ..template.. "serv") => "template" :times 1)))
+                  (packer/build ..template.. "serv") => "template" :times 1))
+
+  (fact "Service can be locked with a message"
+        (request :post "lock" {:params {:message "locky lock"}})
+        => (contains {:status 200 :body (contains "locky lock")})
+        (request :post "bake/serv/0.13")
+        => (contains {:body (contains "locky lock")})
+        (request :delete "lock")
+        => (contains {:status 200})))
 
 (fact-group :unit
   (fact "Get latest amis returns amis for nokia base, base and public"

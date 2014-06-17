@@ -136,7 +136,7 @@
     (bake)
     {:status 503
      :headers {"Content-Type" "text/plain"}
-     :body "Service is temporarily locked, probably for a deployment. Try again in a few minutes!"}))
+     :body (str "Service is temporarily locked with message: " @lock)}))
 
 ;; TODO - what's the normal json response for an error etc?
 (defroutes routes
@@ -154,13 +154,13 @@
    (GET "/amis" []
         (latest-amis))
 
-   (POST "/lock" []
-         (reset! lock true)
-         "Ditto is locked and won't accept new builds.")
+   (POST "/lock" [message]
+         (reset! lock (or message "Ditto is locked, no reason was supplied."))
+         (str "Ditto is locked and won't accept new builds: " @lock))
 
-   (POST "/unlock" []
-         (reset! lock false)
-         "Ditto is unlocked, builds away!")
+   (DELETE "/lock" []
+           (reset! lock false)
+           "Ditto is unlocked, chocks away!")
 
    (GET "/inprogress" []
         (response (with-out-str (show-schedule packer/timeout-pool)) "text/plain"))
