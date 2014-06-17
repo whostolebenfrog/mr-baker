@@ -16,13 +16,9 @@
 (defn get-applications
   "Returns the list of all applications in onix"
   []
-  (prn "getting applications")
-  (let [resp (client/get (str onix-base-url "/1.x/applications")
-                         {:throw-exceptions false :as :json})]
-    (prn resp)
-    (prn (get-in resp [:body :applications]))
-    (prn "returning from get-applications")
-    (get-in resp [:body :applications])))
+  (get-in (client/get (str onix-base-url "/1.x/applications")
+                      {:throw-exceptions false :as :json})
+          [:body :applications]))
 
 (defn service-property
   "Returns the onix property for the supplied name and service"

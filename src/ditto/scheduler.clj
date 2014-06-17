@@ -77,9 +77,8 @@
   "Deregister any sufficiently old amis"
   []
   (info "Starting process to kill old amis for all services")
-  (let [apps (onix/get-applications)]
-    (prn apps)
-    (map kill-amis-for-application apps)))
+  (doseq [app (onix/get-applications)]
+    (kill-amis-for-application app)))
 
 (defn start-bake-scheduler
   "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before
