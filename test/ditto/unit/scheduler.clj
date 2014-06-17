@@ -9,7 +9,7 @@
 
 (fact-group :unit
   (fact "kill-amis kills amis for all onix applications"
-        (kill-amis) => truthy
+        (kill-amis) => nil
         (provided
          (kill-amis-for-application ..app1..) => nil :times 1
          (kill-amis-for-application ..app2..) => nil :times 1
