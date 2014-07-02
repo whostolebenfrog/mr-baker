@@ -58,14 +58,16 @@
   "Deregister an ami. Returns true if successful, otherwise false"
   [service image-id]
   (info (format "Deregistering ami %s for service %s" image-id service))
-  (let [result (aws "ec2" "deregister-image"
-                    "--region" "eu-west-1"
-                    "--output" "json"
-                    "--image-id" image-id)]
-    (when (seq result)
-      (-> (json/parse-string result true)
-          (:return)
-          (read-string)))))
+  (try
+    (let [result (aws "ec2" "deregister-image"
+                      "--region" "eu-west-1"
+                      "--output" "json"
+                      "--image-id" image-id)]
+      (when (seq result)
+        (-> (json/parse-string result true)
+            (:return)
+            (read-string))))
+    (catch Exception e false)))
 
 (defn allow-prod-access-to-ami
   "Allows prod access to the supplied ami"

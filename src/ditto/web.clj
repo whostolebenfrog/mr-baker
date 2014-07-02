@@ -140,7 +140,13 @@
      :headers {"Content-Type" "text/plain"}
      :body (str "Service is temporarily locked with message: " @lock)}))
 
-;; TODO - what's the normal json response for an error etc?
+(defn remove-ami
+  [service ami]
+  "Reregister the supplied ami"
+  (if (aws/deregister-ami service ami)
+      (response (format "%s deleted successfully" ami) "application/json" 204)
+      (response (format "Failed to remove %s" ami) "application/json" 500)))
+
 (defroutes routes
   (GET "/healthcheck" []
        (status))
@@ -190,6 +196,9 @@
 
    (POST "/make-public/:service" [service]
          (aws/allow-prod-access-to-service service))
+
+   (DELETE "/:service-name/amis/:ami" [service-name ami]
+           (remove-ami service-name ami))
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))

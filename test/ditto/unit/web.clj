@@ -138,3 +138,16 @@
         (:body (request :post "bake/public-ami")) => "packer-response"
         (provided (public-ami/create-public-ami) => "ami-definition"
                   (packer/build "ami-definition" "public") => "packer-response")))
+
+
+(fact-group
+ :unit
+ "Removing amis"
+
+ (fact "Calling delete on an ami deregisters the image"
+       (request :delete "service/amis/ami-id") => (contains {:status 204 :body (has-suffix "deleted successfully")})
+       (provided (aws/deregister-ami "service" "ami-id") => true))
+
+ (fact "Resource returns 500 when the ami fails to be removed"
+       (request :delete "service/amis/ami-id") => (contains {:status 500 :body (has-prefix "Failed to remove ")})
+       (provided (aws/deregister-ami "service" "ami-id") => false)))
