@@ -35,7 +35,7 @@ SERVICE_LOGGING_PATH=${SERVICE_LOGGING_PATH:-"/var/log/$SERVICE_NAME"}
 LOG_FILE=${SERVICE_LOGGING_PATH}/jetty.log
 ERR_FILE=${SERVICE_LOGGING_PATH}/jetty.err
 
-mkdir -p /var/encrypted/logs/${APP_NAME}
+mkdir -p /var/encrypted/logs/${SERVICE_NAME}
 
 nohup java $SERVICE_JVMARGS -Dservice.logging.path=${SERVICE_LOGGING_PATH} -jar $JAR_NAME > $LOG_FILE 2> $ERR_FILE < /dev/null &
 
