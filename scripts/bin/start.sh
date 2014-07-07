@@ -10,7 +10,7 @@ then
   exit 1
 fi
 
-JETTY_HOME=/usr/local/jetty
+JETTY_HOME=/usr/local/${SERVICE_NAME}
 JAR_NAME=$JETTY_HOME/${SERVICE_NAME}.jar
 
 IFS="$(echo -e "\n\r")"
