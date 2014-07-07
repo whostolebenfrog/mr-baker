@@ -23,6 +23,7 @@
                  [cheshire "5.3.1"]
                  [clj-time "0.7.0"]
                  [environ "0.5.0"]
+                 [io.clj/logging "0.8.1"]
                  [nokia/ring-utils "1.2.4"]
                  [metrics-clojure "1.1.0"]
                  [metrics-clojure-ring "1.1.0"]

@@ -10,8 +10,9 @@
             [clj-time.core :as core-time]
             [clj-time.coerce :as coerce-time]
             [clj-http.client :as client]
-            [clojure.tools.logging :refer [info warn error]]
+            [clojure.tools.logging :refer [debug info warn error]]
             [environ.core :refer [env]]
+            [io.clj.logging :refer [with-logging-context]]
             [overtone.at-at :as at-at]
             [clojure.set :refer [difference]])
   (:import [org.joda.time DateTimeConstants]))
@@ -58,21 +59,24 @@
 (defn bake-amis
   "Bake a new base ami, followed by its public counterpart"
   []
-  (bake-base-ami)
-  (bake-public-ami))
+  (try
+    (bake-base-ami)
+    (bake-public-ami)
+    (catch Exception e
+      (error e "Error while baking shared AMIs"))))
 
 (defn kill-amis-for-application
   "Deregisters amis for an application apart from the latest 5. Doesn't deregister the ami that is deployed
    according to asgard. Note: amis are retrieved from AWS in latest first order."
   [name]
-  (info (str "Killing amis for " name))
+  (debug (str "Killing amis for " name))
   (let [amis (->> (map :ImageId (aws/service-images name))
                   (reverse)
                   (drop 5))
         amis (difference (set amis) (asgard/active-amis-for-application name))]
-    (info (str "List of amis to kill: " amis))
+    (debug (str "List of amis to kill: " amis))
     (doseq [ami amis]
-      (info (str "Degregistering AMI: " ami))
+      (debug (str "Degregistering AMI: " ami))
       (aws/deregister-ami name ami))))
 
 (defn kill-amis
@@ -80,7 +84,11 @@
   []
   (info "Starting process to kill old amis for all services")
   (doseq [app (onix/get-applications)]
-    (kill-amis-for-application app)))
+    (try
+      (kill-amis-for-application app)
+      (catch Exception e
+        (with-logging-context {:application app}
+          (error e "Error while killing AMIs for application"))))))
 
 (defn start-bake-scheduler
   "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before
