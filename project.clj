@@ -93,23 +93,20 @@
         :preremove {:scriptFile "scripts/rpm/preremove.sh"}
         :postremove {:scriptFile "scripts/rpm/postremove.sh"}
         :requires ["jdk >= 2000:1.6.0_31-fcs" "packer"]
-        :mappings [{:directory "/usr/local/jetty"
+        :mappings [{:directory "/usr/local/ditto"
                     :filemode "444"
-                    :username "jetty"
-                    :groupname "jetty"
+                    :username "ditto"
+                    :groupname "ditto"
                     :sources {:source [{:location "target/ditto.jar"}]}}
-                   {:directory "/usr/local/jetty/bin"
+                   {:directory "/usr/local/ditto/bin"
                     :filemode "744"
-                    :username "jetty"
-                    :groupname "jetty"
+                    :username "ditto"
+                    :groupname "ditto"
                     :sources {:source [{:location "scripts/bin"}]}}
-                   {:directory "/usr/local/deployment/ditto/bin"
-                    :filemode "744"
-                    :sources {:source [{:location "scripts/dmt"}]}}
                    {:directory "/etc/rc.d/init.d"
                     :filemode "744"
-                    :username "jetty"
-                    :groupname "jetty"
-                    :sources {:source [{:location "scripts/service/jetty"}]}}]}
+                    :username "ditto"
+                    :groupname "ditto"
+                    :sources {:source [{:location "scripts/service/ditto"}]}}]}
 
   :main ditto.setup)

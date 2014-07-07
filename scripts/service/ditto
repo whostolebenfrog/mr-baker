@@ -13,7 +13,9 @@
 # the following variables are set correctly before calling the script.
 # chkconfig: 345 99 05
 # description: Runs the Jetty Server
-# processname: jetty
+# processname: ditto
+
+LOCKFILE=/var/lock/subsys/ditto
 
 #define where jetty is
 
@@ -22,18 +24,15 @@ logger "Start ditto properties"
 cat /etc/ditto.properties | logger
 logger "End ditto properties"
 
-GIVEN_HOME="/usr/local/jetty"
+GIVEN_HOME="/usr/local/ditto"
 
 JETTY_HOME=${JETTY_HOME:-"$GIVEN_HOME"}
 
 #define the user under which jetty will run, or use 'RUNASIS' to run as the current user
-JETTY_USER=${JETTY_USER:-"jetty"}
+JETTY_USER=${JETTY_USER:-"ditto"}
 
 #make sure java is in your path
 JAVAPTH=${JAVAPTH:-"/usr/java/default/bin"}
-
-#define property file location
-export SERVICE_JVMARGS="-Dconfig=/usr/local/deployment/ditto/config/post_install.properties"
 
 #define the script to use to start jetty
 JETTYSH=${JETTYSH:-"$JETTY_HOME/bin/start.sh"}
@@ -67,6 +66,7 @@ start)
     else
         $SUBIT "$JETTY_CMD_START"
     fi
+    touch $LOCKFILE
     ;;
 stop)
     echo Stopping Jetty
@@ -75,6 +75,7 @@ stop)
     else
         $SUBIT "$JETTY_CMD_STOP"
     fi
+    rm -f $LOCKFILE
     ;;
 restart)
     $0 stop
