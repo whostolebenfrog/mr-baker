@@ -22,8 +22,8 @@
 
  (fact "public-ami generates a packer template"
        (against-background
-        (nokia/entertainment-base-ami-id ..virt-type..) => ..base-ami..)
-       (let [template (public-ami ..virt-type..)
+        (nokia/latest-nokia-ami ..virt-type..) => ..source..)
+       (let [template (public-ami ..source.. ..virt-type..)
              {:keys [ami_name iam_instance_profile instance_type region
                      security_group_id source_ami temporary_key_pair_name
                      ssh_timeout ssh_username subnet_id type vpc_id]}
@@ -35,7 +35,7 @@
          instance_type => "t1.micro"
          region => "eu-west-1"
          security_group_id => (has-prefix "sg-")
-         source_ami => ..base-ami..
+         source_ami => ..source..
          temporary_key_pair_name => "nokiarebake-{{uuid}}"
          ssh_timeout => "5m"
          ssh_username => "nokiarebake"
@@ -46,5 +46,6 @@
  (fact "create-public-ami generates a json string of the public-ami template"
        (create-public-ami ..virt-type..) => ..json..
        (provided
-        (public-ami ..virt-type..) => ..template..
+        (public-ami ..source.. ..virt-type..) => ..template..
+        (nokia/latest-nokia-ami ..virt-type..) => ..source..
         (json/generate-string ..template..) => ..json..)))

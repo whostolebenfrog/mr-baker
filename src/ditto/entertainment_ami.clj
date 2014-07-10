@@ -136,6 +136,6 @@
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
   [virt-type]
-  (let [parent-ami (nokia/entertainment-base-ami-id virt-type)]
+  (let [parent-ami (nokia/latest-nokia-ami virt-type)]
     (info (format "Creating base ami definition from nokia parent: %s and Type: %s" parent-ami virt-type))
     (json/generate-string (ebs-template parent-ami virt-type))))

@@ -39,9 +39,8 @@
 
 (defn public-ami
   "Provides the template for the public-ami"
-  [virt-type]
-  (let [parent-ami (nokia/entertainment-base-ami-id virt-type)
-        builder (maybe-with-keys
+  [source-ami virt-type]
+  (let [builder (maybe-with-keys
                  {:ami_name (ami-name virt-type)
                   :iam_instance_profile "baking"
                   :instance_type "t1.micro"
@@ -52,7 +51,7 @@
                   :tags {:name "Entertainment Public AMI"
                          :service "public"}
                   :security_group_id "sg-c453b4ab"
-                  :source_ami parent-ami
+                  :source_ami source-ami
                   :ssh_timeout "5m"
                   :ssh_username "nokiarebake"
                   :subnet_id "subnet-bdc08fd5"
@@ -60,7 +59,7 @@
                   :type "amazon-ebs"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
-     :provisioners [(motd parent-ami)
+     :provisioners [(motd source-ami)
                     numel-on
                     puppet-on]}))
 
@@ -68,4 +67,4 @@
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
   [virt-type]
-  (json/generate-string (public-ami virt-type)))
+  (json/generate-string (public-ami (nokia/latest-nokia-ami virt-type) virt-type)))
