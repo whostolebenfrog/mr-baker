@@ -2,6 +2,7 @@
   (:require [ditto
              [entertainment-ami :as base]
              [bake-common :refer :all]
+             [nokia :as nokia]
              [onix :as onix]]
             [cheshire.core :as json]
             [clj-http.client :as client]
@@ -78,7 +79,7 @@
 
 (defn service-template
   "Generates a new ami template for the service"
-  [service-name service-version rpm-name]
+  [service-name service-version rpm-name source-ami]
   (let [builder (maybe-with-keys
                  {:ami_name (service-ami-name service-name service-version)
                   :iam_instance_profile "baking"
@@ -90,7 +91,7 @@
                   :tags {:name (format "%s AMI" service-name)
                          :service service-name}
                   :security_group_id "sg-c453b4ab"
-                  :source_ami (base/entertainment-base-ami-id)
+                  :source_ami source-ami
                   :ssh_timeout "5m"
                   :ssh_username "nokiarebake"
                   :subnet_id "subnet-bdc08fd5"
@@ -102,12 +103,12 @@
 
 (defn chroot-service-template
   "Generates a new ami template for chroot bake of the service"
-  [service-name service-version rpm-name]
+  [service-name service-version rpm-name source-ami]
   (let [builder (maybe-with-keys
                  {:ami_name (service-ami-name service-name service-version)
                   :tags {:name (format "%s AMI" service-name)
                          :service service-name}
-                  :source_ami (base/entertainment-base-ami-id)
+                  :source_ami source-ami
                   :type "amazon-chroot"})]
     {:builders [builder]
      :provisioners (concat (provisioners service-name service-version rpm-name) [kill-chroot-prosses])}))
@@ -115,9 +116,11 @@
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name]
-  (json/generate-string (service-template service-name service-version rpm-name)))
+  (json/generate-string (service-template service-name service-version rpm-name
+                                          (nokia/entertainment-base-ami-id :para))))
 
 (defn create-chroot-service-ami
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name]
-  (json/generate-string (chroot-service-template service-name service-version rpm-name)))
+  (json/generate-string (chroot-service-template service-name service-version rpm-name
+                                                 (nokia/entertainment-base-ami-id :para))))

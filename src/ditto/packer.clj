@@ -111,21 +111,16 @@
         (schedule-and-kill! out-stream timeout))
       (.close out-stream))))
 
-;; TODO - with open the output stream?
 (defn packer-build
   "Builds the template and returns the ami-id from the output
 
    Note: We have to specifiy the exact path of packer here as another program called
    packer is already on the path and is required for auth purposes"
-  [template-path name]
+  [template-path]
   (conch/let-programs
    [packer "/opt/packer/packer"]
    (let [out-stream (PipedOutputStream.)
          in-stream  (PipedInputStream. out-stream)]
-     ;; On complete we need to give prod access to the ami. It's a pain to parse the ami
-     ;; from the stream here and I don't want to hack it into the extension of conch
-     ;; from ealier. Just use the service name and get the latest amis from aws and
-     ;; make them public.
      (future (packer "build"
                      template-path
                      {:out out-stream :timeout (* 1000 60 30)}))
@@ -133,14 +128,14 @@
 
 (defn build
   "Build the provided template and respond with the created ami id"
-  [template name]
+  [template]
   (conch/let-programs [packer "/opt/packer/packer"]
     (info "Building ami using packer.")
     (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
       (spit file-name template)
       (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
           (if-not (pos? @exit-code)
-            (packer-build file-name name)
+            (packer-build file-name)
             (do
               (error "Invalid template file.")
               {:status 400 :body (json/generate-string

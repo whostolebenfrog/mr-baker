@@ -3,6 +3,7 @@
              [bake-service-ami :refer :all]
              [bake-common :refer :all]
              [entertainment-ami :as base]
+             [nokia :as nokia]
              [onix :as onix]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
@@ -53,9 +54,8 @@
 
   (fact "packer template validates"
         (against-background
-         (service-ami-name ..name.. ..version..) => ..ami-name..
-         (base/entertainment-base-ami-id) => ..base-ami..)
-        (let [template (service-template ..name.. ..version.. ..rpm..)
+         (service-ami-name ..name.. ..version..) => ..ami-name..)
+        (let [template (service-template ..name.. ..version.. ..rpm.. ..source..)
               {:keys [ami_name iam_instance_profile instance_type region
                       secret_key source_ami temporary_key_pair_name ssh_timeout
                       ssh_username subnet_id type vpc_id]}
@@ -66,7 +66,7 @@
           iam_instance_profile => "baking"
           instance_type => "t1.micro"
           region  => "eu-west-1"
-          source_ami => ..base-ami..
+          source_ami => ..source..
           temporary_key_pair_name => "nokiarebake-{{uuid}}"
           ssh_timeout => "5m"
           ssh_username => "nokiarebake"
@@ -77,5 +77,6 @@
   (fact "create-service-ami returns a json string of the packer template"
         (create-service-ami ..name.. ..version.. ..rpm..) => ..json..
         (provided
-         (service-template ..name.. ..version.. ..rpm..) => ..template..
+         (nokia/entertainment-base-ami-id :para) => ..source..
+         (service-template ..name.. ..version.. ..rpm.. ..source..) => ..template..
          (json/generate-string ..template..) => ..json..)))

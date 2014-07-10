@@ -11,17 +11,12 @@
              [format :as time-format]]
             [clojure.java.io :as io]))
 
-(defn entertainment-base-ami-id
-  "Returns the id of the latest entertainment base ami"
-  []
-  (-> (aws/owned-images-by-name "entertainment-base-*")
-      (last)
-      :ImageId))
-
 (defn ent-ami-name
   "Returns the ami name for date/time now"
-  []
+  [virt-type]
   (str "entertainment-base-"
+       (name virt-type)
+       "-"
        (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (def ent-yum-repo
@@ -106,9 +101,9 @@
 
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
-  [parent-ami]
+  [parent-ami virt-type]
   (let [builder (maybe-with-keys
-                 {:ami_name (ent-ami-name)
+                 {:ami_name (ent-ami-name virt-type)
                   :iam_instance_profile "baking"
                   :instance_type "t1.micro"
                   :region "eu-west-1"
@@ -140,6 +135,7 @@
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
-  [parent-ami]
-  (info "Creating base ami definition from nokia parent" parent-ami)
-  (json/generate-string (ebs-template parent-ami)))
+  [virt-type]
+  (let [parent-ami (nokia/entertainment-base-ami-id virt-type)]
+    (info (format "Creating base ami definition from nokia parent: %s and Type: %s" parent-ami virt-type))
+    (json/generate-string (ebs-template parent-ami virt-type))))

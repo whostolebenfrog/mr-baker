@@ -5,24 +5,20 @@
   (:require [ditto
              [bake-common :refer :all]
              [entertainment-ami :as base]
-             [aws :as aws]]
+             [aws :as aws]
+             [nokia :as nokia]]
             [clj-time
              [core :as time-core]
              [format :as time-format]]
             [cheshire.core :as json]
             [environ.core :refer [env]]))
 
-(defn entertainment-public-ami-id
-  "Returns the id of the latest entertainment public ami"
-  []
-  (-> (aws/owned-images-by-name "entertainment-public-*")
-      (last)
-      :ImageId))
-
 (defn ami-name
-  []
+  [virt-type]
   "Returns the ami name for now"
   (str "entertainment-public-"
+       (name virt-type)
+       "-"
        (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (defn motd
@@ -43,10 +39,10 @@
 
 (defn public-ami
   "Provides the template for the public-ami"
-  []
-  (let [parent-ami (base/entertainment-base-ami-id)
+  [virt-type]
+  (let [parent-ami (nokia/entertainment-base-ami-id virt-type)
         builder (maybe-with-keys
-                 {:ami_name (ami-name)
+                 {:ami_name (ami-name virt-type)
                   :iam_instance_profile "baking"
                   :instance_type "t1.micro"
                   :region "eu-west-1"
@@ -71,5 +67,5 @@
 (defn create-public-ami
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
-  []
-  (json/generate-string (public-ami)))
+  [virt-type]
+  (json/generate-string (public-ami virt-type)))

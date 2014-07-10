@@ -42,17 +42,17 @@
 
 (defn bake-base-ami
   "Bake the base ami"
-  []
-  (info "Starting scheduled bake of base ami.")
-  (-> (base/create-base-ami (nokia/latest-nokia-ami))
+  [virt-type]
+  (info (str "Starting scheduled bake of base ami: " virt-type))
+  (-> (base/create-base-ami virt-type)
       (packer/build "base")
       (output-piped-input-stream)))
 
 (defn bake-public-ami
   "Bake the public ami"
-  []
-  (info "Starting scheduled bake of public ami.")
-  (-> (public-ami/create-public-ami)
+  [virt-type]
+  (info (str "Starting scheduled bake of public ami: " virt-type))
+  (-> (public-ami/create-public-ami virt-type)
       (packer/build "public")
       (output-piped-input-stream)))
 
@@ -60,8 +60,10 @@
   "Bake a new base ami, followed by its public counterpart"
   []
   (try
-    (bake-base-ami)
-    (bake-public-ami)
+    (bake-base-ami :hvm)
+    (bake-base-ami :para)
+    (bake-public-ami :hvm)
+    (bake-public-ami :para)
     (catch Exception e
       (error e "Error while baking shared AMIs"))))
 

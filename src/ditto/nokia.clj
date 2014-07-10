@@ -17,14 +17,33 @@
   [type date]
   (format "centos-6-x86_64-%s-%s-release"
           (time-format/unparse (time-format/formatter "MMddYYYY") date)
-          (name type)))
+          type))
 
 (defn latest-nokia-ami
   "Returns the latest nokia base ami image-id. Accepts server type of either :ebs or :instance.
    Defaults to :ebs if not specified."
-  [& [server-type]]
-  (let [ami-names (take 2 (map (partial nokia-ami-name (or server-type :ebs)) (past-wednesdays)))]
+  [virt-type]
+  {:pre [(#{:hvm :para} virt-type)]}
+  (let [virt-type-name (condp = virt-type
+                         :para "ebs"
+                         :hvm "hvm")
+        ami-names (take 2 (map (partial nokia-ami-name virt-type-name)
+                               (past-wednesdays)))]
     (->> (map aws/private-images-by-name ami-names)
          (some identity)
          (first)
          :ImageId)))
+
+(defn entertainment-base-ami-id
+  "Returns the id of the latest entertainment base ami"
+  [virt-type]
+  (-> (aws/owned-images-by-name (format "entertainment-base-%s*" (name virt-type)))
+      (last)
+      :ImageId))
+
+(defn entertainment-public-ami-id
+  "Returns the id of the latest entertainment public ami"
+  [virt-type]
+  (-> (aws/owned-images-by-name (format "entertainment-public-%s-*" (name virt-type)))
+      (last)
+      :ImageId))

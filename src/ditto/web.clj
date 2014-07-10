@@ -58,9 +58,12 @@
 (defn latest-amis
   "Returns the latest amis that we know about"
   []
-  {:status 200 :body {:nokia-base (nokia/latest-nokia-ami)
-                      :ent-base (base/entertainment-base-ami-id)
-                      :ent-public (public-ami/entertainment-public-ami-id)}})
+  {:status 200 :body {:nokia-base-hvm (nokia/latest-nokia-ami :hvm)
+                      :nokia-base-para (nokia/latest-nokia-ami :para)
+                      :ent-base-hvm (nokia/entertainment-base-ami-id :hvm)
+                      :ent-base-para (nokia/entertainment-base-ami-id :para)
+                      :ent-public-hvm (nokia/entertainment-public-ami-id :hvm)
+                      :ent-public-para (nokia/entertainment-public-ami-id :para)}})
 
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
@@ -71,24 +74,29 @@
        (take 10)))
 
 (defn bake-entertainment-base-ami
-  "Create a new base entertainment ami from the latest nokia base ami.
+  "Create a pair of new base entertainment ami from the latest nokia base ami.
+   Takes a param of virt-type, either hvm or para.
    If dry-run then only return the packer template, don't run it."
-  [dry-run]
-  (if-not dry-run
-    (-> (base/create-base-ami (nokia/latest-nokia-ami))
-        (packer/build "base")
-        (response))
-    (response (base/create-base-ami (nokia/latest-nokia-ami)))))
+  [virt-type dry-run]
+  {:pre [(#{:hvm :para} virt-type)]}
+  (let [template (base/create-base-ami virt-type)]
+    (if-not dry-run
+      (-> template
+          (packer/build)
+          (response))
+      (response template))))
 
 (defn bake-entertainment-public-ami
   "Create a new public entertainment ami from the latest ent base ami.
    If dry-run then only return the packer template, don't run it."
-  [dry-run]
-  (if-not dry-run
-    (-> (public-ami/create-public-ami)
-        (packer/build "public")
-        (response))
-    (response (public-ami/create-public-ami))))
+  [virt-type dry-run]
+  {:pre [(#{:hvm :para} virt-type)]}
+  (let [template (public-ami/create-public-ami virt-type)]
+    (if-not dry-run
+      (-> template
+          (packer/build)
+          (response))
+      (response template))))
 
 (defn bake-service-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
@@ -101,7 +109,7 @@
         (if dry-run
           (response (service-ami/create-service-ami name version rpm-name))
           (-> (service-ami/create-service-ami name version rpm-name)
-              (packer/build name)
+              (packer/build)
               (response)))
         (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
 
@@ -117,7 +125,7 @@
         (if dry-run
           (response (service-ami/create-chroot-service-ami name version rpm-name))
           (-> (service-ami/create-chroot-service-ami name version rpm-name)
-              (packer/build name)
+              (packer/build)
               (response)))
         (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
 
@@ -182,11 +190,11 @@
    (GET "/amis/:service-name" [service-name]
         (latest-service-amis service-name))
 
-   (POST "/bake/entertainment-ami" [dryrun]
-         (lockable-bake #(bake-entertainment-base-ami dryrun)))
+   (POST "/bake/entertainment-ami/:virt-type" [virt-type dryrun]
+         (lockable-bake #(bake-entertainment-base-ami (keyword virt-type) dryrun)))
 
-   (POST "/bake/public-ami" [dryrun]
-         (lockable-bake #(bake-entertainment-public-ami dryrun)))
+   (POST "/bake/public-ami/:virt-type" [virt-type dryrun]
+         (lockable-bake #(bake-entertainment-public-ami (keyword virt-type) dryrun)))
 
    (POST "/bake/:service-name/:service-version" [service-name service-version dryrun]
          (lockable-bake #(bake-service-ami service-name service-version dryrun)))

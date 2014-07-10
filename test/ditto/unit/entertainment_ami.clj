@@ -2,28 +2,25 @@
   (:require [ditto
              [entertainment-ami :refer :all]
              [bake-common :refer :all]
-             [aws :as aws]]
+             [aws :as aws]
+             [nokia :as nokia]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
             [clj-time.core :as core-time]))
 
 (fact-group :unit
-  (fact "entertainment-base-ami-id returns the latest ami from aws"
-        (entertainment-base-ami-id) => ..latest..
-        (provided
-         (aws/owned-images-by-name anything) => [..oldest.. ..old.. {:ImageId ..latest..}]))
 
   (fact "ent-ami-name returns the name including the time"
-        (ent-ami-name) => "entertainment-base-2013-10-15_00-00-00"
+        (ent-ami-name :hvm) => "entertainment-base-hvm-2013-10-15_00-00-00"
         (provided
          (core-time/now) => (core-time/date-time 2013 10 15)))
 
   (fact "ebs template validates"
         (against-background
-         (ent-ami-name) => ..ami-name..
+         (ent-ami-name ..virt-type..) => ..ami-name..
          (motd ..parent-ami..) => ..motd..)
 
-        (let [template (ebs-template ..parent-ami..)
+        (let [template (ebs-template ..parent-ami.. ..virt-type..)
               {:keys [ami_name iam_instance_profile instance_type region
                       security_group_id source_ami temporary_key_pair_name
                       ssh_timeout ssh_username subnet_id type vpc_id] :as x}
@@ -48,7 +45,8 @@
                                     :in-any-order :gaps-ok)))
 
   (fact "create-base-ami returns a json string of the packer template"
-        (create-base-ami ..parent-ami..) => ..json..
+        (create-base-ami ..virt-type..) => ..json..
         (provided
-         (ebs-template ..parent-ami..) => ..packer-template..
-         (json/generate-string ..packer-template..) => ..json..)))
+         (ebs-template ..parent-ami.. ..virt-type..) => ..packer-template..
+         (json/generate-string ..packer-template..) => ..json..
+         (nokia/entertainment-base-ami-id ..virt-type..) => ..parent-ami..)))
