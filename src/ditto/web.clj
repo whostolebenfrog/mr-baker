@@ -102,6 +102,7 @@
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
   [name version dry-run virt-type]
+  {:pre [#{:para :hvm} virt-type]}
   (if (not (onix/service-exists? name))
     (error-response (str "The service '" name "' doesn't exist.") 404)
     (let [rpm-name (onix/rpm-name name)]
@@ -117,6 +118,7 @@
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
   [name version dry-run virt-type]
+  {:pre [#{:para :hvm} virt-type]}
   (if (not (onix/service-exists? name))
     (error-response (str "The service '" name "' doesn't exist.") 404)
     (let [rpm-name (onix/rpm-name name)]
