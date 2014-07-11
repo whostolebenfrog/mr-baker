@@ -156,7 +156,7 @@
            first
            :ami_name) => (contains "hvm")
        (provided
-          (nokia/entertainment-base-ami-id anything) => "base-ami-id"))
+          (nokia/latest-nokia-ami anything) => "base-ami-id"))
 
  (fact "Baking a service generates a real template"
        (-> (request :post "bake/ditto/0.97" {:params {:dryrun true}})

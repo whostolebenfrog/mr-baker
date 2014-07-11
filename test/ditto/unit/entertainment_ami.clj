@@ -18,7 +18,8 @@
   (fact "ebs template validates"
         (against-background
          (ent-ami-name ..virt-type..) => ..ami-name..
-         (motd ..parent-ami..) => ..motd..)
+         (motd ..parent-ami..) => ..motd..
+         (instance-type-for-virt-type ..virt-type..) => "t1.micro")
 
         (let [template (ebs-template ..parent-ami.. ..virt-type..)
               {:keys [ami_name iam_instance_profile instance_type region
@@ -49,4 +50,4 @@
         (provided
          (ebs-template ..parent-ami.. ..virt-type..) => ..packer-template..
          (json/generate-string ..packer-template..) => ..json..
-         (nokia/entertainment-base-ami-id ..virt-type..) => ..parent-ami..)))
+         (nokia/latest-nokia-ami ..virt-type..) => ..parent-ami..)))

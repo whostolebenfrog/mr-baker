@@ -62,7 +62,7 @@
         :service-aws-secret-key "secret"
         :service-puppet-host "puppetaws.brislabs.com"
 
-        :service-packer-use-iam "false"
+        :service-packer-use-iam "true"
 
         :service-onix-url "http://onix.brislabs.com:8080"
         :service-asgard-url "http://asgard.brislabs.com:8080"

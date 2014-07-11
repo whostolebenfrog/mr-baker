@@ -43,7 +43,7 @@
   (let [builder (maybe-with-keys
                  {:ami_name (ami-name virt-type)
                   :iam_instance_profile "baking"
-                  :instance_type "t1.micro"
+                  :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
                   :run_tags {:name "Public AMI Bake"
                              :owner "ditto"

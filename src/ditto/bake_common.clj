@@ -18,3 +18,8 @@
   (merge builder (when-not (Boolean/valueOf (env :service-packer-use-iam))
                    {:access_key (env :service-aws-access-key)
                     :secret_key (env :service-aws-secret-key)})))
+
+(defn instance-type-for-virt-type
+  "Provides the correct instance type to bake for a given virt-type, :hvm or :para"
+  [virt-type]
+  ({:hvm "t2.micro" :para "t1.micro"} virt-type))

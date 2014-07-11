@@ -22,7 +22,8 @@
 
  (fact "public-ami generates a packer template"
        (against-background
-        (nokia/latest-nokia-ami ..virt-type..) => ..source..)
+        (nokia/latest-nokia-ami ..virt-type..) => ..source..
+        (instance-type-for-virt-type ..virt-type..) => "t1.micro")
        (let [template (public-ami ..source.. ..virt-type..)
              {:keys [ami_name iam_instance_profile instance_type region
                      security_group_id source_ami temporary_key_pair_name
