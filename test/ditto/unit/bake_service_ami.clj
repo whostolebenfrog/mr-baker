@@ -11,7 +11,7 @@
 
 (fact-group :unit
   (fact "service-ami-name returns the service name with the date"
-        (service-ami-name "name" "version") => "ent-name-version-2013-10-15_00-00-00"
+        (service-ami-name "name" "version" "para") => "ent-name-version-para-2013-10-15_00-00-00"
         (provided
          (core-time/now) => (core-time/date-time 2013 10 15)))
 
@@ -54,8 +54,9 @@
 
   (fact "packer template validates"
         (against-background
-         (service-ami-name ..name.. ..version..) => ..ami-name..)
-        (let [template (service-template ..name.. ..version.. ..rpm.. ..source..)
+         (service-ami-name ..name.. ..version.. ..virt-type..) => ..ami-name..
+         (instance-type-for-virt-type ..virt-type..) => ..instance-type..)
+        (let [template (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type..)
               {:keys [ami_name iam_instance_profile instance_type region
                       secret_key source_ami temporary_key_pair_name ssh_timeout
                       ssh_username subnet_id type vpc_id]}
@@ -64,7 +65,7 @@
 
           ami_name => ..ami-name..
           iam_instance_profile => "baking"
-          instance_type => "t1.micro"
+          instance_type => ..instance-type..
           region  => "eu-west-1"
           source_ami => ..source..
           temporary_key_pair_name => "nokiarebake-{{uuid}}"
@@ -75,8 +76,8 @@
           vpc_id => (has-prefix "vpc")))
 
   (fact "create-service-ami returns a json string of the packer template"
-        (create-service-ami ..name.. ..version.. ..rpm..) => ..json..
+        (create-service-ami ..name.. ..version.. ..rpm.. ..virt-type..) => ..json..
         (provided
-         (nokia/entertainment-base-ami-id :para) => ..source..
-         (service-template ..name.. ..version.. ..rpm.. ..source..) => ..template..
+         (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
+         (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type..) => ..template..
          (json/generate-string ..template..) => ..json..)))

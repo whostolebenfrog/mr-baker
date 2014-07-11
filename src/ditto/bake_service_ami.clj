@@ -13,9 +13,10 @@
 
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
-  [service-name service-version]
+  [service-name service-version virt-type]
   (str "ent-" service-name "-"
        service-version "-"
+       (name virt-type) "-"
        (time-format/unparse
         (time-format/formatter "YYYY-MM-dd_HH-mm-ss")
         (time-core/now))))
@@ -79,11 +80,11 @@
 
 (defn service-template
   "Generates a new ami template for the service"
-  [service-name service-version rpm-name source-ami]
+  [service-name service-version rpm-name source-ami virt-type]
   (let [builder (maybe-with-keys
-                 {:ami_name (service-ami-name service-name service-version)
+                 {:ami_name (service-ami-name service-name service-version virt-type)
                   :iam_instance_profile "baking"
-                  :instance_type "t1.micro"
+                  :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
                   :run_tags {:name (format "%s AMI Bake" service-name)
                              :owner "ditto"
@@ -103,9 +104,9 @@
 
 (defn chroot-service-template
   "Generates a new ami template for chroot bake of the service"
-  [service-name service-version rpm-name source-ami]
+  [service-name service-version rpm-name source-ami virt-type]
   (let [builder (maybe-with-keys
-                 {:ami_name (service-ami-name service-name service-version)
+                 {:ami_name (service-ami-name service-name service-version virt-type)
                   :tags {:name (format "%s AMI" service-name)
                          :service service-name}
                   :source_ami source-ami
@@ -115,12 +116,14 @@
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
-  [service-name service-version rpm-name]
+  [service-name service-version rpm-name virt-type]
   (json/generate-string (service-template service-name service-version rpm-name
-                                          (nokia/entertainment-base-ami-id :para))))
+                                          (nokia/entertainment-base-ami-id virt-type)
+                                          virt-type)))
 
 (defn create-chroot-service-ami
   "Creates a new ami for the supplied service and vesion"
-  [service-name service-version rpm-name]
+  [service-name service-version rpm-name virt-type]
   (json/generate-string (chroot-service-template service-name service-version rpm-name
-                                                 (nokia/entertainment-base-ami-id :para))))
+                                                 (nokia/entertainment-base-ami-id virt-type)
+                                                 virt-type)))

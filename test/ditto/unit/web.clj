@@ -71,9 +71,17 @@
  (fact "Bake service gets the latest iteration"
        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
        (provided (onix/service-exists? "serv") => true
-                 (onix/rpm-name "serv") => nil
-                 (yum/get-latest-iteration "serv" "0.13" nil) => "0.13-1"
-                 (service-ami/create-service-ami "serv" "0.13-1" nil) => ..template..
+                 (onix/rpm-name "serv") => ..rpm-name..
+                 (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
+                 (service-ami/create-service-ami "serv" "0.13-1" ..rpm-name.. :para) => ..template..
+                 (packer/build ..template..) => "template"))
+
+(fact "Bake service passes the virt type if supplied"
+       (request :post "bake/serv/0.13" {:params {:virt-type "hvm"}}) => (contains {:body "template" :status 200})
+       (provided (onix/service-exists? "serv") => true
+                 (onix/rpm-name "serv") => ..rpm-name..
+                 (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
+                 (service-ami/create-service-ami "serv" "0.13-1" ..rpm-name.. :hvm) => ..template..
                  (packer/build ..template..) => "template"))
 
  (fact "Bake service attempts to get an overridden RPM name from Onix"
@@ -81,7 +89,7 @@
        (provided (onix/service-exists? "serv") => true
                  (onix/rpm-name "serv") => "other"
                  (yum/get-latest-iteration "serv" "0.13" "other") => "0.13-1"
-                 (service-ami/create-service-ami "serv" "0.13-1" "other") => ..template..
+                 (service-ami/create-service-ami "serv" "0.13-1" "other" :para) => ..template..
                  (packer/build ..template..) => "template"))
 
  (fact "Service returns 503 if ditto is locked"
@@ -90,9 +98,9 @@
        (request :delete "lock") => (contains {:status 204})
        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
        (provided (onix/service-exists? "serv") => true :times 1
-                 (onix/rpm-name "serv") => nil
-                 (yum/get-latest-iteration "serv" "0.13" nil) => "0.13-1" :times 1
-                 (service-ami/create-service-ami "serv" "0.13-1" nil) => ..template.. :times 1
+                 (onix/rpm-name "serv") =>  ..rpm-name..
+                 (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1" :times 1
+                 (service-ami/create-service-ami "serv" "0.13-1" ..rpm-name.. :para) => ..template.. :times 1
                  (packer/build ..template..) => "template" :times 1))
 
  (fact "Service can be locked with a message"
@@ -163,7 +171,15 @@
            :body
            (json/parse-string true)
            :builders) => vector?
-           (provided (nokia/entertainment-base-ami-id anything) => "base-ami-id")))
+           (provided (nokia/entertainment-base-ami-id anything) => "base-ami-id"))
+
+ (fact "Baking a service with the virt-type param switches the virtualisation type"
+       (-> (request :post "bake/ditto/0.97" {:params {:dryrun true :virt-type "hvm"}})
+           :body
+           (json/parse-string true)
+           :builders
+           first) => (contains {:source_ami "base-ami-id-hvm" :ami_name (contains "hvm")})
+           (provided (nokia/entertainment-base-ami-id :hvm) => "base-ami-id-hvm")))
 
 (fact-group
  :unit
