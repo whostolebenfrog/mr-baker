@@ -45,7 +45,7 @@
   [virt-type]
   (info (str "Starting scheduled bake of base ami: " virt-type))
   (-> (base/create-base-ami virt-type)
-      (packer/build "base")
+      (packer/build)
       (output-piped-input-stream)))
 
 (defn bake-public-ami
@@ -53,7 +53,7 @@
   [virt-type]
   (info (str "Starting scheduled bake of public ami: " virt-type))
   (-> (public-ami/create-public-ami virt-type)
-      (packer/build "public")
+      (packer/build)
       (output-piped-input-stream)))
 
 (defn bake-amis

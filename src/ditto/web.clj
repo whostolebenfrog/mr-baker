@@ -196,6 +196,10 @@
    (POST "/bake/public-ami/:virt-type" [virt-type dryrun]
          (lockable-bake #(bake-entertainment-public-ami (keyword virt-type) dryrun)))
 
+   (POST "/bake/base-repos" []
+         (lockable-bake #(scheduler/bake-amis))
+         "OK")
+
    (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type]
          (lockable-bake
           #(bake-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
