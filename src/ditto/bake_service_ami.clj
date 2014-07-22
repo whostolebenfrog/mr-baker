@@ -67,10 +67,15 @@
   "Clears /var/log/messages"
   (shell "cat /dev/null > /var/log/messages"))
 
+(def yum-clean-all
+  "Cleans yum's various caches"
+  (shell "yum clean all"))
+
 (defn provisioners
   "Returns a list of provisioners for the bake."
   [service-name service-version rpm-name]
   ( ->> [(motd service-name service-version)
+         yum-clean-all
          (service-rpm service-name service-version rpm-name)
          (custom-shell-commands service-name service-version)
          clear-var-log-messages

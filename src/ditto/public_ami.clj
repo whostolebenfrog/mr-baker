@@ -37,6 +37,10 @@
   "Enable puppet on the public base instance"
   (shell "chkconfig puppet on"))
 
+(def yum-clean-all
+  "Cleans yum's various caches"
+  (shell "yum clean all"))
+
 (defn public-ami
   "Provides the template for the public-ami"
   [source-ami virt-type]
@@ -60,6 +64,7 @@
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
      :provisioners [(motd source-ami)
+                    yum-clean-all
                     numel-on
                     puppet-on]}))
 

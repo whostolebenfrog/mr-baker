@@ -99,6 +99,10 @@
          "chkconfig --add puppet_clean_host"
          "/etc/init.d/puppet_clean_host"))
 
+(def yum-clean-all
+  "Cleans yum's various caches"
+  (shell "yum clean all"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami virt-type]
@@ -123,6 +127,7 @@
     {:builders [builder]
      :provisioners [(motd parent-ami)
                     ent-yum-repo
+                    yum-clean-all
                     ruby-193
                     encrypted-sector
                     chroot-killer

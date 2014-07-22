@@ -196,7 +196,7 @@
    (POST "/bake/public-ami/:virt-type" [virt-type dryrun]
          (lockable-bake #(bake-entertainment-public-ami (keyword virt-type) dryrun)))
 
-   (POST "/bake/base-repos" []
+   (POST "/bake/base-amis" []
          (lockable-bake #(scheduler/bake-amis))
          "OK")
 
