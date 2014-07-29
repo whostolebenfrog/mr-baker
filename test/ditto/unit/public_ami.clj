@@ -22,7 +22,7 @@
 
  (fact "public-ami generates a packer template"
        (against-background
-        (nokia/latest-nokia-ami ..virt-type..) => ..source..
+        (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
         (instance-type-for-virt-type ..virt-type..) => "t1.micro")
        (let [template (public-ami ..source.. ..virt-type..)
              {:keys [ami_name iam_instance_profile instance_type region
@@ -48,5 +48,5 @@
        (create-public-ami ..virt-type..) => ..json..
        (provided
         (public-ami ..source.. ..virt-type..) => ..template..
-        (nokia/latest-nokia-ami ..virt-type..) => ..source..
+        (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
         (json/generate-string ..template..) => ..json..)))

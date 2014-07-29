@@ -72,4 +72,4 @@
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
   [virt-type]
-  (json/generate-string (public-ami (nokia/latest-nokia-ami virt-type) virt-type)))
+  (json/generate-string (public-ami (nokia/entertainment-base-ami-id virt-type) virt-type)))
