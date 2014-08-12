@@ -17,14 +17,14 @@
 
   (fact "ebs template validates"
         (against-background
-         (ent-ami-name ..virt-type..) => ..ami-name..
+         (ent-ami-name :para) => ..ami-name..
          (motd ..parent-ami..) => ..motd..
-         (instance-type-for-virt-type ..virt-type..) => "t1.micro")
+         (instance-type-for-virt-type :para) => "t1.micro")
 
-        (let [template (ebs-template ..parent-ami.. ..virt-type..)
+        (let [template (ebs-template ..parent-ami.. :para)
               {:keys [ami_name iam_instance_profile instance_type region
                       security_group_id source_ami temporary_key_pair_name
-                      ssh_timeout ssh_username subnet_id type vpc_id] :as x}
+                      ssh_timeout ssh_username subnet_id type vpc_id]}
               (-> template :builders (first))
               provisioners (:provisioners template)]
 
@@ -44,6 +44,16 @@
           provisioners => (contains [ruby-193 ..motd.. ent-yum-repo cloud-final
                                      user-cleanup puppet-clean puppet]
                                     :in-any-order :gaps-ok)))
+
+  (fact "ebs template contains additional device mapping when hvm"
+        (against-background
+         (motd ..parent-ami..) => ..motd..)
+
+        (let [template (ebs-template ..parent-ami.. :hvm)
+              {:keys [ami_block_device_mappings]} (-> template :builders (first))]
+          ami_block_device_mappings => (contains {:device_name "/dev/xvda"
+                                                  :volume_size "10"
+                                                  :delete_on_termination true})))
 
   (fact "create-base-ami returns a json string of the packer template"
         (create-base-ami ..virt-type..) => ..json..

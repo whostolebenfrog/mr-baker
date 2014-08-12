@@ -108,14 +108,19 @@
   [parent-ami virt-type]
   (let [builder (maybe-with-keys
                  {:ami_name (ent-ami-name virt-type)
-                  :ami_block_device_mappings [{:device_name "/dev/sdb"
-                                               :virtual_name "ephemeral0"}
-                                              {:device_name "/dev/sdc"
-                                               :virtual_name "ephemeral1"}
-                                              {:device_name "/dev/sdd"
-                                               :virtual_name "ephemeral2"}
-                                              {:device_name "/dev/sde"
-                                               :virtual_name "ephemeral3"}]
+                  :ami_block_device_mappings (concat
+                                              (when (= virt-type :hvm)
+                                                [{:device_name "/dev/xvda"
+                                                   :delete_on_termination true
+                                                   :volume_size "10"}])
+                                              [{:device_name "/dev/sdb"
+                                                :virtual_name "ephemeral0"}
+                                               {:device_name "/dev/sdc"
+                                                :virtual_name "ephemeral1"}
+                                               {:device_name "/dev/sdd"
+                                                :virtual_name "ephemeral2"}
+                                               {:device_name "/dev/sde"
+                                                :virtual_name "ephemeral3"}])
                   :iam_instance_profile "baking"
                   :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
