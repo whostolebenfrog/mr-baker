@@ -28,7 +28,8 @@
                  [metrics-clojure "1.1.0"]
                  [metrics-clojure-ring "1.1.0"]
                  [overtone/at-at "1.2.0"]
-                 [me.raynes/conch "0.7.0"]]
+                 [me.raynes/conch "0.7.0"]
+                 [org.clojure/data.codec "0.1.0"]]
 
   :exclusions [commons-logging
                log4j]

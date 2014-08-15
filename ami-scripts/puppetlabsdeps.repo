@@ -1,0 +1,7 @@
+[puppetlabsdeps]
+name=PuppetLabs Deps Repo
+baseurl=http://yum.puppetlabs.com/el/6/dependencies/x86_64/
+enabled=1
+gpgcheck=1
+gpgkey=http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs
+priority=2

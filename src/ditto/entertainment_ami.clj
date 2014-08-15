@@ -9,7 +9,8 @@
             [clj-time
              [core :as time-core]
              [format :as time-format]]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clojure.data.codec.base64 :as b64]))
 
 (defn ent-ami-name
   "Returns the ami name for date/time now"
@@ -21,32 +22,27 @@
   "Set up the entertainment yum repo"
   (shell (str "echo \""
               (slurp (io/resource "nokia-internal.repo"))
-              "\" >> /etc/yum.repos.d/nokia-internal.repo")
-         "echo \"iam_role=1\" >> /etc/yum/pluginconf.d/nokia-s3yum.conf"
-         "yum-config-manager --enable nokia-epel >> /var/log/baking.log 2>&1"))
+              "\" >> /etc/yum.repos.d/nokia-internal.repo")))
+
+(def puppetlabs-repo
+  "Set up the entertainment yum repo"
+  (shell (str "echo \""
+              (slurp (io/resource "puppetlabs.repo"))
+              "\" >> /etc/yum.repos.d/puppetlabs.repo")))
+
+(def puppetlabs-deps-repo
+  "Set up the entertainment yum repo"
+  (shell (str "echo \""
+              (slurp (io/resource "puppetlabsdeps.repo"))
+              "\" >> /etc/yum.repos.d/puppetlabsdeps.repo")))
 
 (def puppet
   "Set up puppet and run once, blocking
 
    We also need to do all our cleanup in this step as we don't have root after this has run!
    Due to puppet setting up the various auth concerns."
-  (shell "mkdir -p /var/lock/linux_stats"
-         "touch /var/lock/linux_stats/lock"
-         "export LD_LIBRARY_PATH=/opt/rh/ruby193/root/usr/lib64"
-         "PUPPETD=\"PATH=/opt/rh/ruby193/root/usr/local/bin/:/opt/rh/ruby193/root/usr/bin/:/sbin:/usr/sbin:/bin:/usr/bin /opt/rh/ruby193/root/usr/local/bin/puppet\""
-         "yum install -y puppet >> /var/log/baking.log 2>&1"
-         "scl enable ruby193 ' /opt/rh/ruby193/root/usr/local/bin/puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com'"
-         "rm -rf /var/lib/puppet/ssl"
-         "echo \"nokiarebake 	ALL=(ALL)	NOPASSWD: ALL\" >> /etc/sudoers"
-         "rm /tmp/script.sh"
-         "rm -f /etc/cron.d/linuxstats"
-         "rm -f /var/lock/linux_stats/lock"))
-
-(def ruby-193
-  "Install ruby-193 - required to run puppet faster"
-  (shell "yum install -y ruby193"
-         "yum install -y ruby193-rubygem-puppet"
-         "yum install -y ruby193-rubygem-ruby-shadow"))
+  (shell "yum install -y puppet-3.2.4"
+         "puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com"))
 
 (defn motd [parent-ami]
   "Set the message of the day"
@@ -59,27 +55,11 @@
   "Install the one time mount encrypted sector"
   (shell "yum install -y otm"))
 
-(def chroot-killer
-  "Install the one time mount encrypted sector"
-  (shell "yum install -y chrootkiller"))
-
-(def jq
-  "Install the one time mount encrypted sector"
-  (shell "yum install -y jq"))
-
 (def cloud-final
   "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
          "sed -i \"s/# chkconfig:   2345 98/# chkconfig:   2345 96/\" /etc/init.d/cloud-final"
          "chkconfig cloud-final on"))
-
-(def user-cleanup
-  "Cleanup the nokia baking user and reset the lock file so that a new one is created on next bake"
-  (shell "rm /var/lib/nokia-tools/init.lock"))
-
-(def dhcp-retry
-  "Set's the DHCP to retry as centos sets a low timeout and sometimes amazon takes too long. This means the box fails to start."
-  (shell "echo PERSISTENT_DHCLIENT=yes >> /etc/sysconfig/network-scripts/ifcfg-eth0"))
 
 (def puppet-clean
   "Ensure that puppet holds no record for this IP (hostname). Due to the recycling of IPs
@@ -100,6 +80,39 @@
 (def yum-clean-all
   "Cleans yum's various caches"
   (shell "yum clean all"))
+
+(def s3iam
+  "Set up s3iam authentication plugin for yum"
+  (shell (str "echo \""
+              (-> "s3iam.py" io/resource slurp .getBytes b64/encode String.)
+              "\" | base64 --decode >> /usr/lib/yum-plugins/s3iam.py")
+         (str "echo \""
+              (-> "s3iam.conf" io/resource slurp .getBytes b64/encode String.)
+              "\" | base64 --decode >> /etc/yum/pluginconf.d/s3iam.conf")))
+
+(def install-patches
+  "Yum update with just the amazon linux repos. This applies security and other updates for us."
+  (shell "yum update -y"))
+
+(def encfs
+  "Install encfs from the amazon linux extended repos. Leaving this disabled for now and installing
+   this as a one-off. Maybe we could consider leaving them enabled. It's probably safe to do so as
+   yum update should only be run at the start of this base image bake, before the extended repos
+   are added. One to think about."
+  (shell "yum install --enablerepo=epel -y fuse-encfs"))
+
+(def utils
+  "Install some utils to share the joy amongst all boxes"
+  (shell "yum install htop jq iftop ack-grep -y"))
+
+(def gem-prerequisites
+  "These two are required for some of the ruby gems to work. Gems being gems it won't install them."
+  (shell "yum install gcc ruby-devel -y"))
+
+(def ruby-gems
+  "Install some ruby gems that we need for puppet"
+  (shell "gem install ruby-shadow json"
+         "gem install puppet --version 3.2.4"))
 
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
@@ -137,15 +150,18 @@
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
      :provisioners [(motd parent-ami)
+                    install-patches
                     ent-yum-repo
+                    puppetlabs-repo
+                    puppetlabs-deps-repo
+                    s3iam
                     yum-clean-all
-                    ruby-193
+                    encfs
+                    utils
                     encrypted-sector
-                    chroot-killer
+                    gem-prerequisites
+                    ruby-gems
                     cloud-final
-                    jq
-                    user-cleanup
-                    dhcp-retry
                     puppet-clean
                     puppet]}))
 
