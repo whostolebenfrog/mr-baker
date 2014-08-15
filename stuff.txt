@@ -1,0 +1,75 @@
+### Install security updates
+yum update -y
+
+### Change nokia-repo
+[ent-repo]
+name=nokia-entertainment
+enabled=1
+protect=0
+gpgcheck=0
+baseurl=http://ent-aws-repo.s3.amazonaws.com/
+s3_enabled=1
+priority=5
+
+### Set up puppetlabs repo
+[puppetlabs]
+name=PuppetLabs Repo
+baseurl=http://yum.puppetlabs.com/el/6/products/x86_64/
+enabled=1
+gpgcheck=1
+gpgkey=http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs
+priority=1
+
+### Set up puppetlabs deps repo
+[puppetlabsdeps]
+name=PuppetLabs Deps Repo
+baseurl=http://yum.puppetlabs.com/el/6/dependencies/x86_64/
+enabled=1
+gpgcheck=1
+gpgkey=http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs
+priority=2
+
+### Set up s3iam
+#Copy s3iam.py to /usr/lib/yum-plugins/s3iam.py
+curl https://raw.githubusercontent.com/seporaitis/yum-s3-iam/master/s3iam.py > /usr/lib/yum-plugins/s3iam.py
+
+#Copy s3iam.conf to /etc/yum/pluginconf.d/s3iam.conf
+curl https://raw.githubusercontent.com/seporaitis/yum-s3-iam/master/s3iam.conf > /etc/yum/pluginconf.d/s3iam.conf
+
+### yum clean all
+yum clean all
+
+### install encfs
+yum install --enablerepo=epel -y fuse-encfs
+
+### utils
+yum install htop jq iftop ack-grep chrootkiller otm -y
+
+### install gcc and ruby_devel to allow some of the gems to work
+yum install gcc ruby-devel -y
+
+### install some ruby gems -- do we need to package these up? YES :_(
+gem install ruby-shadow json
+gem install puppet --version 3.2.4
+
+### install scl-utils -- actually package this
+# wget ftp://ftp.ntua.gr/pub/linux/centos/6.5/os/x86_64/Packages/scl-utils-20120927-8.el6.x86_64.rpm !!PACKAGE THIS UP!!
+
+### install pam_url -- actually package this
+
+### cloud final to 96
+chkconfig cloud-final off
+sed -i "s/# chkconfig:   2345 98/# chkconfig:   2345 96/" /etc/init.d/cloud-final
+chkconfig cloud-final on
+
+### install puppet
+
+yum install -y puppet-3.2.4
+
+### run puppet
+puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com
+
+
+### TODO:
+#motd
+#puppet clean
