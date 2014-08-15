@@ -41,8 +41,8 @@
           type => (has-prefix "amazon-")
           vpc_id => (has-prefix "vpc")
 
-          provisioners => (contains [ruby-193 ..motd.. ent-yum-repo cloud-final
-                                     user-cleanup puppet-clean puppet]
+          provisioners => (contains [..motd.. ent-yum-repo cloud-final
+                                     puppet-clean puppet]
                                     :in-any-order :gaps-ok)))
 
   (fact "ebs template contains additional device mapping when hvm"
