@@ -70,7 +70,7 @@
 (def cloud-final
   "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
-         "sed -i \"s/# chkconfig:   2345 98/# chkconfig:   2345 96/\" /etc/init.d/cloud-final"
+         "sudo sed -i \"s/# chkconfig:   - 99 01/# chkconfig:   - 96 01/\" /etc/rc.d/init.d/cloud-final"
          "chkconfig cloud-final on"))
 
 (def user-cleanup
