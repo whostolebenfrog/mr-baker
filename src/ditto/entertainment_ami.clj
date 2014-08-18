@@ -114,6 +114,10 @@
   (shell "gem install ruby-shadow json"
          "gem install puppet --version 3.2.4"))
 
+(def allow-rebake
+  "Set up ec2-user as allowed to use a public key"
+  (shell "echo \"Match User ec2-user\\nPubkeyAuthentication yes\" >> /etc/ssh/sshd_config"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami virt-type]
@@ -162,7 +166,8 @@
                     ruby-gems
                     cloud-final
                     puppet-clean
-                    puppet]}))
+                    puppet
+                    allow-rebake]}))
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
