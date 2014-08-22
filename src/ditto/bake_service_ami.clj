@@ -71,6 +71,10 @@
   "Cleans yum's various caches"
   (shell "yum clean all"))
 
+(def unlock-puppet-ssh-auth
+  "Removes a lock file that suppresses puppet's auth module"
+  (shell "rm /var/lock/ditto/ssh"))
+
 (defn provisioners
   "Returns a list of provisioners for the bake."
   [service-name service-version rpm-name]
@@ -80,6 +84,7 @@
          (custom-shell-commands service-name service-version)
          clear-var-log-messages
          numel-on
+         unlock-puppet-ssh-auth
          puppet-on]
         (filter identity)))
 

@@ -103,6 +103,11 @@
   "Cleans yum's various caches"
   (shell "yum clean all"))
 
+(def lock-puppet-ssh-auth
+  "Creates a lock file that suppresses puppet from running it's ssh auth module"
+  (shell "mkdir -p /var/lock/ditto"
+         "touch /var/lock/ditto/ssh"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami virt-type]
@@ -148,6 +153,7 @@
                     jq
                     user-cleanup
                     dhcp-retry
+                    lock-puppet-ssh-auth
                     puppet-clean
                     puppet]}))
 
