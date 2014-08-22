@@ -73,7 +73,7 @@
 
 (def unlock-puppet-ssh-auth
   "Removes a lock file that suppresses puppet's auth module"
-  (shell "rm /var/lock/ditto/ssh"))
+  (shell "rm -f /var/lock/ditto/ssh"))
 
 (defn provisioners
   "Returns a list of provisioners for the bake."
