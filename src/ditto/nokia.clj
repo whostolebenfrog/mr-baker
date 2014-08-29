@@ -27,7 +27,7 @@
   (let [virt-type-name (condp = virt-type
                          :para "ebs"
                          :hvm "hvm")
-        ami-names (take 2 (map (partial nokia-ami-name virt-type-name)
+        ami-names (take 5 (map (partial nokia-ami-name virt-type-name)
                                (past-wednesdays)))]
     (->> (map aws/private-images-by-name ami-names)
          (some identity)
