@@ -100,7 +100,7 @@
                   :source_ami source-ami
                   :ssh_timeout "5m"
                   :ssh_username "nokiarebake"
-                  :subnet_id "subnet-bdc08fd5"
+                  :subnet_id (rand-nth ["subnet-bdc08fd5" "subnet-24df904c" "subnet-e6e4e0a0"])
                   :type "amazon-ebs"
                   :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :vpc_id "vpc-7bc88713"})]
