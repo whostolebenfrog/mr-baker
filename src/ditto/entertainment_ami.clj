@@ -114,9 +114,10 @@
   (shell "gem install ruby-shadow json"
          "gem install puppet --version 3.2.4"))
 
-(def allow-rebake
-  "Set up ec2-user as allowed to use a public key"
-  (shell "echo \"Match User ec2-user\\nPubkeyAuthentication yes\" >> /etc/ssh/sshd_config"))
+(def lock-puppet-ssh-auth
+  "Creates a lock file that suppresses puppet from running it's ssh auth module"
+  (shell "mkdir -p /var/lock/ditto"
+         "touch /var/lock/ditto/ssh"))
 
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
@@ -165,9 +166,9 @@
                     gem-prerequisites
                     ruby-gems
                     cloud-final
+                    lock-puppet-ssh-auth
                     puppet-clean
-                    puppet
-                    allow-rebake]}))
+                    puppet]}))
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
