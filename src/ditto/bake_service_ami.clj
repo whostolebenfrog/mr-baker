@@ -48,7 +48,8 @@
 
 (def puppet-on
   "Enable puppet once we're done"
-  (shell "chkconfig puppet on"))
+  (shell "puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com"
+         "chkconfig puppet on"))
 
 (def kill-chroot-prosses
   "Kill all processes in the chroot"
@@ -104,10 +105,9 @@
                   :security_group_id "sg-c453b4ab"
                   :source_ami source-ami
                   :ssh_timeout "5m"
-                  :ssh_username "nokiarebake"
+                  :ssh_username "ec2-user"
                   :subnet_id "subnet-bdc08fd5"
                   :type "amazon-ebs"
-                  :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
      :provisioners (provisioners service-name service-version rpm-name)}))
