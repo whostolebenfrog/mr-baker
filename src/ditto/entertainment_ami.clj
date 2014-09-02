@@ -119,6 +119,11 @@
   (shell "mkdir -p /var/lock/ditto"
          "touch /var/lock/ditto/ssh"))
 
+(def fix-pam-ldap
+  "Creates a directory required by PAM LDAP because it's bad and references mental paths like
+   /lib/security/../../lib64/security :-/"
+  (shell "mkdir -p /lib/security"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami virt-type]
@@ -166,6 +171,7 @@
                     gem-prerequisites
                     ruby-gems
                     cloud-final
+                    fix-pam-ldap
                     lock-puppet-ssh-auth
                     puppet-clean
                     puppet]}))
