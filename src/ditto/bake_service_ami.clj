@@ -68,9 +68,9 @@
   "Clears /var/log/messages"
   (shell "cat /dev/null > /var/log/messages"))
 
-(def yum-clean-all
+(def yum-clean-cache
   "Cleans yum's various caches"
-  (shell "yum clean all"))
+  (shell "yum clean expire-cache"))
 
 (def unlock-puppet-ssh-auth
   "Removes a lock file that suppresses puppet's auth module"
@@ -80,7 +80,7 @@
   "Returns a list of provisioners for the bake."
   [service-name service-version rpm-name]
   ( ->> [(motd service-name service-version)
-         yum-clean-all
+         yum-clean-cache
          (service-rpm service-name service-version rpm-name)
          (custom-shell-commands service-name service-version)
          clear-var-log-messages
