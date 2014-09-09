@@ -76,6 +76,10 @@
   "Removes a lock file that suppresses puppet's auth module"
   (shell "rm -f /var/lock/ditto/ssh"))
 
+(def unlock-puppet-ssh-auth
+  "Removes a lock file that suppresses puppet's auth module"
+  (shell "rm -f /var/lock/ditto/ssh"))
+
 (defn provisioners
   "Returns a list of provisioners for the bake."
   [service-name service-version rpm-name]
@@ -106,7 +110,7 @@
                   :source_ami source-ami
                   :ssh_timeout "5m"
                   :ssh_username "ec2-user"
-                  :subnet_id "subnet-bdc08fd5"
+                  :subnet_id (rand-nth ["subnet-bdc08fd5" "subnet-24df904c" "subnet-e6e4e0a0"])
                   :type "amazon-ebs"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]

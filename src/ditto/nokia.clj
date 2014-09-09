@@ -24,28 +24,26 @@
    Defaults to :ebs if not specified."
   [virt-type]
   {:pre [(#{:hvm :para} virt-type)]}
-  ({:hvm "ami-892fe1fe" :para "ami-672ce210"} virt-type))
-
-(defn ent-ami-name-base
-  "Returns the base part of an ami name"
-  [virt-type]
-  (format "entertainment-base-al-%s-" (name virt-type)))
-
-(defn ent-public-name-base
-  "Returns the base part of the public ami name"
-  [virt-type]
-  (format "entertainment-public-al-%s-" (name virt-type)))
+  (let [virt-type-name (condp = virt-type
+                         :para "ebs"
+                         :hvm "hvm")
+        ami-names (take 5 (map (partial nokia-ami-name virt-type-name)
+                               (past-wednesdays)))]
+    (->> (map aws/private-images-by-name ami-names)
+         (some identity)
+         (first)
+         :ImageId)))
 
 (defn entertainment-base-ami-id
   "Returns the id of the latest entertainment base ami"
   [virt-type]
-  (-> (aws/owned-images-by-name (str (ent-ami-name-base virt-type) "*"))
+  (-> (aws/owned-images-by-name (format "entertainment-base-%s*" (name virt-type)))
       (last)
       :ImageId))
 
 (defn entertainment-public-ami-id
   "Returns the id of the latest entertainment public ami"
   [virt-type]
-  (-> (aws/owned-images-by-name (str (ent-public-name-base virt-type) "*"))
+  (-> (aws/owned-images-by-name (format "entertainment-public-%s-*" (name virt-type)))
       (last)
       :ImageId))

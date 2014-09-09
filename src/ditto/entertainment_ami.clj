@@ -15,7 +15,9 @@
 (defn ent-ami-name
   "Returns the ami name for date/time now"
   [virt-type]
-  (str (nokia/ent-ami-name-base virt-type)
+  (str "entertainment-base-"
+       (name virt-type)
+       "-"
        (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (def ent-yum-repo
@@ -58,7 +60,7 @@
 (def cloud-final
   "Make sure cloud-final runs as early as possible, but not after the services"
   (shell "chkconfig cloud-final off"
-         "sed -i \"s/# chkconfig:   2345 98/# chkconfig:   2345 96/\" /etc/init.d/cloud-final"
+         "sudo sed -i \"s/# chkconfig:   - 99 01/# chkconfig:   - 96 01/\" /etc/rc.d/init.d/cloud-final"
          "chkconfig cloud-final on"))
 
 (def puppet-clean
@@ -114,15 +116,15 @@
   (shell "gem install ruby-shadow json"
          "gem install puppet --version 3.2.4"))
 
-(def lock-puppet-ssh-auth
-  "Creates a lock file that suppresses puppet from running it's ssh auth module"
-  (shell "mkdir -p /var/lock/ditto"
-         "touch /var/lock/ditto/ssh"))
-
 (def fix-pam-ldap
   "Creates a directory required by PAM LDAP because it's bad and references mental paths like
    /lib/security/../../lib64/security :-/"
   (shell "mkdir -p /lib/security"))
+
+(def lock-puppet-ssh-auth
+  "Creates a lock file that suppresses puppet from running it's ssh auth module"
+  (shell "mkdir -p /var/lock/ditto"
+         "touch /var/lock/ditto/ssh"))
 
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
