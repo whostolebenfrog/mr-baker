@@ -7,7 +7,7 @@
 (fact-group
  :unit
 
- (fact "Latest-nokia-ami returns"
+ (future-fact "Remove this if we stick with amazon linux or put back"
        (latest-nokia-ami :para) => "ent-ditto-0.25-1-2013-10-15_10-21-19"
        (provided (nokia-ami-name "ebs" anything) => "ent-ditto-0.25-1-2013-10-15_10-21-19"
                  (aws/private-images-by-name anything) => [{:ImageId "ent-ditto-0.25-1-2013-10-15_10-21-19"}]))
