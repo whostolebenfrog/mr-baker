@@ -11,7 +11,7 @@
 (fact-group :unit
 
   (fact "ent-ami-name returns the name including the time"
-        (ent-ami-name :hvm) => "entertainment-base-hvm-2013-10-15_00-00-00"
+        (ent-ami-name :hvm) => "entertainment-base-al-hvm-2013-10-15_00-00-00"
         (provided
          (core-time/now) => (core-time/date-time 2013 10 15)))
 
@@ -34,9 +34,8 @@
           region => "eu-west-1"
           security_group_id => (has-prefix "sg-")
           source_ami => ..parent-ami..
-          temporary_key_pair_name => "nokia-{{uuid}}"
           ssh_timeout => "5m"
-          ssh_username =>"nokia"
+          ssh_username =>"ec2-user"
           subnet_id => (has-prefix "subnet-")
           type => (has-prefix "amazon-")
           vpc_id => (has-prefix "vpc")

@@ -31,12 +31,6 @@
           (second inline) => (has-prefix "yum -y install")
           (second inline) => (has-suffix name)))
 
-  (fact "puppet on enables puppet"
-        (let [{:keys [type inline]} puppet-on]
-
-          type => "shell"
-          (first inline) => "chkconfig puppet on"))
-
   (fact "custom-shell-commands calls onix and uses that result"
         (against-background
          (onix/shell-commands "app") => ["echo woo" "do something"])
@@ -68,9 +62,8 @@
           instance_type => ..instance-type..
           region  => "eu-west-1"
           source_ami => ..source..
-          temporary_key_pair_name => "nokiarebake-{{uuid}}"
           ssh_timeout => "5m"
-          ssh_username => "nokiarebake"
+          ssh_username => "ec2-user"
           subnet_id => (has-prefix "subnet")
           type => (has-prefix "amazon")
           vpc_id => (has-prefix "vpc")))
