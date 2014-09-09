@@ -1,4 +1,4 @@
-(defproject ditto "0.126-SNAPSHOT"
+(defproject ditto "0.126"
   :description "Ditto service"
   :url "http://wikis.in.nokia.com/NokiaMusicArchitecture/Ditto"
 
@@ -106,9 +106,8 @@
                     :groupname "ditto"
                     :sources {:source [{:location "scripts/bin"}]}}
                    {:directory "/etc/rc.d/init.d"
-                    :filemode "744"
-                    :username "ditto"
-                    :groupname "ditto"
-                    :sources {:source [{:location "scripts/service/ditto"}]}}]}
+                    :filemode "755"
+                    :sources {:source [{:location "scripts/service/ditto"
+                                        :destination "ditto"}]}}]}
 
   :main ditto.setup)
