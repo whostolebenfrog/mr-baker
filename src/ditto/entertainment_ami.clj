@@ -124,6 +124,14 @@
   (shell "mkdir -p /var/lock/ditto"
          "touch /var/lock/ditto/ssh"))
 
+(def python-pip
+  "Removes existing python if installed, block amzn-main repo's version and install our own. This
+   stops puppet from being an ass where it looks for python-pip and finds python26-pip installed.
+   Despite them both actually being the same"
+  (shell "yum remove -y python-pip"
+         "sed -i '/report_instanceid=yes/a exclude=python26-pip' /etc/yum.repos.d/amzn-main.rep"
+         "yum install python-pip"))
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami virt-type]
@@ -172,6 +180,7 @@
                     ruby-gems
                     cloud-final
                     fix-pam-ldap
+                    python-pip
                     lock-puppet-ssh-auth
                     puppet-clean
                     puppet]}))
