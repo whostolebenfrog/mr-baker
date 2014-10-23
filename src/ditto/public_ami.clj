@@ -34,12 +34,18 @@
   (shell "yum install -y numel-integration"))
 
 (def puppet-on
-  "Enable puppet on the public base instance"
-  (shell "chkconfig puppet on"))
+  "Enable puppet once we're done"
+  (shell "rm -rf /var/lib/puppet/ssl"
+         "chkconfig puppet on"))
 
-(def yum-clean-all
+(def yum-clean-cache
   "Cleans yum's various caches"
-  (shell "yum clean all"))
+  (shell "yum clean expire-cache"))
+
+(def unlock-puppet-ssh-auth
+  "Removes a lock file that suppresses puppet's auth module"
+  (shell "rm -f /var/lock/ditto/ssh"))
+
 
 (defn public-ami
   "Provides the template for the public-ami"
@@ -64,8 +70,9 @@
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
      :provisioners [(motd source-ami)
-                    yum-clean-all
+                    yum-clean-cache
                     numel-on
+                    unlock-puppet-ssh-auth
                     puppet-on]}))
 
 (defn create-public-ami

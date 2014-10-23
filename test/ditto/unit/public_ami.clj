@@ -17,9 +17,6 @@
        (provided
         (core-time/now) => (core-time/date-time 2013 10 15)))
 
- (fact "puppet-on enabled puppet"
-       (-> puppet-on (:inline) (first)) => "chkconfig puppet on")
-
  (fact "public-ami generates a packer template"
        (against-background
         (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
