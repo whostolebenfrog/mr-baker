@@ -129,8 +129,8 @@
    stops puppet from being an ass where it looks for python-pip and finds python26-pip installed.
    Despite them both actually being the same"
   (shell "yum remove -y python-pip"
-         "sed -i '/report_instanceid=yes/a exclude=python26-pip' /etc/yum.repos.d/amzn-main.rep"
-         "yum install python-pip"))
+         "sed -i '/report_instanceid=yes/a exclude=python26-pip' /etc/yum.repos.d/amzn-main.repo"
+         "yum install -y python-pip"))
 
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"

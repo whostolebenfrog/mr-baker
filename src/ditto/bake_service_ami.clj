@@ -48,7 +48,7 @@
 
 (def puppet-on
   "Enable puppet once we're done"
-  (shell "puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com"
+  (shell "rm -rf /var/lib/puppet/ssl"
          "chkconfig puppet on"))
 
 (def kill-chroot-prosses
