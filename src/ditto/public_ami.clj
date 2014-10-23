@@ -63,9 +63,8 @@
                   :security_group_id "sg-c453b4ab"
                   :source_ami source-ami
                   :ssh_timeout "5m"
-                  :ssh_username "nokiarebake"
+                  :ssh_username "ec2-user"
                   :subnet_id "subnet-bdc08fd5"
-                  :temporary_key_pair_name "nokiarebake-{{uuid}}"
                   :type "amazon-ebs"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
