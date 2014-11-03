@@ -35,20 +35,6 @@
                :Images
                seq)))
 
-(defn private-images-by-name
-  "Returns a list of private images that match the supplied name.
-   Accepts * as a wild card.
-
-   Returns an array of matching images or nil"
-  [name]
-  (-> (aws "ec2" "describe-images"
-           "--region" "eu-west-1"
-           "--output" "json"
-           "--filters" (str "Name=name,Values=" name) " Name=is-public,Values=false")
-      (json/parse-string true)
-      :Images
-      seq))
-
 (defn service-images
   "Returns the images for a service"
   [name]

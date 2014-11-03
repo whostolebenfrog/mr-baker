@@ -34,9 +34,8 @@
          region => "eu-west-1"
          security_group_id => (has-prefix "sg-")
          source_ami => ..source..
-         temporary_key_pair_name => "nokiarebake-{{uuid}}"
          ssh_timeout => "5m"
-         ssh_username => "nokiarebake"
+         ssh_username => "ec2-user"
          subnet_id => (has-prefix "subnet-")
          type => (has-prefix "amazon")
          vpc_id => (has-prefix "vpc")))

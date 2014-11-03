@@ -4,6 +4,7 @@
              [entertainment-ami :as base]
              [nokia :as nokia]
              [asgard :as asgard]
+             [awsclient :as awsclient]
              [public-ami :as public-ami]
              [onix :as onix]
              [packer :as packer]]
@@ -72,14 +73,15 @@
    according to asgard. Note: amis are retrieved from AWS in latest first order."
   [name]
   (debug (str "Killing amis for " name))
-  (let [amis (->> (map :ImageId (aws/service-images name))
+  (let [amis (->> (awsclient/service-ami-ids name)
                   (reverse)
-                  (drop 5))
-        amis (difference (set amis) (asgard/active-amis-for-application name))]
+                  (drop 5)
+                  (set)
+                  (awsclient/filter-active-amis))]
     (debug (str "List of amis to kill: " amis))
     (doseq [ami amis]
       (debug (str "Degregistering AMI: " ami))
-      (aws/deregister-ami name ami))))
+      (awsclient/deregister-ami name ami))))
 
 (defn kill-amis
   "Deregister any sufficiently old amis"

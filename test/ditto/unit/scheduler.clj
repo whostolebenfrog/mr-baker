@@ -2,7 +2,7 @@
   (:require [ditto
              [scheduler :refer :all]
              [asgard :as asgard]
-             [aws :as aws]
+             [awsclient :as awsclient]
              [onix :as onix]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
@@ -20,31 +20,29 @@
  (fact "kill amis for application does nothing if 5 or less amis"
        (kill-amis-for-application ..app..) => nil
        (provided
-        (aws/service-images ..app..) => [..1.. ..2.. ..3.. ..4.. ..5..]
-        (aws/deregister-ami anything) => nil :times 0
-        (asgard/active-amis-for-application ..app..) => ..other..))
+        (awsclient/service-ami-ids ..app..) => [..1.. ..2.. ..3.. ..4.. ..5..]
+        (awsclient/deregister-ami anything anything) => nil :times 0
+        (awsclient/filter-active-amis #{}) => #{}))
 
- (def seven-amis [{:ImageId 1} {:ImageId 2} {:ImageId 3}
-                  {:ImageId 4} {:ImageId 5} {:ImageId 6}
-                  {:ImageId 7}])
+ (def seven-amis [1 2 3 4 5 6 7])
 
  (fact "kill amis for application kills the oldest amis"
        (kill-amis-for-application ..app..) => nil
        (provided
-        (aws/service-images ..app..) => seven-amis
-        (aws/deregister-ami ..app.. 1) => nil :times 1
-        (aws/deregister-ami ..app.. 2) => nil :times 1
-        (aws/deregister-ami anything) => nil :times 0
-        (asgard/active-amis-for-application ..app..) => ..other..))
+        (awsclient/service-ami-ids ..app..) => seven-amis
+        (awsclient/deregister-ami ..app.. 1) => nil :times 1
+        (awsclient/deregister-ami ..app.. 2) => nil :times 1
+        (awsclient/deregister-ami anything anything) => nil :times 0
+        (awsclient/filter-active-amis #{1 2}) => [2 1]))
 
  (fact "kill amis for application doesn't kill live amis"
        (kill-amis-for-application ..app..) => nil
        (provided
-        (aws/service-images ..app..) => seven-amis
-        (aws/deregister-ami ..app.. 2) => nil :times 0
-        (aws/deregister-ami ..app.. 1) => nil :times 1
-        (aws/deregister-ami anything) => nil :times 0
-        (asgard/active-amis-for-application ..app..) => #{2}))
+        (awsclient/service-ami-ids ..app..) => seven-amis
+        (awsclient/deregister-ami ..app.. 2) => nil :times 0
+        (awsclient/deregister-ami ..app.. 1) => nil :times 1
+        (awsclient/deregister-ami anything anything) => nil :times 0
+        (awsclient/filter-active-amis #{1 2}) => #{1}))
 
  (fact "ms-until-next-thursday works when before thursday"
        (against-background

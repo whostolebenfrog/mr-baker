@@ -2,7 +2,8 @@
   :description "Ditto service"
   :url "http://wikis.in.nokia.com/NokiaMusicArchitecture/Ditto"
 
-  :dependencies [[compojure "1.1.8" :exclusions [javax.servlet/servlet-api]]
+  :dependencies [[amazonica "0.2.27"]
+                 [compojure "1.1.8" :exclusions [javax.servlet/servlet-api]]
                  [ring-middleware-format "0.3.2"]
                  [ring/ring-jetty-adapter "1.3.0" :exclusions [org.eclipse.jetty/jetty-server]]
                  [ring/ring-json "0.3.1"]
@@ -25,6 +26,7 @@
                  [environ "0.5.0"]
                  [io.clj/logging "0.8.1"]
                  [nokia/ring-utils "1.2.4"]
+                 [org.clojure/core.memoize "0.5.6"]
                  [metrics-clojure "1.1.0"]
                  [metrics-clojure-ring "1.1.0"]
                  [overtone/at-at "1.2.0"]
@@ -69,7 +71,13 @@
         :service-asgard-url "http://asgard.brislabs.com:8080"
         :service-yum-url "http://yumrepo.brislabs.com/ovimusic"
 
-        :service-prod-account "269544559808"}
+        :service-prod-account "269544559808"
+
+        :aws-dev-account-id "dev-account-id"
+        :aws-prod-account-id "prod-account-id"
+        :aws-prod-role-arn "prod-role-arn"
+        :aws-proxy-host "172.16.42.42"
+        :aws-proxy-port "8080"}
 
   :lein-release {:release-tasks [:clean :uberjar :pom :rpm]
                  :clojars-url "clojars@clojars.brislabs.com:"}
