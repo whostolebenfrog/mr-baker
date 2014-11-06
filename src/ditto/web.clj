@@ -6,6 +6,7 @@
              [public-ami :as public-ami]
              [packer :as packer]
              [aws :as aws]
+             [awsclient :as awsclient]
              [pokemon :as pokemon]
              [onix :as onix]
              [yum :as yum]
@@ -187,8 +188,13 @@
            (scheduler/kill-amis)
            (scheduler/kill-amis-for-application service)))
 
-   (GET "/amis/:service-name" [service-name]
-        (latest-service-amis service-name))
+   (GET "/amis/active/:service/:environment/:region" [service environment region]
+        (awsclient/active-amis-for-service service
+                                           (keyword environment)
+                                           region))
+
+   (GET "/amis/:service" [service]
+        (latest-service-amis service))
 
    (POST "/bake/entertainment-ami/:virt-type" [virt-type dryrun]
          (lockable-bake #(bake-entertainment-base-ami (keyword virt-type) dryrun)))
