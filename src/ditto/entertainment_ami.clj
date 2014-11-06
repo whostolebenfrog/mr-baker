@@ -140,16 +140,20 @@
                   :ami_block_device_mappings (concat
                                               (when (= virt-type :hvm)
                                                 [{:device_name "/dev/xvda"
-                                                   :delete_on_termination true
-                                                   :volume_size "10"}])
+                                                  :delete_on_termination true
+                                                  :volume_size "10"}])
                                               [{:device_name "/dev/sdb"
-                                                :virtual_name "ephemeral0"}
+                                                :virtual_name "ephemeral0"
+                                                :volume_size "10"}
                                                {:device_name "/dev/sdc"
-                                                :virtual_name "ephemeral1"}
+                                                :virtual_name "ephemeral1"
+                                                :volume_size "10"}
                                                {:device_name "/dev/sdd"
-                                                :virtual_name "ephemeral2"}
+                                                :virtual_name "ephemeral2"
+                                                :volume_size "10"}
                                                {:device_name "/dev/sde"
-                                                :virtual_name "ephemeral3"}])
+                                                :virtual_name "ephemeral3"
+                                                :volume_size "10"}])
                   :iam_instance_profile "baking"
                   :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
