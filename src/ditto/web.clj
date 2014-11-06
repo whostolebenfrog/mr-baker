@@ -189,9 +189,7 @@
            (scheduler/kill-amis-for-application service)))
 
    (GET "/amis/active/:service/:environment/:region" [service environment region]
-        (awsclient/active-amis-for-service service
-                                           (keyword environment)
-                                           region))
+        (response (awsclient/active-amis-for-service service (keyword environment) region)))
 
    (GET "/amis/:service" [service]
         (latest-service-amis service))

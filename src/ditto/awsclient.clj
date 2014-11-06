@@ -139,8 +139,7 @@
 
 (defn all-active-amis
   "Returns a set of active amis from the set of amis provided"
-  [amis]
-  {:pre [set? amis]}
+  []
   (clojure.set/union (active-amis :poke "eu-west-1")
                      (active-amis :prod "eu-west-1")))
 

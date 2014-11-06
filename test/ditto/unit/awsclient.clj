@@ -56,8 +56,7 @@
         (all-active-amis) => #{:active}))
 
  (fact "all-active-amis returns active amis from :poke and :prod"
-       (all-active-amis #{:poke-active :poke-inactive :prod-active :prod-inactive})
-       => #{:poke-active :prod-active}
+       (all-active-amis) => #{:poke-active :prod-active}
        (provided
         (active-amis :poke anything) => #{:poke-active}
         (active-amis :prod anything) => #{:prod-active})))
