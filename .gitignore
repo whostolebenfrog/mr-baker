@@ -21,6 +21,6 @@ xxx*
 rrr*
 sss*
 .nrepl-port
-ditto/
 pom.xml
 release_version.properties
+ditto/*
