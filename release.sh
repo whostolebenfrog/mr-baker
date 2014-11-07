@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #reattach repo to master
-#git checkout master
-#git pull
+git checkout master
+git pull
 
 #extract new version to file for config build trigger
 version=`cat project.clj | grep 'defproject' | cut -f2 -d '"' | cut -f1 -d '-'`
@@ -21,4 +21,4 @@ name=`basename $name`
 scp -i ~/.ssh/dmt-key project.clj root@yumrepo.brislabs.com:/var/tmp/rpms/$name.RECEIPT
 
 #push version increment
-#git push --tags origin master
+git push --tags origin master
