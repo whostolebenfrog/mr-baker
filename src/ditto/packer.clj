@@ -1,14 +1,14 @@
 (ns ditto.packer
   "Here be dragons... Some gnarly code in here to get response streaming to work as we want."
-  (:require [ditto.aws :as aws]
-            [me.raynes.conch :as conch]
-            [me.raynes.conch.low-level :as sh]
-            [cheshire.core :as json]
+  (:require [cheshire.core :as json]
             [clojure.java.io :as io]
             [clojure.tools.logging :refer [debug info warn error]]
+            [ditto.awsclient :as aws]
             [io.clj.logging :refer [with-logging-context]]
-            [ring.util.servlet :as ring-servlet]
-            [overtone.at-at :as at])
+            [me.raynes.conch :as conch]
+            [me.raynes.conch.low-level :as sh]
+            [overtone.at-at :as at]
+            [ring.util.servlet :as ring-servlet])
   (:import (java.io FileInputStream InputStream File PipedInputStream PipedOutputStream)
            (javax.servlet.http HttpServletResponse)))
 
@@ -86,11 +86,10 @@
    make that ami available to our prod account. Don't match the first instance
    of the ami though (starts with amazon-ebs) as it wont be ready at this point."
   [line]
-  (debug line)
   (when-let [ami (and line (last (re-matches #"(?is).*AMIs were created.+(ami-[\w]+)\s*" line)))]
     (info (str "Making AMI: " ami " available to prod account."))
     (try
-      (aws/allow-prod-access-to-ami ami)
+      (awsclient/allow-prod-access-to-ami ami)
       (catch Exception e
         (with-logging-context {:ami ami}
           (error e "Error while making AMI available to prod"))))))
