@@ -1,9 +1,7 @@
 (ns ditto.scheduler
   (:require [ditto
-             [aws :as aws]
              [entertainment-ami :as base]
              [nokia :as nokia]
-             [asgard :as asgard]
              [awsclient :as awsclient]
              [public-ami :as public-ami]
              [onix :as onix]
@@ -69,8 +67,8 @@
       (error e "Error while baking shared AMIs"))))
 
 (defn kill-amis-for-application
-  "Deregisters amis for an application apart from the latest 5. Doesn't deregister the ami that is deployed
-   according to asgard. Note: amis are retrieved from AWS in latest first order."
+  "Deregisters amis for an application apart from the latest 5. Doesn't deregister any amis that are deployed.
+   Note: amis are retrieved from AWS in latest first order."
   [name]
   (debug (str "Killing amis for " name))
   (let [amis (->> (awsclient/service-ami-ids name)

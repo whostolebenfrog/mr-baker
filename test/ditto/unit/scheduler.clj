@@ -1,7 +1,6 @@
 (ns ditto.unit.scheduler
   (:require [ditto
              [scheduler :refer :all]
-             [asgard :as asgard]
              [awsclient :as awsclient]
              [onix :as onix]]
             [midje.sweet :refer :all]

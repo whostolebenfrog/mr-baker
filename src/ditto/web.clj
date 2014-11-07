@@ -5,7 +5,6 @@
              [bake-service-ami :as service-ami]
              [public-ami :as public-ami]
              [packer :as packer]
-             [aws :as aws]
              [awsclient :as awsclient]
              [pokemon :as pokemon]
              [onix :as onix]
@@ -69,8 +68,8 @@
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
   [service-name]
-  (->> (aws/service-images service-name)
-       (map #(select-keys % [:Name :ImageId]))
+  (->> (awsclient/service-images service-name)
+       (map #(select-keys % [:name :image-id]))
        (reverse)
        (take 10)))
 
@@ -152,7 +151,7 @@
 (defn remove-ami
   [service ami]
   "Reregister the supplied ami"
-  (if (aws/deregister-ami service ami)
+  (if (awsclient/deregister-ami service ami)
       (response (format "%s deleted successfully" ami) "application/json" 204)
       (response (format "Failed to remove %s" ami) "application/json" 500)))
 
@@ -213,7 +212,7 @@
           #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
 
    (POST "/make-public/:service" [service]
-         (aws/allow-prod-access-to-service service))
+         (awsclient/allow-prod-access-to-service service))
 
    (DELETE "/:service-name/amis/:ami" [service-name ami]
            (remove-ami service-name ami))

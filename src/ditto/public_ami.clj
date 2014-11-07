@@ -5,7 +5,6 @@
   (:require [ditto
              [bake-common :refer :all]
              [entertainment-ami :as base]
-             [aws :as aws]
              [nokia :as nokia]]
             [clj-time
              [core :as time-core]

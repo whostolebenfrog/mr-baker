@@ -68,7 +68,6 @@
         :service-packer-use-iam "true"
 
         :service-onix-url "http://onix.brislabs.com:8080"
-        :service-asgard-url "http://asgard.brislabs.com:8080"
         :service-yum-url "http://yumrepo.brislabs.com/ovimusic"
 
         :service-prod-account "269544559808"

@@ -2,7 +2,7 @@
   "Test the web namespace. We're using these in place of rest-driver tests"
   (:require [ditto
              [web :refer :all]
-             [aws :as aws]
+             [awsclient :as awsclient]
              [yum :as yum]
              [bake-service-ami :as service-ami]
              [public-ami :as public-ami]
@@ -131,13 +131,13 @@
 
  (fact "latest service amis searches for service amis, returns the first
          10 of the reversed list"
-       (against-background (aws/service-images "ditto") =>
-                           (map (fn [x] {:Name x :ImageId x}) (range 20 0 -1)))
+       (against-background (awsclient/service-images "ditto") =>
+                           (map (fn [x] {:name x :image-id x}) (range 20 0 -1)))
        (let [{amis :body} (request :get "amis/ditto")]
          (count amis) => 10
-         amis => (contains [{:ImageId 1 :Name 1}
-                            {:ImageId 2 :Name 2}
-                            {:ImageId 10 :Name 10}] :gaps-ok))))
+         amis => (contains [{:image-id 1 :name 1}
+                            {:image-id 2 :name 2}
+                            {:image-id 10 :name 10}] :gaps-ok))))
 
 (fact-group
  :unit
@@ -187,8 +187,8 @@
 
  (fact "Calling delete on an ami deregisters the image"
        (request :delete "service/amis/ami-id") => (contains {:status 204 :body (has-suffix "deleted successfully")})
-       (provided (aws/deregister-ami "service" "ami-id") => true))
+       (provided (awsclient/deregister-ami "service" "ami-id") => true))
 
  (fact "Resource returns 500 when the ami fails to be removed"
        (request :delete "service/amis/ami-id") => (contains {:status 500 :body (has-prefix "Failed to remove ")})
-       (provided (aws/deregister-ami "service" "ami-id") => false)))
+       (provided (awsclient/deregister-ami "service" "ami-id") => false)))

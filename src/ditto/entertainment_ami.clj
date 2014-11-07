@@ -1,7 +1,6 @@
 (ns ditto.entertainment-ami
   (:require [ditto
              [bake-common :refer :all]
-             [aws :as aws]
              [nokia :as nokia]]
             [clojure.tools.logging :refer [info warn error]]
             [cheshire.core :as json]
