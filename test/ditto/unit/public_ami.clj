@@ -3,7 +3,6 @@
              [public-ami :refer :all]
              [entertainment-ami :as base]
              [bake-common :refer :all]
-             [aws :as aws]
              [nokia :as nokia]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]

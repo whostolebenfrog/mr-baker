@@ -2,7 +2,6 @@
   (:require [ditto
              [entertainment-ami :refer :all]
              [bake-common :refer :all]
-             [aws :as aws]
              [nokia :as nokia]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
