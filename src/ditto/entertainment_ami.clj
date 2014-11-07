@@ -131,6 +131,27 @@
          "sed -i '/report_instanceid=yes/a exclude=python26-pip' /etc/yum.repos.d/amzn-main.repo"
          "yum install -y python-pip"))
 
+(defn provisioners
+  [parent-ami]
+  [(motd parent-ami)
+   install-patches
+   ent-yum-repo
+   puppetlabs-repo
+   puppetlabs-deps-repo
+   s3iam
+   yum-clean-all
+   encfs
+   utils
+   encrypted-sector
+   gem-prerequisites
+   ruby-gems
+   cloud-final
+   fix-pam-ldap
+   python-pip
+   lock-puppet-ssh-auth
+   puppet-clean
+   puppet])
+
 (defn ebs-template
   "Generate a new ami ebs backed packer builder template"
   [parent-ami virt-type]
@@ -169,24 +190,7 @@
                   :type "amazon-ebs"
                   :vpc_id "vpc-7bc88713"})]
     {:builders [builder]
-     :provisioners [(motd parent-ami)
-                    install-patches
-                    ent-yum-repo
-                    puppetlabs-repo
-                    puppetlabs-deps-repo
-                    s3iam
-                    yum-clean-all
-                    encfs
-                    utils
-                    encrypted-sector
-                    gem-prerequisites
-                    ruby-gems
-                    cloud-final
-                    fix-pam-ldap
-                    python-pip
-                    lock-puppet-ssh-auth
-                    puppet-clean
-                    puppet]}))
+     :provisioners (provisioners parent-ami)}))
 
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"

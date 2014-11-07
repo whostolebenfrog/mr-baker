@@ -120,9 +120,10 @@
                   :tags {:name (format "%s AMI" service-name)
                          :service service-name}
                   :source_ami source-ami
+                  :ami_virtualization_type (virtualisation-type-long virt-type)
                   :type "amazon-chroot"})]
     {:builders [builder]
-     :provisioners (concat (provisioners service-name service-version rpm-name) [kill-chroot-prosses])}))
+     :provisioners (provisioners service-name service-version rpm-name)}))
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
