@@ -36,20 +36,6 @@
          {:endpoint region}
          proxy-details))
 
-;; TODO - not used?
-(comment (defn image
-   "Returns the image details for the supplied id"
-   [image-id environment region]
-   (first (:images (ec2/describe-images (config environment region)
-                                        :image-ids [image-id])))))
-
-;; TODO - not used?
-(comment (defn instances
-   [environment region instance-ids]
-   "Returns a list of "
-   (flatten (map :instances (flatten (:reservations (ec2/describe-instances (config environment region)
-                                                                            :instance-ids (vec instance-ids))))))))
-
 (defn ami-name-comparator
   "Sort amis by date generated"
   [a b]
@@ -155,5 +141,3 @@
   [name environment region]
   (intersection (set (service-ami-ids name))
                             (active-amis environment region)))
-
-;; TODO - are people using these results and assuming capitalised results?
