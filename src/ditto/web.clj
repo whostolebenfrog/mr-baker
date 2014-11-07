@@ -156,8 +156,72 @@
       (response (format "Failed to remove %s" ami) "application/json" 500)))
 
 (defroutes routes
+
   (GET "/healthcheck" []
        (status))
+
+   (GET "/ping" []
+        "pong")
+
+   (GET "/status" []
+        (status))
+
+   (GET "/amis" []
+        (latest-amis))
+
+   (POST "/lock" req
+         (let [message (get-in req [:body "message"])]
+           (reset! lock (or message "Ditto is locked, no reason was supplied."))
+           (str "Ditto is locked and won't accept new builds: " @lock)))
+
+   (DELETE "/lock" []
+           (reset! lock false)
+           {:status 204})
+
+   (GET "/inprogress" []
+        (response (with-out-str (show-schedule packer/timeout-pool)) "text/plain"))
+
+   (POST "/clean/:service" [service]
+         (if (= service "all")
+           (scheduler/kill-amis)
+           (scheduler/kill-amis-for-application service)))
+
+   (GET "/amis/active/:service/:environment/:region" [service environment region]
+        (response (awsclient/active-amis-for-service service (keyword environment) region)))
+
+   (GET "/amis/:service" [service]
+        (latest-service-amis service))
+
+   (POST "/bake/entertainment-ami/:virt-type" [virt-type dryrun]
+         (lockable-bake #(bake-entertainment-base-ami (keyword virt-type) dryrun)))
+
+   (POST "/bake/public-ami/:virt-type" [virt-type dryrun]
+         (lockable-bake #(bake-entertainment-public-ami (keyword virt-type) dryrun)))
+
+   (POST "/bake/base-amis" []
+         (lockable-bake #(scheduler/bake-amis))
+         "OK")
+
+   (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type]
+         (lockable-bake
+          #(bake-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
+
+   (POST "/chroot/:service-name/:service-version" [service-name service-version dryrun virt-type]
+         (lockable-bake
+          #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
+
+   (POST "/make-public/:service" [service]
+         (awsclient/allow-prod-access-to-service service))
+
+   (DELETE "/:service-name/amis/:ami" [service-name ami]
+           (remove-ami service-name ami))
+
+   (GET "/pokemon" []
+        (response pokemon/ditto "text/plain"))
+
+   (GET "/icon" []
+        (service-icon))
+
   (context
    "/1.x" []
 

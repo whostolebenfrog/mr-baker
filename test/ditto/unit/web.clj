@@ -21,7 +21,7 @@
   [method resource & [{:keys [params body content-type]
                        :or {:params {}}}]]
   (let [{:keys [body] :as res} (app (merge {:request-method method
-                                            :uri (str "/1.x/" resource)
+                                            :uri (str "/" resource)
                                             :params params}
                                            (when body {:body (ByteArrayInputStream.
                                                               (.getBytes
