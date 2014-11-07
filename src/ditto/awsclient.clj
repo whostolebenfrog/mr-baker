@@ -5,6 +5,7 @@
              [autoscaling :as autoscaling]]
             [cheshire.core :as json]
             [clojure.core.memoize :as mem]
+            [clojure.set :refer [union difference intersection]]
             [clojure.tools.logging :refer [info]]
             [environ.core :refer [env]]))
 
@@ -140,19 +141,19 @@
 (defn all-active-amis
   "Returns a set of active amis from the set of amis provided"
   []
-  (clojure.set/union (active-amis :poke "eu-west-1")
+  (union (active-amis :poke "eu-west-1")
                      (active-amis :prod "eu-west-1")))
 
 (defn filter-active-amis
   "Returns the supplied set of amis with any in use amis removed"
   [amis]
   {:pre [set? amis]}
-  (clojure.set/difference amis (all-active-amis)))
+  (difference amis (all-active-amis)))
 
 (defn active-amis-for-service
   "Returns the active amis for a service"
   [name environment region]
-  (clojure.set/intersection (set (service-ami-ids name))
+  (intersection (set (service-ami-ids name))
                             (active-amis environment region)))
 
 ;; TODO - are people using these results and assuming capitalised results?
