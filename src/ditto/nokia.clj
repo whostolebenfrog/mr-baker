@@ -39,13 +39,13 @@
 (defn entertainment-base-ami-id
   "Returns the id of the latest entertainment base ami"
   [virt-type]
-  (-> (awsclient/owned-images-by-name (str (ent-ami-name-base virt-type) "*"))
+  (-> (awsclient/owned-amis-by-name (str (ent-ami-name-base virt-type) "*"))
       last
       :image-id))
 
 (defn entertainment-public-ami-id
   "Returns the id of the latest entertainment public ami"
   [virt-type]
-  (-> (awsclient/owned-images-by-name (str (ent-public-name-base virt-type) "*"))
+  (-> (awsclient/owned-amis-by-name (str (ent-public-name-base virt-type) "*"))
       last
       :image-id))

@@ -131,7 +131,7 @@
 
  (fact "latest service amis searches for service amis, returns the first
          10 of the reversed list"
-       (against-background (awsclient/service-images "ditto") =>
+       (against-background (awsclient/service-amis "ditto") =>
                            (map (fn [x] {:name x :image-id x}) (range 20 0 -1)))
        (let [{amis :body} (request :get "amis/ditto")]
          (count amis) => 10

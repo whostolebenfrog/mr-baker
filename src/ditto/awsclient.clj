@@ -46,8 +46,7 @@
           (compare date-a date-b))
         (compare a b))))
 
-;; TODO - images -> amis
-(defn owned-images-by-name
+(defn owned-amis-by-name
   "Returns a list of images owned by the current account and filtered by the supplied name.
    Accepts * as a wild card.
 
@@ -55,7 +54,7 @@
 
    Images are returned sorted oldest first."
   ([name]
-     (owned-images-by-name :poke "eu-west-1" name))
+     (owned-amis-by-name :poke "eu-west-1" name))
   ([environment region name]
      (sort-by :name
               ami-name-comparator
@@ -65,16 +64,15 @@
                   :images
                   seq))))
 
-;; TODO - images -> amis
-(defn service-images
+(defn service-amis
   "Returns the images for a service in the default environment and region"
   [name]
-  (owned-images-by-name (str "ent*-" name "-*")))
+  (owned-amis-by-name (str "ent*-" name "-*")))
 
 (defn service-ami-ids
   "Returns the list of ami ids for the supplied service in the default environment and region"
   [name]
-  (map :image-id (service-images name)))
+  (map :image-id (service-amis name)))
 
 (defn deregister-ami
   "Deregister an ami. Returns true if successful, otherwise false"
@@ -103,7 +101,7 @@
   [service]
   (map
    (comp allow-prod-access-to-ami :image-id)
-   (service-images service)))
+   (service-amis service)))
 
 (defn launch-configurations
   "Returns a list of all launch-configurations"

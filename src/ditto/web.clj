@@ -68,7 +68,7 @@
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
   [service-name]
-  (->> (awsclient/service-images service-name)
+  (->> (awsclient/service-amis service-name)
        (map #(select-keys % [:name :image-id]))
        (reverse)
        (take 10)))
