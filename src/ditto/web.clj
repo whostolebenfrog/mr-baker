@@ -98,22 +98,6 @@
           (response))
       (response template))))
 
-(defn bake-service-ami
-  "Bake a new ami for the service name and version based on the latest base ent ami.
-   If dry-run then only return the packer template, don't run it."
-  [name version dry-run virt-type]
-  {:pre [#{:para :hvm} virt-type]}
-  (if (not (onix/service-exists? name))
-    (error-response (str "The service '" name "' doesn't exist.") 404)
-    (let [rpm-name (onix/rpm-name name)]
-      (if-let [version (yum/get-latest-iteration name version rpm-name)]
-        (let [template (service-ami/create-service-ami name version rpm-name virt-type)]
-          (if dry-run
-            (response template)
-            (-> template packer/build response)))
-        (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
-
-;; todo - either get rid of the non chroot version or factor these together if need to keep
 (defn bake-chroot-service-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
@@ -204,10 +188,6 @@
 
    (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type]
          (lockable-bake
-          #(bake-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
-
-   (POST "/chroot/:service-name/:service-version" [service-name service-version dryrun virt-type]
-         (lockable-bake
           #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
 
    (POST "/make-public/:service" [service]
@@ -268,10 +248,6 @@
          "OK")
 
    (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type]
-         (lockable-bake
-          #(bake-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
-
-   (POST "/chroot/:service-name/:service-version" [service-name service-version dryrun virt-type]
          (lockable-bake
           #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
 
