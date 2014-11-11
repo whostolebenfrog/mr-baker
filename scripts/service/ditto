@@ -28,9 +28,6 @@ GIVEN_HOME="/usr/local/ditto"
 
 JETTY_HOME=${JETTY_HOME:-"$GIVEN_HOME"}
 
-#define the user under which jetty will run, or use 'RUNASIS' to run as the current user
-JETTY_USER=${JETTY_USER:-"ditto"}
-
 #make sure java is in your path
 JAVAPTH=${JAVAPTH:-"/usr/java/default/bin"}
 
