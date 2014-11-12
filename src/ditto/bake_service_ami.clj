@@ -24,7 +24,7 @@
 (defn motd
   "Set up the message of the day"
   [service-name service-version]
-  (shell (format "echo -e \"\\nEntertainment %s AMI\" >> /etc/motd" service-name)
+  (cshell (format "echo -e \"\\nEntertainment %s AMI\" >> /etc/motd" service-name)
          (format "echo -e \"\\nBake date: %s\" >> /etc/motd"
                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
@@ -38,22 +38,22 @@
   "Install the service rpm on to the machine"
   [service-name service-version rpm-name]
   (let [rpm-full-name (rpm-full-name service-name service-version rpm-name)]
-    (shell (str "wget http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
+    (cshell (str "wget http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
            (str "yum -y install " rpm-full-name)
            (str "rm -fv " rpm-full-name))))
 
 (def numel-on
   "Switch on Numel integration"
-  (shell "yum install -y numel-integration"))
+  (cshell "yum install -y numel-integration"))
 
 (def puppet-on
   "Enable puppet once we're done"
-  (shell "rm -rf /var/lib/puppet/ssl"
+  (cshell "rm -rf /var/lib/puppet/ssl"
          "chkconfig puppet on"))
 
 (def kill-chroot-prosses
   "Kill all processes in the chroot"
-  (shell "/opt/chrootkiller"))
+  (cshell "/opt/chrootkiller"))
 
 (defn custom-shell-commands
   "If the service defines custom shell commands "
@@ -62,19 +62,19 @@
     (let [version (first (str/split service-version #"-" 2))]
       (->> commands
            (map (fn [c] (str/replace c "{{version}}" version)))
-           (apply shell)))))
+           (apply cshell)))))
 
 (def clear-var-log-messages
   "Clears /var/log/messages"
-  (shell "cat /dev/null > /var/log/messages"))
+  (cshell "cat /dev/null > /var/log/messages"))
 
 (def yum-clean-cache
   "Cleans yum's various caches"
-  (shell "yum clean expire-cache"))
+  (cshell "yum clean expire-cache"))
 
 (def unlock-puppet-ssh-auth
   "Removes a lock file that suppresses puppet's auth module"
-  (shell "rm -f /var/lock/ditto/ssh"))
+  (cshell "rm -f /var/lock/ditto/ssh"))
 
 (defn provisioners
   "Returns a list of provisioners for the bake."

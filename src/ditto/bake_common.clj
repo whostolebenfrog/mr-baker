@@ -9,6 +9,13 @@
    :inline_shebang "/bin/sh -x"
    :inline cmds})
 
+(defn cshell [& cmds]
+  "Accepts a series of strings to run as chroot shell comands. Runs commands with -x shebang and
+   with sudo."
+  {:type "shell"
+   :inline_shebang "/bin/sh -x"
+   :inline cmds})
+
 (defn maybe-with-keys
   "Includes access keys in the map if iam authentication isn't enabled.
   For example, when not running in aws. For this to actually produce valid
