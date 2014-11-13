@@ -24,7 +24,7 @@
    Defaults to :ebs if not specified."
   [virt-type]
   {:pre [(#{:hvm :para} virt-type)]}
-  ({:hvm "ami-892fe1fe" :para "ami-672ce210"} virt-type))
+  ({:hvm "ami-6e7bd919" :para "ami-9c7ad8eb"} virt-type))
 
 (defn ent-ami-name-base
   "Returns the base part of an ami name"
