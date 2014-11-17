@@ -41,7 +41,8 @@
    We also need to do all our cleanup in this step as we don't have root after this has run!
    Due to puppet setting up the various auth concerns."
   (shell "yum install -y puppet-3.2.4"
-         "puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com"))
+         "puppet agent --onetime --no-daemonize --server puppetaws.brislabs.com"
+         "rm -rf /var/lib/puppet/ssl"))
 
 (defn motd [parent-ami]
   "Set the message of the day"
