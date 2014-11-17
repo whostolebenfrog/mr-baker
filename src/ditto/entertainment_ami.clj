@@ -163,18 +163,7 @@
                                                 [{:device_name "/dev/xvda"
                                                   :delete_on_termination true
                                                   :volume_size "10"}])
-                                              [{:device_name "/dev/sdb"
-                                                :virtual_name "ephemeral0"
-                                                :volume_size "10"}
-                                               {:device_name "/dev/sdc"
-                                                :virtual_name "ephemeral1"
-                                                :volume_size "10"}
-                                               {:device_name "/dev/sdd"
-                                                :virtual_name "ephemeral2"
-                                                :volume_size "10"}
-                                               {:device_name "/dev/sde"
-                                                :virtual_name "ephemeral3"
-                                                :volume_size "10"}])
+                                              [])
                   :iam_instance_profile "baking"
                   :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
