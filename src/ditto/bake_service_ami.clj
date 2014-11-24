@@ -25,9 +25,9 @@
   "Set up the message of the day"
   [service-name service-version]
   (cshell (format "echo -e \"\\nEntertainment %s AMI\" >> /etc/motd" service-name)
-         (format "echo -e \"\\nBake date: %s\" >> /etc/motd"
-                 (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
-         (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
+          (format "echo -e \"\\nBake date: %s\" >> /etc/motd"
+                  (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
+          (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
 (defn rpm-full-name
   [service-name service-version rpm-name]
@@ -38,9 +38,9 @@
   "Install the service rpm on to the machine"
   [service-name service-version rpm-name]
   (let [rpm-full-name (rpm-full-name service-name service-version rpm-name)]
-    (cshell (str "wget http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
-           (str "yum -y install " rpm-full-name)
-           (str "rm -fv " rpm-full-name))))
+    (cshell (str "wget -nv http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
+            (str "yum -y install " rpm-full-name)
+            (str "rm -fv " rpm-full-name))))
 
 (def numel-on
   "Switch on Numel integration"
@@ -49,7 +49,7 @@
 (def puppet-on
   "Enable puppet once we're done"
   (cshell "rm -rf /var/lib/puppet/ssl"
-         "chkconfig puppet on"))
+          "chkconfig puppet on"))
 
 (def kill-chroot-prosses
   "Kill all processes in the chroot"
