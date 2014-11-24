@@ -6,14 +6,14 @@
    with sudo."
   {:type "shell"
    :execute_command "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'"
-   :inline_shebang "/bin/sh -x"
+   :inline_shebang "/bin/sh -e"
    :inline cmds})
 
 (defn cshell [& cmds]
   "Accepts a series of strings to run as chroot shell comands. Runs commands with -x shebang and
    with sudo."
   {:type "shell"
-   :inline_shebang "/bin/sh -x"
+   :inline_shebang "/bin/sh -e"
    :inline cmds})
 
 (defn maybe-with-keys
