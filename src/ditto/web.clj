@@ -110,7 +110,7 @@
         (let [template (service-ami/create-chroot-service-ami name version rpm-name virt-type)]
           (if dry-run
             (response template)
-            (-> template packer/build response)))
+            (response (packer/build template name))))
         (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
 
 (defn service-icon

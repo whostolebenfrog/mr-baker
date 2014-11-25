@@ -74,7 +74,7 @@
                  (onix/rpm-name "serv") => ..rpm-name..
                  (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
                  (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para) => ..template..
-                 (packer/build ..template..) => "template"))
+                 (packer/build ..template.. "serv") => "template"))
 
 (fact "Bake service passes the virt type if supplied"
        (request :post "bake/serv/0.13" {:params {:virt-type "hvm"}}) => (contains {:body "template" :status 200})
@@ -82,7 +82,7 @@
                  (onix/rpm-name "serv") => ..rpm-name..
                  (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
                  (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :hvm) => ..template..
-                 (packer/build ..template..) => "template"))
+                 (packer/build ..template.. "serv") => "template"))
 
  (fact "Bake service attempts to get an overridden RPM name from Onix"
        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
@@ -90,7 +90,7 @@
                  (onix/rpm-name "serv") => "other"
                  (yum/get-latest-iteration "serv" "0.13" "other") => "0.13-1"
                  (service-ami/create-chroot-service-ami "serv" "0.13-1" "other" :para) => ..template..
-                 (packer/build ..template..) => "template"))
+                 (packer/build ..template.. "serv") => "template"))
 
  (fact "Service returns 503 if ditto is locked"
        (request :post "lock") => (contains {:status 200 :body (contains "no reason was supplied")})
@@ -101,7 +101,7 @@
                  (onix/rpm-name "serv") =>  ..rpm-name..
                  (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1" :times 1
                  (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para) => ..template.. :times 1
-                 (packer/build ..template..) => "template" :times 1))
+                 (packer/build ..template.. "serv") => "template" :times 1))
 
  (fact "Service can be locked with a message"
        (request :post "lock" {:body {:message "locky lock"}

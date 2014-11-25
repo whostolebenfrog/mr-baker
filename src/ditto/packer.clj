@@ -74,25 +74,45 @@
   "Schedule a task to write waiting to the output stream if nothing has been
    written for > 45 seconds"
   [out-stream timeout]
-  (let [wait (.getBytes "==> waiting...\n")]
-    (at/after 45000
-              (fn []
-                (.write out-stream wait 0 (count wait))
-                (schedule-and-kill! out-stream timeout))
-              timeout-pool)))
+  (at/after 45000
+            (fn []
+              (.write out-stream (.getBytes "==> waiting...\n"))
+              (schedule-and-kill! out-stream timeout))
+            timeout-pool))
+
+(defn ami-searchable?
+  [ami out-stream service-name]
+  (info "Checking that the ami is searchable before finishing the bake")
+  (loop [n 60]
+    (when service-name
+      (when-not (-> (awsclient/service-ami-ids service-name)
+                    set
+                    (get ami))
+        (if (pos? n)
+          (do
+            (.write out-stream (.getBytes "==> Waiting for the ami to be searchable...\n"))
+            (Thread/sleep 5000)
+            (recur (dec n)))
+          (.write out-stream (.getBytes "==> WARNING. AMI not available via AWS search. Check very carefully that you are using the correct version when you try to deploy. There may have been a serious issue.")))))))
 
 (defn allow-prod-ami-if-found
   "Takes a line of output, if it finds that the line contains the ami then
    make that ami available to our prod account. Don't match the first instance
    of the ami though (starts with amazon-ebs) as it wont be ready at this point."
-  [line]
+  [line out-stream service-name]
   (when-let [ami (and line (last (re-matches #"(?is).*AMIs were created.+(ami-[\w]+)\s*" line)))]
     (info (str "Making AMI: " ami " available to prod account."))
     (try
       (awsclient/allow-prod-access-to-ami ami)
       (catch Exception e
-        (with-logging-context {:ami ami}
-          (error e "Error while making AMI available to prod"))))))
+        (with-logging-context {:ami ami :service-name service-name}
+          (error e "Error while making AMI available to prod"))))
+    (try
+      (ami-searchable? ami out-stream service-name)
+      (catch Exception e
+        (with-logging-context {:ami ami :service-name service-name}
+          (error e "Error checking if the service is searchable. This seems bad!"))))))
+
 
 ;; Extend conch redirectable protocol to handle PipedOutputStream
 ;; Allows us to pass an output stream to write the response to.
@@ -101,7 +121,7 @@
   (redirect [out-stream options k proc]
     (let [timeout (atom {:scheduled? (atom false)})]
       (doseq [line (get proc k)]
-        (allow-prod-ami-if-found line)
+        (allow-prod-ami-if-found line out-stream (:service-name options))
         (when (deref (:scheduled? @timeout))
           (at/stop timeout))
         (let [bytes (.getBytes line)]
@@ -115,26 +135,26 @@
 
    Note: We have to specifiy the exact path of packer here as another program called
    packer is already on the path and is required for auth purposes"
-  [template-path]
+  [template-path service-name]
   (conch/let-programs
    [packer "/opt/packer/packer"]
    (let [out-stream (PipedOutputStream.)
          in-stream  (PipedInputStream. out-stream)]
      (future (packer "build"
                      template-path
-                     {:out out-stream :timeout (* 1000 60 30)}))
+                     {:out out-stream :timeout (* 1000 60 30) :service-name service-name}))
      in-stream)))
 
 (defn build
   "Build the provided template and respond with the created ami id"
-  [template]
+  [template & [service-name]]
   (conch/let-programs [packer "/opt/packer/packer"]
     (info "Building ami using packer.")
     (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
       (spit file-name template)
       (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
           (if-not (pos? @exit-code)
-            (packer-build file-name)
+            (packer-build file-name service-name)
             (do
               (error "Invalid template file.")
               {:status 400 :body (json/generate-string
