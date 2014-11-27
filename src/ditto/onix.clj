@@ -8,7 +8,7 @@
 (defn service-exists?
   "Returns true if the service is known to onix; otherwise returns false."
   [service-name]
-  (let [app-url (str onix-base-url "/1.x/applications/" service-name)
+  (let [app-url (str onix-base-url "/applications/" service-name)
         response (client/head app-url {:throw-exceptions false})
         status (:status response)]
     (= status 200)))
@@ -16,14 +16,14 @@
 (defn get-applications
   "Returns the list of all applications in onix"
   []
-  (get-in (client/get (str onix-base-url "/1.x/applications")
+  (get-in (client/get (str onix-base-url "/applications")
                       {:throw-exceptions false :as :json})
           [:body :applications]))
 
 (defn service-property
   "Returns the onix property for the supplied name and service"
   [service-name property-name]
-  (get-in (client/get (str onix-base-url "/1.x/applications/" service-name)
+  (get-in (client/get (str onix-base-url "/applications/" service-name)
                       {:throw-exceptions false :as :json})
           [:body :metadata (keyword property-name)]))
 
