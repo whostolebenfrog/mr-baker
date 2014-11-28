@@ -73,7 +73,15 @@
        (provided (onix/service-exists? "serv") => true
                  (onix/rpm-name "serv") => ..rpm-name..
                  (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
-                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para) => ..template..
+                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para nil) => ..template..
+                 (packer/build ..template.. "serv") => "template"))
+
+ (fact "Bake service accepts embargo tags"
+       (request :post "bake/serv/0.13" {:params {:embargo "prod"}}) => (contains {:body "template" :status 200})
+       (provided (onix/service-exists? "serv") => true
+                 (onix/rpm-name "serv") => ..rpm-name..
+                 (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
+                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para "prod") => ..template..
                  (packer/build ..template.. "serv") => "template"))
 
 (fact "Bake service passes the virt type if supplied"
@@ -81,7 +89,7 @@
        (provided (onix/service-exists? "serv") => true
                  (onix/rpm-name "serv") => ..rpm-name..
                  (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1"
-                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :hvm) => ..template..
+                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :hvm nil) => ..template..
                  (packer/build ..template.. "serv") => "template"))
 
  (fact "Bake service attempts to get an overridden RPM name from Onix"
@@ -89,7 +97,7 @@
        (provided (onix/service-exists? "serv") => true
                  (onix/rpm-name "serv") => "other"
                  (yum/get-latest-iteration "serv" "0.13" "other") => "0.13-1"
-                 (service-ami/create-chroot-service-ami "serv" "0.13-1" "other" :para) => ..template..
+                 (service-ami/create-chroot-service-ami "serv" "0.13-1" "other" :para nil) => ..template..
                  (packer/build ..template.. "serv") => "template"))
 
  (fact "Service returns 503 if ditto is locked"
@@ -100,7 +108,7 @@
        (provided (onix/service-exists? "serv") => true :times 1
                  (onix/rpm-name "serv") =>  ..rpm-name..
                  (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => "0.13-1" :times 1
-                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para) => ..template.. :times 1
+                 (service-ami/create-chroot-service-ami "serv" "0.13-1" ..rpm-name.. :para nil) => ..template.. :times 1
                  (packer/build ..template.. "serv") => "template" :times 1))
 
  (fact "Service can be locked with a message"

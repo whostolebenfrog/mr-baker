@@ -50,16 +50,15 @@
         (against-background
          (service-ami-name ..name.. ..version.. ..virt-type..) => ..ami-name..
          (instance-type-for-virt-type ..virt-type..) => ..instance-type..)
-        (let [template (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type..)
+        (let [template (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. ..embargo..)
               {:keys [ami_name iam_instance_profile instance_type region
                       secret_key source_ami temporary_key_pair_name ssh_timeout
-                      ssh_username subnet_id type vpc_id]}
-              (-> template :builders (first))
-              provisioners (:provisioners template)]
-
+                      ssh_username subnet_id type vpc_id tags]}
+              (-> template :builders (first))]
           ami_name => ..ami-name..
           iam_instance_profile => "baking"
           instance_type => ..instance-type..
+          tags => (contains {:embargo ..embargo..})
           region  => "eu-west-1"
           source_ami => ..source..
           ssh_timeout => "5m"
@@ -68,9 +67,17 @@
           type => (has-prefix "amazon")
           vpc_id => (has-prefix "vpc")))
 
+  (fact "packer template with nil embargo contains no embargo tag"
+        (against-background
+         (service-ami-name ..name.. ..version.. ..virt-type..) => ..ami-name..
+         (instance-type-for-virt-type ..virt-type..) => ..instance-type..)
+        (let [template (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil)
+              {:keys [tags]} (-> template :builders (first))]
+          (keys tags) =not=> (contains :embargo)))
+
   (fact "create-service-ami returns a json string of the packer template"
-        (create-service-ami ..name.. ..version.. ..rpm.. ..virt-type..) => ..json..
+        (create-service-ami ..name.. ..version.. ..rpm.. ..virt-type.. nil) => ..json..
         (provided
          (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
-         (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type..) => ..template..
+         (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil) => ..template..
          (json/generate-string ..template..) => ..json..)))

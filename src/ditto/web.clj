@@ -101,13 +101,13 @@
 (defn bake-chroot-service-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
-  [name version dry-run virt-type]
+  [name version dry-run virt-type embargo]
   {:pre [#{:para :hvm} virt-type]}
   (if (not (onix/service-exists? name))
     (error-response (str "The service '" name "' doesn't exist.") 404)
     (let [rpm-name (onix/rpm-name name)]
       (if-let [version (yum/get-latest-iteration name version rpm-name)]
-        (let [template (service-ami/create-chroot-service-ami name version rpm-name virt-type)]
+        (let [template (service-ami/create-chroot-service-ami name version rpm-name virt-type embargo)]
           (if dry-run
             (response template)
             (response (packer/build template name))))
@@ -186,9 +186,9 @@
          (lockable-bake #(scheduler/bake-amis))
          "OK")
 
-   (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type]
+   (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type embargo]
          (lockable-bake
-          #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
+          #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para) embargo)))
 
    (POST "/make-public/:service" [service]
          (awsclient/allow-prod-access-to-service service))

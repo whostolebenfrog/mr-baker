@@ -91,7 +91,7 @@
 
 (defn service-template
   "Generates a new ami template for the service"
-  [service-name service-version rpm-name source-ami virt-type]
+  [service-name service-version rpm-name source-ami virt-type embargo]
   (let [builder (maybe-with-keys
                  {:ami_name (service-ami-name service-name service-version virt-type)
                   :iam_instance_profile "baking"
@@ -100,8 +100,9 @@
                   :run_tags {:name (format "%s AMI Bake" service-name)
                              :owner "ditto"
                              :description (format "Temp instance used to bake the %s ent ami" service-name)}
-                  :tags {:name (format "%s AMI" service-name)
-                         :service service-name}
+                  :tags (merge {:name (format "%s AMI" service-name)
+                                :service service-name}
+                               (when embargo {:embargo embargo}))
                   :security_group_id "sg-c453b4ab"
                   :source_ami source-ami
                   :ssh_timeout "5m"
@@ -114,11 +115,12 @@
 
 (defn chroot-service-template
   "Generates a new ami template for chroot bake of the service"
-  [service-name service-version rpm-name source-ami virt-type]
+  [service-name service-version rpm-name source-ami virt-type embargo]
   (let [builder (maybe-with-keys
                  {:ami_name (service-ami-name service-name service-version virt-type)
-                  :tags {:name (format "%s AMI" service-name)
-                         :service service-name}
+                  :tags (merge {:name (format "%s AMI" service-name)
+                                :service service-name}
+                               (when embargo {:embargo embargo}))
                   :source_ami source-ami
                   :ami_virtualization_type (virtualisation-type-long virt-type)
                   :type "amazon-chroot"})]
@@ -127,14 +129,14 @@
 
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
-  [service-name service-version rpm-name virt-type]
+  [service-name service-version rpm-name virt-type embargo]
   (json/generate-string (service-template service-name service-version rpm-name
                                           (nokia/entertainment-base-ami-id virt-type)
-                                          virt-type)))
+                                          virt-type embargo)))
 
 (defn create-chroot-service-ami
   "Creates a new ami for the supplied service and vesion"
-  [service-name service-version rpm-name virt-type]
+  [service-name service-version rpm-name virt-type embargo]
   (json/generate-string (chroot-service-template service-name service-version rpm-name
                                                  (nokia/entertainment-base-ami-id virt-type)
-                                                 virt-type)))
+                                                 virt-type embargo)))
