@@ -18,7 +18,7 @@
             [ring.middleware.format-response :refer [wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
-            [clojure.string :refer [split]]
+            [clojure.string :refer [split replace-first]]
             [clojure.tools.logging :refer [info warn error]]
             [environ.core :refer [env]]
             [nokia.ring-utils.error :refer [wrap-error-handling error-response]]
@@ -202,71 +202,17 @@
    (GET "/icon" []
         (service-icon))
 
-  (context
-   "/1.x" []
-
-   (GET "/ping" []
-        "pong")
-
-   (GET "/status" []
-        (status))
-
-   (GET "/amis" []
-        (latest-amis))
-
-   (POST "/lock" req
-         (let [message (get-in req [:body "message"])]
-           (reset! lock (or message "Ditto is locked, no reason was supplied."))
-           (str "Ditto is locked and won't accept new builds: " @lock)))
-
-   (DELETE "/lock" []
-           (reset! lock false)
-           {:status 204})
-
-   (GET "/inprogress" []
-        (response (with-out-str (show-schedule packer/timeout-pool)) "text/plain"))
-
-   (POST "/clean/:service" [service]
-         (if (= service "all")
-           (scheduler/kill-amis)
-           (scheduler/kill-amis-for-application service)))
-
-   (GET "/amis/active/:service/:environment/:region" [service environment region]
-        (response (awsclient/active-amis-for-service service (keyword environment) region)))
-
-   (GET "/amis/:service" [service]
-        (latest-service-amis service))
-
-   (POST "/bake/entertainment-ami/:virt-type" [virt-type dryrun]
-         (lockable-bake #(bake-entertainment-base-ami (keyword virt-type) dryrun)))
-
-   (POST "/bake/public-ami/:virt-type" [virt-type dryrun]
-         (lockable-bake #(bake-entertainment-public-ami (keyword virt-type) dryrun)))
-
-   (POST "/bake/base-amis" []
-         (lockable-bake #(scheduler/bake-amis))
-         "OK")
-
-   (POST "/bake/:service-name/:service-version" [service-name service-version dryrun virt-type]
-         (lockable-bake
-          #(bake-chroot-service-ami service-name service-version dryrun (or (keyword virt-type) :para))))
-
-   (POST "/make-public/:service" [service]
-         (awsclient/allow-prod-access-to-service service))
-
-   (DELETE "/:service-name/amis/:ami" [service-name ami]
-           (remove-ami service-name ami))
-
-   (GET "/pokemon" []
-        (response pokemon/ditto "text/plain"))
-
-   (GET "/icon" []
-        (service-icon)))
-
   (route/not-found (error-response "Resource not found" 404)))
+
+(defn remove-legacy-path
+  "Temporarily redirect anything with /1.x in the path to somewhere without /1.x"
+  [handler]
+  (fn [request]
+    (handler (update-in request [:uri] (fn [uri] (replace-first uri "/1.x" ""))))))
 
 (def app
   (-> routes
+      (remove-legacy-path)
       (instrument)
       (wrap-error-handling)
       (wrap-ignore-trailing-slash)
