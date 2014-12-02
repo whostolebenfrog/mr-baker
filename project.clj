@@ -1,37 +1,28 @@
 (defproject ditto "0.147-SNAPSHOT"
-  :description "Ditto service"
-  :url "http://wikis.in.nokia.com/NokiaMusicArchitecture/Ditto"
+  :description "Mr-Baker the AMI maker."
 
-  :dependencies [[amazonica "0.2.27"]
-                 [compojure "1.1.8" :exclusions [javax.servlet/servlet-api]]
-                 [ring-middleware-format "0.3.2"]
-                 [ring/ring-jetty-adapter "1.3.0" :exclusions [org.eclipse.jetty/jetty-server]]
-                 [ring/ring-json "0.3.1"]
-                 [org.clojure/clojure "1.6.0"]
-                 [org.clojure/data.json "0.2.5"]
-                 [org.clojure/tools.logging "0.3.0"]
-                 [org.clojure/data.zip "0.1.1"]
-                 [org.eclipse.jetty/jetty-server "8.1.15.v20140411"]
-                 [org.slf4j/slf4j-api "1.7.7"]
-                 [org.slf4j/jcl-over-slf4j "1.7.7"]
-                 [org.slf4j/jul-to-slf4j "1.7.7"]
-                 [org.slf4j/log4j-over-slf4j "1.7.7"]
+  :dependencies [[amazonica "0.2.28" :exclusions [com.fasterxml.jackson.core/jackson-annotations]]
                  [ch.qos.logback/logback-classic "1.1.2"]
-                 [com.ovi.common.logging/logback-appender "0.0.47"]
-                 [com.yammer.metrics/metrics-logback "2.2.0"]
-                 [com.ovi.common.metrics/metrics-graphite "2.1.25"]
-                 [clj-http "0.7.9"]
                  [cheshire "5.3.1"]
-                 [clj-time "0.7.0"]
-                 [environ "0.5.0"]
+                 [clj-http "0.7.9"]
+                 [clj-time "0.8.0"]
+                 [compojure "1.2.1"]
+                 [environ "1.0.0"]
                  [io.clj/logging "0.8.1"]
-                 [nokia/ring-utils "1.2.4"]
-                 [org.clojure/core.memoize "0.5.6"]
-                 [metrics-clojure "1.1.0"]
-                 [metrics-clojure-ring "1.1.0"]
-                 [overtone/at-at "1.2.0"]
                  [me.raynes/conch "0.7.0"]
-                 [org.clojure/data.codec "0.1.0"]]
+                 [mixradio/graphite-filter "1.0.0"]
+                 [mixradio/instrumented-ring-jetty-adapter "1.0.4"]
+                 [mixradio/radix "1.0.7"]
+                 [net.logstash.logback/logstash-logback-encoder "3.3"]
+                 [org.clojure/clojure "1.6.0"]
+                 [org.clojure/core.memoize "0.5.6"]
+                 [org.clojure/data.codec "0.1.0"]
+                 [org.clojure/data.json "0.2.5"]
+                 [org.clojure/data.zip "0.1.1"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [overtone/at-at "1.2.0"]
+                 [ring-middleware-format "0.4.0"]
+                 [ring/ring-json "0.3.1"]]
 
   :exclusions [commons-logging
                log4j]
@@ -43,27 +34,24 @@
                              [lein-ancient "0.5.5"]
                              [lein-kibit "0.0.8"]]}}
 
-  :plugins [[lein-ring "0.8.6"]
-            [lein-environ "0.4.0"]
-            [lein-release "1.0.73"]]
+  :plugins [[lein-ring "0.8.13"]
+            [lein-environ "1.0.0"]
+            [lein-release "1.0.5"]]
 
   :resource-paths ["resources" "shared" "ami-scripts" "puppet"]
 
   ;; development token values
-  :env {:environment-name "Dev"
+  :env {:environment-name "dev"
         :service-name "ditto"
         :service-port "8080"
-        :service-url "http://localhost:%s/1.x"
-        :environment-entertainment-graphite-host "graphite.brislabs.com"
-        :environment-entertainment-graphite-port "8080"
-        :service-graphite-post-interval "1"
-        :service-graphite-post-unit "MINUTES"
-        :service-graphite-enabled "DISABLED"
-        :service-production "false"
+        :graphite-host "graphite.brislabs.com"
+        :graphite-port "8080"
+        :graphite-post-interval-seconds "60"
+        :graphite-enabled "DISABLED"
+        :production "false"
 
         :service-aws-access-key "key"
         :service-aws-secret-key "secret"
-        :service-puppet-host "puppetaws.brislabs.com"
 
         :service-packer-use-iam "true"
 
@@ -83,25 +71,21 @@
 
   :ring {:handler ditto.web/app
          :main ditto.setup
-         :port ~(Integer.  (get (System/getenv) "SERVICE_PORT" "8080"))
+         :port ~(Integer/valueOf  (get (System/getenv) "SERVICE_PORT" "8080"))
          :init ditto.setup/setup
-         :browser-uri "/1.x/status"}
-
-  :repositories {"internal-clojars"
-                 "http://clojars.brislabs.com/repo"
-                 "rm.brislabs.com"
-                 "http://rm.brislabs.com/nexus/content/groups/all-releases"}
+         :browser-uri "/healthcheck"
+         :nrepl {:start? true}}
 
   :uberjar-name "ditto.jar"
 
   :rpm {:name "ditto"
         :summary "RPM for Ditto service"
-        :copyright "Nokia 2013"
+        :copyright "MixRadio 2014"
         :preinstall {:scriptFile "scripts/rpm/preinstall.sh"}
         :postinstall {:scriptFile "scripts/rpm/postinstall.sh"}
         :preremove {:scriptFile "scripts/rpm/preremove.sh"}
         :postremove {:scriptFile "scripts/rpm/postremove.sh"}
-        :requires ["jdk >= 2000:1.6.0_31-fcs" "packer"]
+        :requires ["jdk >= 2000:1.7.0_55-fcs" "packer"]
         :mappings [{:directory "/usr/local/ditto"
                     :filemode "444"
                     :username "ditto"
