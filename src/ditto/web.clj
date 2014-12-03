@@ -214,6 +214,7 @@
 
 (def app
   (-> routes
+      (wrap-reload)
       (remove-legacy-path)
       (instrument)
       (wrap-error-handling)
