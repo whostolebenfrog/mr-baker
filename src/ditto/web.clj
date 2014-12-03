@@ -21,15 +21,17 @@
             [clojure.string :refer [split replace-first]]
             [clojure.tools.logging :refer [info warn error]]
             [environ.core :refer [env]]
-            [nokia.ring-utils.error :refer [wrap-error-handling error-response]]
-            [nokia.ring-utils.ignore-trailing-slash :refer [wrap-ignore-trailing-slash]]
+            [radix
+             [error :refer [wrap-error-handling error-response]]
+             [ignore-trailing-slash :refer [wrap-ignore-trailing-slash]]
+             [setup :as setup]
+             [reload :refer [wrap-reload]]]
             [metrics.ring.expose :refer [expose-metrics-as-json]]
             [metrics.ring.instrument :refer [instrument]]
             [overtone.at-at :refer [show-schedule]]))
 
-(def ^:dynamic *version* "none")
-(defn set-version! [version]
-  (alter-var-root #'*version* (fn [_] version)))
+(def version
+  (setup/version "onix"))
 
 (defn response
   "Accepts a body an optionally a content type and status. Returns a response object."
@@ -48,7 +50,7 @@
         success (and baking-scheduled ami-killing-scheduled)]
     (response
      {:name "ditto"
-      :version *version*
+      :version version
       :success success
       :dependencies [{:name "baking-schedule" :success baking-scheduled}
                      {:name "ami-killing-schedule" :success ami-killing-scheduled}]}

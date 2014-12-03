@@ -2,50 +2,13 @@
   (:require [ditto
              [web :as web]
              [scheduler :as scheduler]]
-            [environ.core :refer [env]]
             [clojure.string :as cs :only (split)]
-            [clojure.tools.logging :refer (info warn error)]
+            [clojure.tools.logging :refer [info warn error]]
             [clojure.java.io :as io]
-            [ring.adapter.jetty :refer [run-jetty]])
-  (:import (java.lang Integer Throwable)
-           (java.util.logging LogManager)
-           (com.yammer.metrics Metrics)
-           (com.yammer.metrics.core MetricName)
-           (com.ovi.common.metrics.graphite GraphiteReporterFactory GraphiteName ReporterState)
-           (com.ovi.common.metrics HostnameFactory)
-           (org.slf4j.bridge SLF4JBridgeHandler)
-           (java.util.concurrent TimeUnit))
+            [environ.core :refer [env]]
+            [mixradio.instrumented-jetty :refer [run-jetty]]
+            [radix.setup :as setup])
   (:gen-class))
-
-(defn read-file-to-properties [file-name]
-  (with-open [^java.io.Reader reader (io/reader file-name)]
-    (let [props (java.util.Properties.)]
-      (.load props reader)
-      (into {} (for [[k v] props] [k v])))))
-
-(defn configure-logging []
-  (.reset (LogManager/getLogManager))
-  (SLF4JBridgeHandler/install))
-
-(defn start-graphite-reporting []
-  (let [graphite-prefix (new GraphiteName
-                             (into-array Object
-                                         [(env :environment-name)
-                                          (env :service-name)
-                                          (HostnameFactory/getHostname)]))]
-    (GraphiteReporterFactory/create
-     (env :environment-entertainment-graphite-host)
-     (Integer/parseInt (env :environment-entertainment-graphite-port))
-     graphite-prefix
-     (Integer/parseInt (env :service-graphite-post-interval))
-     (TimeUnit/valueOf (env :service-graphite-post-unit))
-     (ReporterState/valueOf (env :service-graphite-enabled)))))
-
-(def version
-  (delay (if-let [path (.getResource (ClassLoader/getSystemClassLoader)
-                                     "META-INF/maven/ditto/ditto/pom.properties")]
-           ((read-file-to-properties path) "version")
-           "localhost")))
 
 (defn setup []
   (web/set-version! @version)
@@ -54,20 +17,34 @@
   (scheduler/start-bake-scheduler)
   (scheduler/start-deregister-old-amis-scheduler))
 
-(def server (atom nil))
+(defonce server (atom nil))
+
+(defn configure-server
+  [server]
+  (doto server
+    (.setStopAtShutdown true)
+    (.setStopTimeout setup/shutdown-timeout)))
 
 (defn start-server []
-  (run-jetty #'web/app {:port (Integer. (env :service-port))
+  (run-jetty #'web/app {:port setup/service-port
+                        :max-threads setup/threads
                         :join? false
-                        :stacktraces? (not (Boolean/valueOf (env :service-production)))
-                        :auto-reload? (not (Boolean/valueOf (env :service-production)))}))
+                        :stacktraces? (not setup/production?)
+                        :auto-reload? (not setup/production?)
+                        :configurator configure-server
+                        :send-server-version false}))
 
 (defn start []
-  (do
-    (setup)
-    (reset! server (start-server))))
+  (setup/configure-logging)
+  (setup/start-graphite-reporting {:graphite-prefix (str/join "." [(env :environment-name) (env :service-name) (env :box-id setup/hostname)])})
+  (reset! server (start-server)))
 
-(defn stop [] (if-let [server @server] (.stop server)))
+(defn stop []
+  (when-let [s @server]
+    (.stop s)
+    (reset! server nil))
+  (shutdown-agents))
 
 (defn -main [& args]
+  (.addShutdownHook (Runtime/getRuntime) (Thread. stop))
   (start))
