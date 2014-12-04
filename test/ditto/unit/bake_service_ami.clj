@@ -49,7 +49,8 @@
   (fact "packer template validates"
         (against-background
          (service-ami-name ..name.. ..version.. ..virt-type..) => ..ami-name..
-         (instance-type-for-virt-type ..virt-type..) => ..instance-type..)
+         (instance-type-for-virt-type ..virt-type..) => ..instance-type..
+         (custom-shell-commands anything anything) => [])
         (let [template (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. ..embargo..)
               {:keys [ami_name iam_instance_profile instance_type region
                       secret_key source_ami temporary_key_pair_name ssh_timeout
@@ -70,7 +71,8 @@
   (fact "packer template with nil embargo contains no embargo tag"
         (against-background
          (service-ami-name ..name.. ..version.. ..virt-type..) => ..ami-name..
-         (instance-type-for-virt-type ..virt-type..) => ..instance-type..)
+         (instance-type-for-virt-type ..virt-type..) => ..instance-type..
+         (custom-shell-commands anything anything) => [])
         (let [template (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil)
               {:keys [tags]} (-> template :builders (first))]
           (keys tags) =not=> (contains :embargo)))
