@@ -10,13 +10,6 @@
             [radix.setup :as setup])
   (:gen-class))
 
-(defn setup []
-  (web/set-version! @version)
-  (configure-logging)
-  (start-graphite-reporting)
-  (scheduler/start-bake-scheduler)
-  (scheduler/start-deregister-old-amis-scheduler))
-
 (defonce server (atom nil))
 
 (defn configure-server
@@ -36,7 +29,9 @@
 
 (defn start []
   (setup/configure-logging)
-  (setup/start-graphite-reporting {:graphite-prefix (str/join "." [(env :environment-name) (env :service-name) (env :box-id setup/hostname)])})
+  (setup/start-graphite-reporting {:graphite-prefix (cs/join "." [(env :environment-name) (env :service-name) (env :box-id setup/hostname)])})
+  (scheduler/start-bake-scheduler)
+  (scheduler/start-deregister-old-amis-scheduler)
   (reset! server (start-server)))
 
 (defn stop []
