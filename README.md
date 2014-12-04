@@ -26,23 +26,19 @@ GET /1.x/status
 500 Healthcheck failed json response.
 
 GET /1.x/amis
-200 Returns a list of the latest nokia, base and public amis.
+200 Returns a list of the latest base and public amis.
 
 GET /1.x/amis/:service-name
 200 Returns a list of the 10 latest amis baked for the supplied service name
 
 POST /1.x/bake/entertainment-ami
-200 Bakes a new version of the entertainment base ami based on the latest nokia ami.
-    Streams a text response of packers output as it creates the ami.
+200 Bakes a new version of the base ami based on the latest amazon linux ami. Streams a text response of packers output as it creates the ami.
 
 POST /1.x/bake/public-ami
-200 Bakes a new public ami based on the latest base entertainment ami.
-    Streams a text response of packers output as it creates the ami.
+200 Bakes a new public ami based on the latest base ami. Streams a text response of packers output as it creates the ami.
 
 POST /1.x/:service-name/:service-version
-200 Bakes a new ami for the supplied service name and version. Finds the service rpm
-    in yum repo. Looks up the rpm iteration automatically.
-    Streams a text response of packers output as it creates the ami.
+200 Bakes a new ami for the supplied service name and version. Finds the service rpm in yum repo. Looks up the rpm iteration automatically. Streams a text response of packers output as it creates the ami.
 
 GET /1.x/pokemon
 200 Prints an ascii representation of ditto
