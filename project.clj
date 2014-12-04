@@ -1,7 +1,7 @@
 (defproject ditto "0.147-SNAPSHOT"
   :description "Mr-Baker the AMI maker."
 
-  :dependencies [[amazonica "0.2.28" :exclusions [com.fasterxml.jackson.core/jackson-annotations joda-time]]
+  :dependencies [[amazonica "0.2.28" :exclusions [com.fasterxml.jackson.core/jackson-annotations]]
                  [ch.qos.logback/logback-classic "1.1.2"]
                  [cheshire "5.3.1"]
                  [clj-http "0.7.9"]
