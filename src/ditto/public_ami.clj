@@ -45,6 +45,9 @@
   "Removes a lock file that suppresses puppet's auth module"
   (shell "rm -f /var/lock/ditto/ssh"))
 
+(def unlock-puppet-sensu
+  "Removes a lock file that suppresses puppet's sensu module"
+  (shell "rm -f /var/lock/ditto/sensu"))
 
 (defn public-ami
   "Provides the template for the public-ami"
@@ -71,6 +74,7 @@
                     yum-clean-cache
                     numel-on
                     unlock-puppet-ssh-auth
+                    unlock-puppet-sensu
                     puppet-on]}))
 
 (defn create-public-ami

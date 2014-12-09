@@ -76,6 +76,10 @@
   "Removes a lock file that suppresses puppet's auth module"
   (cshell "rm -f /var/lock/ditto/ssh"))
 
+(def unlock-puppet-sensu
+  "Removes a lock file that suppresses puppet's sensu module"
+  (cshell "rm -f /var/lock/ditto/sensu"))
+
 (defn provisioners
   "Returns a list of provisioners for the bake."
   [service-name service-version rpm-name]
@@ -86,6 +90,7 @@
          clear-var-log-messages
          numel-on
          unlock-puppet-ssh-auth
+         unlock-puppet-sensu
          puppet-on]
         (filter identity)))
 

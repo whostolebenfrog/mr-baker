@@ -120,9 +120,14 @@
   (shell "mkdir -p /lib/security"))
 
 (def lock-puppet-ssh-auth
-  "Creates a lock file that suppresses puppet from running it's ssh auth module"
+  "Creates a lock file that suppresses puppet from running its ssh auth module"
   (shell "mkdir -p /var/lock/ditto"
          "touch /var/lock/ditto/ssh"))
+
+(def lock-puppet-sensu
+  "Creates a lock file that suppresses puppet from running its sensu module"
+  (shell "mkdir -p /var/lock/ditto"
+         "touch /var/lock/ditto/sensu"))
 
 (def python-pip
   "Removes existing python if installed, block amzn-main repo's version and install our own. This
@@ -150,6 +155,7 @@
    fix-pam-ldap
    python-pip
    lock-puppet-ssh-auth
+   lock-puppet-sensu
    puppet-clean
    puppet])
 
