@@ -20,8 +20,8 @@
 (def ent-yum-repo
   "Set up the entertainment yum repo"
   (shell (str "echo \""
-              (slurp (io/resource "nokia-internal.repo"))
-              "\" >> /etc/yum.repos.d/nokia-internal.repo")))
+              (slurp (io/resource "mixradio-internal.repo"))
+              "\" >> /etc/yum.repos.d/mixradio-internal.repo")))
 
 (def puppetlabs-repo
   "Set up the entertainment yum repo"

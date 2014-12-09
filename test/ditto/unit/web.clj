@@ -66,7 +66,8 @@
  (fact "Service rpm must exist to be baked"
        (request :post "bake/serv/0.13") => (contains {:status 404})
        (provided (onix/service-exists? "serv") => true
-                 (yum/get-latest-iteration "serv" "0.13" nil) => nil))
+                 (onix/rpm-name "serv") => ..rpm-name..
+                 (yum/get-latest-iteration "serv" "0.13" ..rpm-name..) => nil))
 
  (fact "Bake service gets the latest iteration"
        (request :post "bake/serv/0.13") => (contains {:body "template" :status 200})
@@ -172,7 +173,7 @@
            first
            :ami_name) => (contains "hvm")
        (provided
-          (nokia/latest-nokia-ami anything) => "base-ami-id"))
+        (nokia/latest-nokia-ami anything) => "base-ami-id"))
 
  (fact "Baking a service generates a real template"
        (-> (request :post "bake/ditto/0.97" {:params {:dryrun true}})
