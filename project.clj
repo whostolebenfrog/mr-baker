@@ -9,6 +9,7 @@
                  [compojure "1.2.1"]
                  [environ "1.0.0"]
                  [io.clj/logging "0.8.1"]
+                 [joda-time "2.5"]
                  [me.raynes/conch "0.7.0"]
                  [mixradio/graphite-filter "1.0.0"]
                  [mixradio/instrumented-ring-jetty-adapter "1.0.4"]
@@ -25,6 +26,7 @@
                  [ring/ring-json "0.3.1"]]
 
   :exclusions [commons-logging
+               joda-time
                log4j]
 
   :profiles {:dev {:dependencies [[junit "4.11"]
