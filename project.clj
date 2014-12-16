@@ -68,8 +68,8 @@
         :aws-proxy-host "172.16.42.42"
         :aws-proxy-port "8080"}
 
-  :lein-release {:release-tasks [:clean :uberjar :pom :rpm]
-                 :clojars-url "clojars@clojars.brislabs.com:"}
+  :lein-release {:deploy-via :shell
+                 :shell ["lein" "do" "clean," "uberjar," "pom," "rpm"]}
 
   :ring {:handler ditto.web/app
          :main ditto.setup
