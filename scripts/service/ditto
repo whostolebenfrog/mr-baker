@@ -22,20 +22,13 @@ GIVEN_HOME="/usr/local/ditto"
 
 JETTY_HOME=${JETTY_HOME:-"$GIVEN_HOME"}
 
-#define the user under which ditto will run, or use 'RUNASIS' to run as the current user
-JETTY_USER=${JETTY_USER:-"ditto"}
-
 #make sure java is in your path
 JAVAPTH=${JAVAPTH:-"/usr/java/default/bin"}
 
 #define the script to use to start ditto
 JETTYSH=${JETTYSH:-"$JETTY_HOME/bin/start.sh"}
 
-if [ "$JETTY_USER" = "RUNASIS" ]; then
-  SUBIT=""
-else
-  SUBIT="su - $JETTY_USER -s /bin/sh -c "
-fi
+SUBIT=""
 
 JETTY_CONSOLE="/dev/null"
 
