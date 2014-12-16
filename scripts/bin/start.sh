@@ -1,20 +1,20 @@
 #!/bin/sh
 
-SERVICE_NAME=ditto
+APP_NAME=ditto
 
-PIDS=$(pgrep java -lf | grep ditto | cut -d" " -f1);
+PIDS=$(pgrep java -lf | grep $APP_NAME | cut -d" " -f1);
 
 if [ -n "$PIDS" ]
 then
-  echo "Jetty is already running in process $PIDS";
+  echo "Ditto is already running in process $PIDS";
   exit 1
 fi
 
-JETTY_HOME=/usr/local/${SERVICE_NAME}
-JAR_NAME=$JETTY_HOME/${SERVICE_NAME}.jar
+JETTY_HOME=/usr/local/$APP_NAME
+JAR_NAME=$JETTY_HOME/$APP_NAME.jar
 
 IFS="$(echo -e "\n\r")"
-for LINE in `cat /etc/$SERVICE_NAME.properties`
+for LINE in `cat /etc/${APP_NAME}.properties`
 do
   case $LINE in
     \#*) ;;
@@ -29,22 +29,22 @@ done
 IFS="$(echo -e " ")"
 
 SERVICE_PORT=${SERVICE_PORT:-"8080"}
-STATUS_PATH=${SERVICE_STATUS_PATH:-"/1.x/status"}
-SERVICE_JETTY_START_TIMEOUT_SECONDS=${SERVICE_JETTY_START_TIMEOUT_SECONDS:-"15"}
-SERVICE_LOGGING_PATH=${SERVICE_LOGGING_PATH:-"/var/log/$SERVICE_NAME"}
-LOG_FILE=${SERVICE_LOGGING_PATH}/jetty.log
-ERR_FILE=${SERVICE_LOGGING_PATH}/jetty.err
+HEALTHCHECK_PATH=${HEALTHCHECK_PATH:-"/healthcheck"}
+START_TIMEOUT_SECONDS=${START_TIMEOUT_SECONDS:-"60"}
+LOGGING_PATH=${LOGGING_PATH:-"/var/log/${SERVICE_NAME}"}
+LOG_FILE=${LOGGING_PATH}/ditto.out
+ERR_FILE=${LOGGING_PATH}/ditto.err
 
-mkdir -p /var/encrypted/logs/${SERVICE_NAME}
+mkdir -p /var/encrypted/logs/${APP_NAME}
 
-nohup java $SERVICE_JVMARGS -Dservice.logging.path=${SERVICE_LOGGING_PATH} -jar $JAR_NAME > $LOG_FILE 2> $ERR_FILE < /dev/null &
+nohup java $SERVICE_JVMARGS -jar $JAR_NAME > $LOG_FILE 2> $ERR_FILE < /dev/null &
 
-statusUrl=http://localhost:$SERVICE_PORT$STATUS_PATH
-waitTimeout=$SERVICE_JETTY_START_TIMEOUT_SECONDS
+statusUrl=http://localhost:$SERVICE_PORT$HEALTHCHECK_PATH
+waitTimeout=$START_TIMEOUT_SECONDS
 sleepCounter=0
 sleepIncrement=2
 
-echo "Giving Jetty $waitTimeout seconds to start successfully"
+echo "Giving Ditto $waitTimeout seconds to start successfully"
 echo "Using $statusUrl to determine service status"
 
 retVal=0
@@ -53,8 +53,8 @@ until [ `curl --write-out %{http_code} --silent --output /dev/null $statusUrl` -
 do
   if [ $sleepCounter -ge $waitTimeout ]
   then
-    echo "Jetty didn't start within $waitTimeout seconds."
-    PIDS=$(pgrep java -lf | grep ditto | cut -d" " -f1);
+    echo "Ditto didn't start within $waitTimeout seconds."
+    PIDS=$(pgrep java -lf | grep $APP_NAME | cut -d" " -f1);
     if [ -n "$PIDS" ]
 	then
 	  echo "Killing $PIDS";
@@ -80,9 +80,9 @@ cat $ERR_FILE 1>&2
 
 if [ $retVal -eq 1 ]
 then
-  echo "Starting Jetty failed"
+  echo "Starting Ditto failed"
 else
-  echo "Starting Jetty succeeded"
+  echo "Starting Ditto succeeded"
 fi
 
 exit $retVal
