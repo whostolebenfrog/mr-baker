@@ -86,7 +86,7 @@
       (-> template
           (packer/build)
           (response))
-      (response template))))
+      (response (json/generate-string template)))))
 
 (defn bake-entertainment-public-ami
   "Create a new public entertainment ami from the latest ent base ami.
@@ -98,7 +98,7 @@
       (-> template
           (packer/build)
           (response))
-      (response template))))
+      (response (json/generate-string template)))))
 
 (defn bake-chroot-service-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
@@ -111,7 +111,7 @@
       (if-let [version (yum/get-latest-iteration name version rpm-name)]
         (let [template (service-ami/create-chroot-service-ami name version rpm-name virt-type embargo)]
           (if dry-run
-            (response template)
+            (response (json/generate-string template))
             (response (packer/build template name))))
         (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
 

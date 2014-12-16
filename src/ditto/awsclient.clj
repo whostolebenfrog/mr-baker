@@ -85,16 +85,27 @@
        true
        (catch Exception e false))))
 
+(defn tag-ami
+  "Set tags on the instance in the environment we are allowing access to. Sadly
+   amazon doesn't automatically copy tags when making an ami available."
+  ([ami tags]
+     (tag-ami ami tags :prod "eu-west-1"))
+  ([ami tags environment region]
+     (ec2/create-tags (config environment region)
+                      :resources [ami]
+                      :tags (mapv (fn [[k v]] {:key (name k) :value v}) tags))))
+
 (defn allow-prod-access-to-ami
   "Allows prod access to the supplied ami"
-  ([ami]
-     (allow-prod-access-to-ami :poke "eu-west-1" ami))
-  ([environment region ami]
+  ([ami tags]
+     (allow-prod-access-to-ami :poke "eu-west-1" ami tags))
+  ([environment region ami tags]
      (ec2/modify-image-attribute (config environment region)
                                  :image-id ami
                                  :operation-type "add"
                                  :user-ids [(env :service-prod-account)]
-                                 :attribute "launchPermission")))
+                                 :attribute "launchPermission")
+     (tag-ami ami tags :prod region)))
 
 (defn allow-prod-access-to-service
   "Allows prod access to the amis for a service."

@@ -4,7 +4,6 @@
              [bake-common :refer :all]
              [nokia :as nokia]
              [onix :as onix]]
-            [cheshire.core :as json]
             [clj-http.client :as client]
             [clj-time
              [core :as time-core]
@@ -135,13 +134,13 @@
 (defn create-service-ami
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name virt-type embargo]
-  (json/generate-string (service-template service-name service-version rpm-name
-                                          (nokia/entertainment-base-ami-id virt-type)
-                                          virt-type embargo)))
+  (service-template service-name service-version rpm-name
+                    (nokia/entertainment-base-ami-id virt-type)
+                    virt-type embargo))
 
 (defn create-chroot-service-ami
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name virt-type embargo]
-  (json/generate-string (chroot-service-template service-name service-version rpm-name
-                                                 (nokia/entertainment-base-ami-id virt-type)
-                                                 virt-type embargo)))
+  (chroot-service-template service-name service-version rpm-name
+                           (nokia/entertainment-base-ami-id virt-type)
+                           virt-type embargo))

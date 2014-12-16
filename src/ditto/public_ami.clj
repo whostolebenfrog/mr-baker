@@ -9,7 +9,6 @@
             [clj-time
              [core :as time-core]
              [format :as time-format]]
-            [cheshire.core :as json]
             [environ.core :refer [env]]))
 
 (defn ami-name
@@ -81,4 +80,4 @@
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
   [virt-type]
-  (json/generate-string (public-ami (nokia/entertainment-base-ami-id virt-type) virt-type)))
+  (public-ami (nokia/entertainment-base-ami-id virt-type) virt-type))

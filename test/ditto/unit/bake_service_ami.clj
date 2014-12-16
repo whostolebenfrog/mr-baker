@@ -6,7 +6,6 @@
              [nokia :as nokia]
              [onix :as onix]]
             [midje.sweet :refer :all]
-            [cheshire.core :as json]
             [clj-time.core :as core-time]))
 
 (fact-group :unit
@@ -77,9 +76,8 @@
               {:keys [tags]} (-> template :builders (first))]
           (keys tags) =not=> (contains :embargo)))
 
-  (fact "create-service-ami returns a json string of the packer template"
+  (fact "create-service-ami returns a json map of the packer template"
         (create-service-ami ..name.. ..version.. ..rpm.. ..virt-type.. nil) => ..json..
         (provided
          (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
-         (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil) => ..template..
-         (json/generate-string ..template..) => ..json..)))
+         (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil) => ..json..)))

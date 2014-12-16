@@ -99,11 +99,11 @@
   "Takes a line of output, if it finds that the line contains the ami then
    make that ami available to our prod account. Don't match the first instance
    of the ami though (starts with amazon-ebs) as it wont be ready at this point."
-  [line out-stream service-name]
+  [line out-stream service-name tags]
   (when-let [ami (and line (last (re-matches #"(?is).*AMIs were created.+(ami-[\w]+)\s*" line)))]
     (info (str "Making AMI: " ami " available to prod account."))
     (try
-      (awsclient/allow-prod-access-to-ami ami)
+      (awsclient/allow-prod-access-to-ami ami tags)
       (catch Exception e
         (with-logging-context {:ami ami :service-name service-name}
           (error e "Error while making AMI available to prod"))))
@@ -121,7 +121,7 @@
   (redirect [out-stream options k proc]
     (let [timeout (atom {:scheduled? (atom false)})]
       (doseq [line (get proc k)]
-        (allow-prod-ami-if-found line out-stream (:service-name options))
+        (allow-prod-ami-if-found line out-stream (:service-name options) (:tags options))
         (when (deref (:scheduled? @timeout))
           (at/stop timeout))
         (let [bytes (.getBytes line)]
@@ -135,14 +135,14 @@
 
    Note: We have to specifiy the exact path of packer here as another program called
    packer is already on the path and is required for auth purposes"
-  [template-path service-name]
+  [template-path service-name tags]
   (conch/let-programs
    [packer "/opt/packer/packer"]
    (let [out-stream (PipedOutputStream.)
          in-stream  (PipedInputStream. out-stream)]
      (future (packer "build"
                      template-path
-                     {:out out-stream :timeout (* 1000 60 30) :service-name service-name}))
+                     {:out out-stream :timeout (* 1000 60 30) :service-name service-name :tags tags}))
      in-stream)))
 
 (defn build
@@ -151,10 +151,10 @@
   (conch/let-programs [packer "/opt/packer/packer"]
     (info "Building ami using packer.")
     (let [file-name (str "/tmp/" (java.util.UUID/randomUUID))]
-      (spit file-name template)
+      (spit file-name (json/generate-string template))
       (let [{:keys [exit-code stdout stderr] :as x} (packer "validate" file-name {:verbose true})]
           (if-not (pos? @exit-code)
-            (packer-build file-name service-name)
+            (packer-build file-name service-name (-> template :builders first :tags))
             (do
               (error "Invalid template file.")
               {:status 400 :body (json/generate-string

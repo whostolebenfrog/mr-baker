@@ -3,7 +3,6 @@
              [bake-common :refer :all]
              [nokia :as nokia]]
             [clojure.tools.logging :refer [info warn error]]
-            [cheshire.core :as json]
             [environ.core :refer [env]]
             [clj-time
              [core :as time-core]
@@ -193,4 +192,4 @@
   [virt-type]
   (let [parent-ami (nokia/latest-nokia-ami virt-type)]
     (info (format "Creating base ami definition from nokia parent: %s and Type: %s" parent-ami virt-type))
-    (json/generate-string (ebs-template parent-ami virt-type))))
+    (ebs-template parent-ami virt-type)))

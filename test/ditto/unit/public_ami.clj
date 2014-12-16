@@ -5,8 +5,7 @@
              [bake-common :refer :all]
              [nokia :as nokia]]
             [midje.sweet :refer :all]
-            [clj-time.core :as core-time]
-            [cheshire.core :as json]))
+            [clj-time.core :as core-time]))
 
 (fact-group
  :unit
@@ -39,9 +38,8 @@
          type => (has-prefix "amazon")
          vpc_id => (has-prefix "vpc")))
 
- (fact "create-public-ami generates a json string of the public-ami template"
+ (fact "create-public-ami generates a json map of the public-ami template"
        (create-public-ami ..virt-type..) => ..json..
        (provided
-        (public-ami ..source.. ..virt-type..) => ..template..
-        (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
-        (json/generate-string ..template..) => ..json..)))
+        (public-ami ..source.. ..virt-type..) => ..json..
+        (nokia/entertainment-base-ami-id ..virt-type..) => ..source..)))

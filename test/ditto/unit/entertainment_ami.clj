@@ -53,9 +53,8 @@
                                                   :volume_size "10"
                                                   :delete_on_termination true})))
 
-  (fact "create-base-ami returns a json string of the packer template"
+  (fact "create-base-ami returns a json map of the packer template"
         (create-base-ami ..virt-type..) => ..json..
         (provided
-         (ebs-template ..parent-ami.. ..virt-type..) => ..packer-template..
-         (json/generate-string ..packer-template..) => ..json..
+         (ebs-template ..parent-ami.. ..virt-type..) => ..json..
          (nokia/latest-nokia-ami ..virt-type..) => ..parent-ami..)))

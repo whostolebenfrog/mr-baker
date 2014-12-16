@@ -152,7 +152,7 @@
  :unit
  (fact "Passing dry-run to bake entertainment ami just returns the ami definition,
          it doesn't perform the task"
-       (:body (request :post "bake/entertainment-ami/hvm" {:params {:dryrun true}})) => "ami-definition"
+       (:body (request :post "bake/entertainment-ami/hvm" {:params {:dryrun true}})) => "\"ami-definition\""
        (provided (base/create-base-ami :hvm) => "ami-definition"))
 
  (fact "Calling bake entertainment bakes a new entertainment ami"
