@@ -1,7 +1,7 @@
 (ns ditto.entertainment-ami
   (:require [ditto
              [bake-common :refer :all]
-             [nokia :as nokia]]
+             [amis :as amis]]
             [clojure.tools.logging :refer [info warn error]]
             [environ.core :refer [env]]
             [clj-time
@@ -13,7 +13,7 @@
 (defn ent-ami-name
   "Returns the ami name for date/time now"
   [virt-type]
-  (str (nokia/ent-ami-name-base virt-type)
+  (str (amis/ent-ami-name-base virt-type)
        (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (def ent-yum-repo
@@ -190,6 +190,6 @@
 (defn create-base-ami
   "Creates a new entertainment base-ami from the parent ami id"
   [virt-type]
-  (let [parent-ami (nokia/latest-nokia-ami virt-type)]
-    (info (format "Creating base ami definition from nokia parent: %s and Type: %s" parent-ami virt-type))
+  (let [parent-ami (amis/parent-ami virt-type)]
+    (info (format "Creating local base ami definition from parent: %s and Type: %s" parent-ami virt-type))
     (ebs-template parent-ami virt-type)))

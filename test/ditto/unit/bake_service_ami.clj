@@ -3,7 +3,7 @@
              [bake-service-ami :refer :all]
              [bake-common :refer :all]
              [entertainment-ami :as base]
-             [nokia :as nokia]
+             [amis :as amis]
              [onix :as onix]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
@@ -79,5 +79,5 @@
   (fact "create-service-ami returns a json map of the packer template"
         (create-service-ami ..name.. ..version.. ..rpm.. ..virt-type.. nil) => ..json..
         (provided
-         (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
+         (amis/entertainment-base-ami-id ..virt-type..) => ..source..
          (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil) => ..json..)))

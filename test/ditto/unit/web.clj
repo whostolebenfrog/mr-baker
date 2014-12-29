@@ -8,7 +8,7 @@
              [public-ami :as public-ami]
              [packer :as packer]
              [scheduler :as scheduler]
-             [nokia :as nokia]
+             [amis :as amis]
              [entertainment-ami :as base]
              [onix :as onix]]
             [midje.sweet :refer :all]
@@ -123,20 +123,19 @@
 
 (fact-group
  :unit
- (fact "Get latest amis returns amis for nokia base, base and public"
-       (:body (request :get "amis")) => {:nokia-base-para "nokia-base-para"
-                                         :nokia-base-hvm "nokia-base-hvm"
-                                         :ent-base-hvm "ent-base-hvm"
-                                         :ent-base-para "ent-base-para"
-                                         :ent-public-hvm "ent-public-hvm"
-                                         :ent-public-para "ent-public-para"
-                                         }
-       (provided (nokia/latest-nokia-ami :para) => "nokia-base-para"
-                 (nokia/latest-nokia-ami :hvm) => "nokia-base-hvm"
-                 (nokia/entertainment-base-ami-id :hvm) =>  "ent-base-hvm"
-                 (nokia/entertainment-base-ami-id :para) =>  "ent-base-para"
-                 (nokia/entertainment-public-ami-id :hvm) => "ent-public-hvm"
-                 (nokia/entertainment-public-ami-id :para) => "ent-public-para"))
+ (fact "Get latest amis returns amis for parent, base and public"
+       (:body (request :get "amis")) => (contains {:parent-para "parent-para"
+                                                   :parent-hvm "parent-hvm"
+                                                   :ent-base-hvm "ent-base-hvm"
+                                                   :ent-base-para "ent-base-para"
+                                                   :ent-public-hvm "ent-public-hvm"
+                                                   :ent-public-para "ent-public-para"} :in-any-order)
+       (provided (amis/parent-ami :para) => "parent-para"
+                 (amis/parent-ami :hvm) => "parent-hvm"
+                 (amis/entertainment-base-ami-id :hvm) =>  "ent-base-hvm"
+                 (amis/entertainment-base-ami-id :para) =>  "ent-base-para"
+                 (amis/entertainment-public-ami-id :hvm) => "ent-public-hvm"
+                 (amis/entertainment-public-ami-id :para) => "ent-public-para"))
 
  (fact "latest service amis searches for service amis, returns the first
          10 of the reversed list"
@@ -173,14 +172,14 @@
            first
            :ami_name) => (contains "hvm")
        (provided
-        (nokia/latest-nokia-ami anything) => "base-ami-id"))
+        (amis/parent-ami anything) => "base-ami-id"))
 
  (fact "Baking a service generates a real template"
        (-> (request :post "bake/ditto/0.97" {:params {:dryrun true}})
            :body
            (json/parse-string true)
            :builders) => vector?
-           (provided (nokia/entertainment-base-ami-id anything) => "base-ami-id"))
+           (provided (amis/entertainment-base-ami-id anything) => "base-ami-id"))
 
  (fact "Baking a service with the virt-type param switches the virtualisation type"
        (-> (request :post "bake/ditto/0.97" {:params {:dryrun true :virt-type "hvm"}})
@@ -188,7 +187,7 @@
            (json/parse-string true)
            :builders
            first) => (contains {:source_ami "base-ami-id-hvm" :ami_name (contains "hvm")})
-           (provided (nokia/entertainment-base-ami-id :hvm) => "base-ami-id-hvm")))
+           (provided (amis/entertainment-base-ami-id :hvm) => "base-ami-id-hvm")))
 
 (fact-group
  :unit

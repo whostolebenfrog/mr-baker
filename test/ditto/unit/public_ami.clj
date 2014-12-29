@@ -3,7 +3,7 @@
              [public-ami :refer :all]
              [entertainment-ami :as base]
              [bake-common :refer :all]
-             [nokia :as nokia]]
+             [amis :as amis]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
 
@@ -17,7 +17,7 @@
 
  (fact "public-ami generates a packer template"
        (against-background
-        (nokia/entertainment-base-ami-id ..virt-type..) => ..source..
+        (amis/entertainment-base-ami-id ..virt-type..) => ..source..
         (instance-type-for-virt-type ..virt-type..) => "t1.micro")
        (let [template (public-ami ..source.. ..virt-type..)
              {:keys [ami_name iam_instance_profile instance_type region
@@ -42,4 +42,4 @@
        (create-public-ami ..virt-type..) => ..json..
        (provided
         (public-ami ..source.. ..virt-type..) => ..json..
-        (nokia/entertainment-base-ami-id ..virt-type..) => ..source..)))
+        (amis/entertainment-base-ami-id ..virt-type..) => ..source..)))

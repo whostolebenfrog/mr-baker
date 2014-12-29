@@ -2,7 +2,7 @@
   (:require [ditto
              [entertainment-ami :as base]
              [bake-common :refer :all]
-             [nokia :as nokia]
+             [amis :as amis]
              [onix :as onix]]
             [clj-http.client :as client]
             [clj-time
@@ -135,12 +135,12 @@
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name virt-type embargo]
   (service-template service-name service-version rpm-name
-                    (nokia/entertainment-base-ami-id virt-type)
+                    (amis/entertainment-base-ami-id virt-type)
                     virt-type embargo))
 
 (defn create-chroot-service-ami
   "Creates a new ami for the supplied service and vesion"
   [service-name service-version rpm-name virt-type embargo]
   (chroot-service-template service-name service-version rpm-name
-                           (nokia/entertainment-base-ami-id virt-type)
+                           (amis/entertainment-base-ami-id virt-type)
                            virt-type embargo))

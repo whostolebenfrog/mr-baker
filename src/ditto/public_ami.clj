@@ -5,7 +5,7 @@
   (:require [ditto
              [bake-common :refer :all]
              [entertainment-ami :as base]
-             [nokia :as nokia]]
+             [amis :as amis]]
             [clj-time
              [core :as time-core]
              [format :as time-format]]
@@ -80,4 +80,4 @@
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
   [virt-type]
-  (public-ami (nokia/entertainment-base-ami-id virt-type) virt-type))
+  (public-ami (amis/entertainment-base-ami-id virt-type) virt-type))

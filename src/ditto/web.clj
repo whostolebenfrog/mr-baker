@@ -9,7 +9,7 @@
              [pokemon :as pokemon]
              [onix :as onix]
              [yum :as yum]
-             [nokia :as nokia]]
+             [amis :as amis]]
             [cheshire.core :as json]
             [compojure.core :refer [defroutes context GET PUT POST DELETE]]
             [compojure.route :as route]
@@ -60,12 +60,12 @@
 (defn latest-amis
   "Returns the latest amis that we know about"
   []
-  {:status 200 :body {:nokia-base-hvm (nokia/latest-nokia-ami :hvm)
-                      :nokia-base-para (nokia/latest-nokia-ami :para)
-                      :ent-base-hvm (nokia/entertainment-base-ami-id :hvm)
-                      :ent-base-para (nokia/entertainment-base-ami-id :para)
-                      :ent-public-hvm (nokia/entertainment-public-ami-id :hvm)
-                      :ent-public-para (nokia/entertainment-public-ami-id :para)}})
+  {:status 200 :body {:parent-hvm (amis/parent-ami :hvm)
+                      :parent-para (amis/parent-ami :para)
+                      :ent-base-hvm (amis/entertainment-base-ami-id :hvm)
+                      :ent-base-para (amis/entertainment-base-ami-id :para)
+                      :ent-public-hvm (amis/entertainment-public-ami-id :hvm)
+                      :ent-public-para (amis/entertainment-public-ami-id :para)}})
 
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
@@ -76,7 +76,7 @@
        (take 10)))
 
 (defn bake-entertainment-base-ami
-  "Create a pair of new base entertainment ami from the latest nokia base ami.
+  "Create a pair of new local base amis from the latest parent ami.
    Takes a param of virt-type, either hvm or para.
    If dry-run then only return the packer template, don't run it."
   [virt-type dry-run]

@@ -1,7 +1,6 @@
 (ns ditto.scheduler
   (:require [ditto
              [entertainment-ami :as base]
-             [nokia :as nokia]
              [awsclient :as awsclient]
              [public-ami :as public-ami]
              [onix :as onix]
@@ -95,7 +94,7 @@
 (defn start-bake-scheduler
   "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before
    the first bake of initial-delay-ms ms. No parameter variant sets the bakes to occur a the start
-   of every Thursday, as a new Nokia ami is made available every Wednesday. "
+   of every Thursday, as a new ami is made available every Wednesday. "
   ([time-ms initial-delay-ms]
      (info "Setting next base and public api bake time, initial-delay:" initial-delay-ms "interval:" time-ms)
      (at-at/every

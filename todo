@@ -1,0 +1,5 @@
+Nokia namespace renmae
+entertainment namespace rename
+nokia namespace will need to be overwritable or just use config?
+image bakes will need to be overwritable - some kind of dynamic config thing? would be cool to have them autoregister routes for building and maybe even schedules
+scheduler currently works on nokia public image time - doesn't really make sense

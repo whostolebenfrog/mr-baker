@@ -91,9 +91,11 @@
   ([ami tags]
      (tag-ami ami tags :prod "eu-west-1"))
   ([ami tags environment region]
+     (info (format "Tagging ami: %s with tags %s and env %s region %s" ami tags environment region))
      (ec2/create-tags (config environment region)
                       :resources [ami]
-                      :tags (mapv (fn [[k v]] {:key (name k) :value v}) tags))))
+                      :tags (mapv (fn [[k v]] {:key (name k) :value v}) tags))
+     (info "finished tagging ami")))
 
 (defn allow-prod-access-to-ami
   "Allows prod access to the supplied ami"

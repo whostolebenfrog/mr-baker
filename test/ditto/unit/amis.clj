@@ -1,7 +1,7 @@
-(ns ditto.unit.nokia
+(ns ditto.unit.amis
   (:require [ditto
              [awsclient :as awsclient]
-             [nokia :refer :all]]
+             [amis :refer :all]]
             [midje.sweet :refer :all]))
 
 (fact-group

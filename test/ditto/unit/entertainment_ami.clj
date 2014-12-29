@@ -2,7 +2,7 @@
   (:require [ditto
              [entertainment-ami :refer :all]
              [bake-common :refer :all]
-             [nokia :as nokia]]
+             [amis :as amis]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
             [clj-time.core :as core-time]))
@@ -57,4 +57,4 @@
         (create-base-ami ..virt-type..) => ..json..
         (provided
          (ebs-template ..parent-ami.. ..virt-type..) => ..json..
-         (nokia/latest-nokia-ami ..virt-type..) => ..parent-ami..)))
+         (amis/parent-ami ..virt-type..) => ..parent-ami..)))
