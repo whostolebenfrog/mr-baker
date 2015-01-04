@@ -34,6 +34,12 @@
               (slurp (io/resource "puppetlabsdeps.repo"))
               "\" >> /etc/yum.repos.d/puppetlabsdeps.repo")))
 
+(def cloud-init-mounts
+  "Override default cloud-init mounts to prevent ephemeral0 being mounted"
+  (shell (str "echo \""
+              (slurp (io/resource "mounts.yaml"))
+              "\" >> /etc/cloud/cloud.cfg.d/15_mounts.cfg")))
+
 (def puppet
   "Set up puppet and run once, blocking
 
@@ -143,6 +149,7 @@
    ent-yum-repo
    puppetlabs-repo
    puppetlabs-deps-repo
+   cloud-init-mounts
    s3iam
    yum-clean-all
    encfs
