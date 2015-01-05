@@ -50,10 +50,6 @@
   (cshell "rm -rf /var/lib/puppet/ssl"
           "chkconfig puppet on"))
 
-(def kill-chroot-prosses
-  "Kill all processes in the chroot"
-  (cshell "/opt/chrootkiller"))
-
 (defn custom-shell-commands
   "If the service defines custom shell commands "
   [service-name service-version]
