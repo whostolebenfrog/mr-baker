@@ -63,10 +63,6 @@
            (map (fn [c] (str/replace c "{{version}}" version)))
            (apply cshell)))))
 
-(def clear-var-log-messages
-  "Clears /var/log/messages"
-  (cshell "cat /dev/null > /var/log/messages"))
-
 (def yum-clean-cache
   "Cleans yum's various caches"
   (cshell "yum clean expire-cache"))
@@ -86,7 +82,6 @@
          yum-clean-cache
          (service-rpm service-name service-version rpm-name)
          (custom-shell-commands service-name service-version)
-         clear-var-log-messages
          numel-on
          unlock-puppet-ssh-auth
          unlock-puppet-sensu
