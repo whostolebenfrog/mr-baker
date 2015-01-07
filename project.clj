@@ -1,4 +1,4 @@
-(defproject ditto "0.155"
+(defproject ditto "0.156-SNAPSHOT"
   :description "Mr-Baker the AMI maker."
 
   :dependencies [[amazonica "0.2.28" :exclusions [com.fasterxml.jackson.core/jackson-annotations]]
