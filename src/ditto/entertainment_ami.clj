@@ -139,13 +139,29 @@
    stops puppet from being an ass where it looks for python-pip and finds python26-pip installed.
    Despite them both actually being the same"
   (shell "yum remove -y python-pip"
-         "sed -i '/report_instanceid=yes/a exclude=python26-pip' /etc/yum.repos.d/amzn-main.repo"
          "yum install -y python-pip"))
+
+(def exclude-amazon-packages
+  "Exclude some packages from the amazon main repos that cause us issues. In each case these repos take priority
+  over our provided versions due to naming considerations, despite the priorities being set. Including them
+  results in conflicts"
+  (shell "sed -i '/report_instanceid=yes/a exclude=python26-pip,php*,httpd24*' /etc/yum.repos.d/amzn-main.repo"))
+
+(def set-created-date
+  "Writes the date created to a file on system so we know when the base image was created"
+  (shell "date +\"%s \" > /var/lib/created "))
+
+(def remove-packages
+  "Remove some packages that conflict with those that we use or that we don't want on all servers"
+  (shell "yum remove -y java sendmail jpackage-utils"))
 
 (defn provisioners
   [parent-ami]
   [(motd parent-ami)
+   set-created-date
    install-patches
+   remove-packages
+   exclude-amazon-packages
    ent-yum-repo
    puppetlabs-repo
    puppetlabs-deps-repo
