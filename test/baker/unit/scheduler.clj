@@ -1,5 +1,5 @@
-(ns ditto.unit.scheduler
-  (:require [ditto
+(ns baker.unit.scheduler
+  (:require [baker
              [scheduler :refer :all]
              [awsclient :as awsclient]
              [onix :as onix]]

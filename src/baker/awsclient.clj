@@ -1,4 +1,4 @@
-(ns ditto.awsclient
+(ns baker.awsclient
   (:require [amazonica.aws
              [ec2 :as ec2]
              [securitytoken :as sts]

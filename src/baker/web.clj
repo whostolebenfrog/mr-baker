@@ -1,5 +1,5 @@
-(ns ditto.web
-  (:require [ditto
+(ns baker.web
+  (:require [baker
              [scheduler :as scheduler]
              [entertainment-ami :as base]
              [bake-service-ami :as service-ami]
@@ -49,7 +49,7 @@
         ami-killing-scheduled (scheduler/job-is-scheduled? "killer")
         success (and baking-scheduled ami-killing-scheduled)]
     (response
-     {:name "ditto"
+     {:name "baker"
       :version version
       :success success
       :dependencies [{:name "baking-schedule" :success baking-scheduled}
@@ -189,9 +189,6 @@
 
    (DELETE "/:service-name/amis/:ami" [service-name ami]
            (remove-ami service-name ami))
-
-   (GET "/pokemon" []
-        (response pokemon/ditto "text/plain"))
 
   (route/not-found (error-response "Resource not found" 404)))
 

@@ -1,5 +1,5 @@
-(ns ditto.entertainment-ami
-  (:require [ditto
+(ns baker.entertainment-ami
+  (:require [baker
              [bake-common :refer :all]
              [amis :as amis]]
             [clojure.tools.logging :refer [info warn error]]
@@ -196,7 +196,7 @@
                   :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
                   :run_tags {:name "Base AMI Bake"
-                             :owner "ditto"
+                             :owner "baker"
                              :description "Temp instance used to bake the base ent ami"}
                   :tags {:name "Entertainment Base AMI"
                          :service "base"}

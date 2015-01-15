@@ -1,5 +1,5 @@
-(ns ditto.unit.public-ami
-  (:require [ditto
+(ns baker.unit.public-ami
+  (:require [baker
              [public-ami :refer :all]
              [entertainment-ami :as base]
              [bake-common :refer :all]

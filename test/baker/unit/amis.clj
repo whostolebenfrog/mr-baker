@@ -1,5 +1,5 @@
-(ns ditto.unit.amis
-  (:require [ditto
+(ns baker.unit.amis
+  (:require [baker
              [awsclient :as awsclient]
              [amis :refer :all]]
             [midje.sweet :refer :all]))

@@ -1,5 +1,5 @@
-(ns ditto.unit.entertainment-ami
-  (:require [ditto
+(ns baker.unit.entertainment-ami
+  (:require [baker
              [entertainment-ami :refer :all]
              [bake-common :refer :all]
              [amis :as amis]]

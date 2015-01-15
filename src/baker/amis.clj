@@ -1,5 +1,5 @@
-(ns ditto.amis
-  (:require [ditto.awsclient :as awsclient]))
+(ns baker.amis
+  (:require [baker.awsclient :as awsclient]))
 
 (defn parent-ami
   "Returns the latest amaazon linux parent ami, accepts a virt-type (:para or :hvm)"

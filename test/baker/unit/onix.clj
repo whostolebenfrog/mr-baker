@@ -1,5 +1,5 @@
-(ns ditto.unit.onix
-  (:require [ditto.onix :refer :all]
+(ns baker.unit.onix
+  (:require [baker.onix :refer :all]
             [clj-http.client :as client]
             [midje.sweet :refer :all]))
 

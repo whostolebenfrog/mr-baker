@@ -1,5 +1,5 @@
-(ns ditto.unit.bake-common
-  (:require [ditto
+(ns baker.unit.bake-common
+  (:require [baker
              [bake-common :refer :all]]
             [midje.sweet :refer :all]
             [environ.core :refer [env]]))

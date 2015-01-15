@@ -1,6 +1,6 @@
-(ns ditto.pokemon)
+(ns baker.pokemon)
 
-(def ditto
+(def baker
   "
                        8:,::::N   . .I,
                     ..~:::::::~~~:~:,,::~.

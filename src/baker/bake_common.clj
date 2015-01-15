@@ -1,4 +1,4 @@
-(ns ditto.bake-common
+(ns baker.bake-common
   (:require [environ.core :refer [env]]))
 
 (defn shell [& cmds]

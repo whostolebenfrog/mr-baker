@@ -1,6 +1,6 @@
-(ns ditto.unit.web
+(ns baker.unit.web
   "Test the web namespace. We're using these in place of rest-driver tests"
-  (:require [ditto
+  (:require [baker
              [web :refer :all]
              [awsclient :as awsclient]
              [yum :as yum]
@@ -101,7 +101,7 @@
                  (service-ami/create-chroot-service-ami "serv" "0.13-1" "other" :para nil) => ..template..
                  (packer/build ..template.. "serv") => "template"))
 
- (fact "Service returns 503 if ditto is locked"
+ (fact "Service returns 503 if baker is locked"
        (request :post "lock") => (contains {:status 200 :body (contains "no reason was supplied")})
        (request :post "bake/serv/0.13") => (contains {:status 503})
        (request :delete "lock") => (contains {:status 204})
@@ -139,9 +139,9 @@
 
  (fact "latest service amis searches for service amis, returns the first
          10 of the reversed list"
-       (against-background (awsclient/service-amis "ditto") =>
+       (against-background (awsclient/service-amis "baker") =>
                            (map (fn [x] {:name x :image-id x}) (range 20 0 -1)))
-       (let [{amis :body} (request :get "amis/ditto")]
+       (let [{amis :body} (request :get "amis/baker")]
          (count amis) => 10
          amis => (contains [{:image-id 1 :name 1}
                             {:image-id 2 :name 2}
@@ -175,14 +175,14 @@
         (amis/parent-ami anything) => "base-ami-id"))
 
  (fact "Baking a service generates a real template"
-       (-> (request :post "bake/ditto/0.97" {:params {:dryrun true}})
+       (-> (request :post "bake/baker/0.97" {:params {:dryrun true}})
            :body
            (json/parse-string true)
            :builders) => vector?
            (provided (amis/entertainment-base-ami-id anything) => "base-ami-id"))
 
  (fact "Baking a service with the virt-type param switches the virtualisation type"
-       (-> (request :post "bake/ditto/0.97" {:params {:dryrun true :virt-type "hvm"}})
+       (-> (request :post "bake/baker/0.97" {:params {:dryrun true :virt-type "hvm"}})
            :body
            (json/parse-string true)
            :builders

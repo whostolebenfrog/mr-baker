@@ -1,6 +1,6 @@
-(ns ditto.yum
+(ns baker.yum
   "Functions pertaining to our intergration with yum repo"
-  (:require [ditto
+  (:require [baker
              [bake-service-ami :as bake-service]]
             [environ.core :refer [env]]
             [clj-http.client :as client]))

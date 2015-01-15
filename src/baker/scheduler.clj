@@ -1,5 +1,5 @@
-(ns ditto.scheduler
-  (:require [ditto
+(ns baker.scheduler
+  (:require [baker
              [entertainment-ami :as base]
              [awsclient :as awsclient]
              [public-ami :as public-ami]

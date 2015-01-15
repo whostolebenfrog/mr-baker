@@ -1,5 +1,5 @@
-(ns ditto.unit.awsclient
-  (:require [ditto.awsclient :refer :all]
+(ns baker.unit.awsclient
+  (:require [baker.awsclient :refer :all]
             [amazonica.aws
              [securitytoken :as sts]
              [ec2 :as ec2]]

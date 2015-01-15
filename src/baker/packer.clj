@@ -1,9 +1,9 @@
-(ns ditto.packer
+(ns baker.packer
   "Here be dragons... Some gnarly code in here to get response streaming to work as we want."
   (:require [cheshire.core :as json]
             [clojure.java.io :as io]
             [clojure.tools.logging :refer [debug info warn error]]
-            [ditto.awsclient :as awsclient]
+            [baker.awsclient :as awsclient]
             [io.clj.logging :refer [with-logging-context]]
             [me.raynes.conch :as conch]
             [me.raynes.conch.low-level :as sh]

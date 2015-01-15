@@ -1,5 +1,5 @@
-(ns ditto.bake-service-ami
-  (:require [ditto
+(ns baker.bake-service-ami
+  (:require [baker
              [entertainment-ami :as base]
              [bake-common :refer :all]
              [amis :as amis]
@@ -93,7 +93,7 @@
                   :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
                   :run_tags {:name (format "%s AMI Bake" service-name)
-                             :owner "ditto"
+                             :owner "baker"
                              :description (format "Temp instance used to bake the %s ent ami" service-name)}
                   :tags (merge {:name (format "%s AMI" service-name)
                                 :service service-name}

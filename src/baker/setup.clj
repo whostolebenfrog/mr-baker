@@ -1,5 +1,5 @@
-(ns ditto.setup
-  (:require [ditto
+(ns baker.setup
+  (:require [baker
              [web :as web]
              [scheduler :as scheduler]]
             [clojure.string :as cs :only (split)]

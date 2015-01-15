@@ -1,5 +1,5 @@
-(ns ditto.unit.yum
-  (:use ditto.yum)
+(ns baker.unit.yum
+  (:use baker.yum)
   (:require [midje.sweet :refer :all]
             [clj-http.client :as client]))
 

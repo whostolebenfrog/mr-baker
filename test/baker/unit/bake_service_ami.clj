@@ -1,5 +1,5 @@
-(ns ditto.unit.bake-service-ami
-  (:require [ditto
+(ns baker.unit.bake-service-ami
+  (:require [baker
              [bake-service-ami :refer :all]
              [bake-common :refer :all]
              [entertainment-ami :as base]

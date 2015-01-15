@@ -1,8 +1,8 @@
-(ns ditto.public-ami
+(ns baker.public-ami
   "Creates the public base ami instance, this is pretty much the base instance
    with puppet enabled so that real auth works. The base instance can't have puppet
    enabled as it turns on ldap based auth with breaks packers auth."
-  (:require [ditto
+  (:require [baker
              [bake-common :refer :all]
              [entertainment-ami :as base]
              [amis :as amis]]
@@ -57,7 +57,7 @@
                   :instance_type (instance-type-for-virt-type virt-type)
                   :region "eu-west-1"
                   :run_tags {:name "Public AMI Bake"
-                             :owner "ditto"
+                             :owner "baker"
                              :description "Temp instance used to bake the public ent ami"}
                   :tags {:name "Entertainment Public AMI"
                          :service "public"}

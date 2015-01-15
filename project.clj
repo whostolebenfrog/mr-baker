@@ -1,4 +1,4 @@
-(defproject ditto "0.156-SNAPSHOT"
+(defproject baker "0.156-SNAPSHOT"
   :description "Mr-Baker the AMI maker."
 
   :dependencies [[amazonica "0.2.28" :exclusions [com.fasterxml.jackson.core/jackson-annotations]]
@@ -44,7 +44,7 @@
 
   ;; development token values
   :env {:environment-name "dev"
-        :service-name "ditto"
+        :service-name "baker"
         :service-port "8080"
         :graphite-host "graphite.brislabs.com"
         :graphite-port "8080"
@@ -71,9 +71,9 @@
   :lein-release {:deploy-via :shell
                  :shell ["lein" "do" "clean," "uberjar," "pom," "rpm"]}
 
-  :uberjar-name "ditto.jar"
+  :uberjar-name "baker.jar"
 
-  :rpm {:name "ditto"
+  :rpm {:name "baker"
         :summary "RPM for Ditto service"
         :copyright "MixRadio 2014"
         :preinstall {:scriptFile "scripts/rpm/preinstall.sh"}
@@ -81,19 +81,19 @@
         :preremove {:scriptFile "scripts/rpm/preremove.sh"}
         :postremove {:scriptFile "scripts/rpm/postremove.sh"}
         :requires ["jdk >= 2000:1.7.0_55-fcs" "packer"]
-        :mappings [{:directory "/usr/local/ditto"
+        :mappings [{:directory "/usr/local/baker"
                     :filemode "444"
-                    :username "ditto"
-                    :groupname "ditto"
-                    :sources {:source [{:location "target/ditto.jar"}]}}
-                   {:directory "/usr/local/ditto/bin"
+                    :username "baker"
+                    :groupname "baker"
+                    :sources {:source [{:location "target/baker.jar"}]}}
+                   {:directory "/usr/local/baker/bin"
                     :filemode "744"
-                    :username "ditto"
-                    :groupname "ditto"
+                    :username "baker"
+                    :groupname "baker"
                     :sources {:source [{:location "scripts/bin"}]}}
                    {:directory "/etc/rc.d/init.d"
                     :filemode "755"
-                    :sources {:source [{:location "scripts/service/ditto"
-                                        :destination "ditto"}]}}]}
+                    :sources {:source [{:location "scripts/service/baker"
+                                        :destination "baker"}]}}]}
 
-  :main ditto.setup)
+  :main baker.setup)
