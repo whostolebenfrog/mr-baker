@@ -51,6 +51,7 @@
         :graphite-post-interval-seconds "60"
         :graphite-enabled "DISABLED"
         :production "false"
+        :auto-reload "true"
 
         :service-aws-access-key "key"
         :service-aws-secret-key "secret"
