@@ -14,9 +14,9 @@
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>${LOGGING_FILETHRESHOLD:-info}</level>
     </filter>
-    <file>${LOGGING_PATH:-/tmp}/ditto.log</file>
+    <file>${LOGGING_PATH:-/tmp}/baker.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${LOGGING_PATH:-/tmp}/ditto.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+      <fileNamePattern>${LOGGING_PATH:-/tmp}/baker.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
     </rollingPolicy>
     <encoder>
       <pattern>%d [%thread] %-5level %X{log-id} %logger{36} - %msg%n%ex</pattern>

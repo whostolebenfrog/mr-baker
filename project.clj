@@ -74,7 +74,7 @@
   :uberjar-name "baker.jar"
 
   :rpm {:name "baker"
-        :summary "RPM for Ditto service"
+        :summary "RPM for Baker service"
         :copyright "MixRadio 2014"
         :preinstall {:scriptFile "scripts/rpm/preinstall.sh"}
         :postinstall {:scriptFile "scripts/rpm/postinstall.sh"}

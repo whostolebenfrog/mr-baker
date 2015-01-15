@@ -149,8 +149,8 @@
 
    (POST "/lock" req
          (let [message (get-in req [:body "message"])]
-           (reset! lock (or message "Ditto is locked, no reason was supplied."))
-           (str "Ditto is locked and won't accept new builds: " @lock)))
+           (reset! lock (or message "Baker is locked, no reason was supplied."))
+           (str "Baker is locked and won't accept new builds: " @lock)))
 
    (DELETE "/lock" []
            (reset! lock false)

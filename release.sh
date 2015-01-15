@@ -13,7 +13,7 @@ export no_proxy=*.brislabs.com
 lein release || exit 1
 
 #upload rpm
-scp -i ~/.ssh/dmt-key ditto/RPMS/noarch/*.rpm root@yumrepo.brislabs.com:/var/tmp/rpms/
+scp -i ~/.ssh/dmt-key baker/RPMS/noarch/*.rpm root@yumrepo.brislabs.com:/var/tmp/rpms/
 name=`find . -name '*.noarch.rpm'`
 name=`basename $name`
 scp -i ~/.ssh/dmt-key project.clj root@yumrepo.brislabs.com:/var/tmp/rpms/$name.RECEIPT
