@@ -6,7 +6,6 @@
              [public-ami :as public-ami]
              [packer :as packer]
              [awsclient :as awsclient]
-             [pokemon :as pokemon]
              [onix :as onix]
              [yum :as yum]
              [amis :as amis]]

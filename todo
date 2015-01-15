@@ -6,7 +6,6 @@ scheduler currently works on nokia public image time - doesn't really make sense
 
 
 
-remove baker.pokemon namespace and from web
 update lock file to be baker not ditto in puppet and baker
 update sensu lock file as above
 need to fix awsclient assumed role stuff to be non specific
