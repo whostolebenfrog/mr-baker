@@ -115,14 +115,6 @@
             (response (packer/build template name))))
         (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
 
-(defn service-icon
-  "Returns the service icon"
-  []
-  {:status 200
-   :headers {"Content-Type" "image/jpeg"}
-   :body (-> (clojure.java.io/resource "ditto.jpg")
-             (clojure.java.io/input-stream))})
-
 (def lock (atom false))
 
 (defn lockable-bake
@@ -200,9 +192,6 @@
 
    (GET "/pokemon" []
         (response pokemon/ditto "text/plain"))
-
-   (GET "/icon" []
-        (service-icon))
 
   (route/not-found (error-response "Resource not found" 404)))
 
