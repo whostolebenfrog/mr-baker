@@ -1,19 +1,19 @@
 /bin/echo "preremove script started [$1]"
 
-APP_NAME=ditto
+APP_NAME=baker
 prefixDir=/usr/local/$APP_NAME
 identifier=$APP_NAME.jar
 
 isJettyRunning=`pgrep java -lf | grep $identifier | cut -d" " -f1 | /usr/bin/wc -l`
 if [ $isJettyRunning -eq 0 ]
 then
-  /bin/echo "Ditto is not running"
+  /bin/echo "Baker is not running"
 else
   sleepCounter=0
   sleepIncrement=2
   waitTimeOut=600
   /bin/echo "Timeout is $waitTimeOut seconds"
-  /bin/echo "Ditto is running, stopping service"
+  /bin/echo "Baker is running, stopping service"
   /sbin/service $APP_NAME stop &
   myPid=$!
 
@@ -22,7 +22,7 @@ else
     if [ $sleepCounter -ge $waitTimeOut ]
     then
       /usr/bin/pkill -KILL -f '$identifier'
-      /bin/echo "Killed Ditto"
+      /bin/echo "Killed Baker"
       break
     fi
     sleep $sleepIncrement
@@ -31,7 +31,7 @@ else
 
   wait $myPid
 
-  /bin/echo "Ditto down"
+  /bin/echo "Baker down"
 fi
 
 if [ "$1" = 0 ]

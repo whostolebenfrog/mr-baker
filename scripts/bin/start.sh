@@ -1,12 +1,12 @@
 #!/bin/sh
 
-APP_NAME=ditto
+APP_NAME=baker
 
 PIDS=$(pgrep java -lf | grep $APP_NAME | cut -d" " -f1);
 
 if [ -n "$PIDS" ]
 then
-  echo "Ditto is already running in process $PIDS";
+  echo "Baker is already running in process $PIDS";
   exit 1
 fi
 
@@ -32,8 +32,8 @@ SERVICE_PORT=${SERVICE_PORT:-"8080"}
 HEALTHCHECK_PATH=${HEALTHCHECK_PATH:-"/healthcheck"}
 START_TIMEOUT_SECONDS=${START_TIMEOUT_SECONDS:-"60"}
 LOGGING_PATH=${LOGGING_PATH:-"/var/log/${SERVICE_NAME}"}
-LOG_FILE=${LOGGING_PATH}/ditto.out
-ERR_FILE=${LOGGING_PATH}/ditto.err
+LOG_FILE=${LOGGING_PATH}/baker.out
+ERR_FILE=${LOGGING_PATH}/baker.err
 
 mkdir -p /var/encrypted/logs/${APP_NAME}
 
@@ -44,7 +44,7 @@ waitTimeout=$START_TIMEOUT_SECONDS
 sleepCounter=0
 sleepIncrement=2
 
-echo "Giving Ditto $waitTimeout seconds to start successfully"
+echo "Giving Baker $waitTimeout seconds to start successfully"
 echo "Using $statusUrl to determine service status"
 
 retVal=0
@@ -53,7 +53,7 @@ until [ `curl --write-out %{http_code} --silent --output /dev/null $statusUrl` -
 do
   if [ $sleepCounter -ge $waitTimeout ]
   then
-    echo "Ditto didn't start within $waitTimeout seconds."
+    echo "Baker didn't start within $waitTimeout seconds."
     PIDS=$(pgrep java -lf | grep $APP_NAME | cut -d" " -f1);
     if [ -n "$PIDS" ]
 	then
@@ -80,9 +80,9 @@ cat $ERR_FILE 1>&2
 
 if [ $retVal -eq 1 ]
 then
-  echo "Starting Ditto failed"
+  echo "Starting Baker failed"
 else
-  echo "Starting Ditto succeeded"
+  echo "Starting Baker succeeded"
 fi
 
 exit $retVal

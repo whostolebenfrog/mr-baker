@@ -1,34 +1,41 @@
 #!/bin/sh
 #
-# Ditto Control Script
+# Baker Control Script
 #
 # To use this script run it as root - it will switch to the specified user
 #
 # Here is a little (and extremely primitive) startup/shutdown script
-# for RedHat based systems. It assumes that Ditto lives in /usr/local/ditto,
-# it's run by user 'ditto' and JDK binaries are in /usr/java/default/bin.
+# for RedHat based systems. It assumes that Baker lives in /usr/local/baker,
+# it's run by user 'baker' and JDK binaries are in /usr/java/default/bin.
 # All this can be changed in the script itself.
 #
 # Either modify this script for your requirements or just ensure that
 # the following variables are set correctly before calling the script.
 # chkconfig: 345 99 05
-# description: Runs Ditto
-# processname: ditto
+# description: Runs Baker
+# processname: baker
 
-LOCKFILE=/var/lock/subsys/ditto
+LOCKFILE=/var/lock/subsys/baker
 
-#define where ditto is
-GIVEN_HOME="/usr/local/ditto"
+#define where baker is
+GIVEN_HOME="/usr/local/baker"
 
 JETTY_HOME=${JETTY_HOME:-"$GIVEN_HOME"}
+
+#define the user under which baker will run, or use 'RUNASIS' to run as the current user
+JETTY_USER=${JETTY_USER:-"baker"}
 
 #make sure java is in your path
 JAVAPTH=${JAVAPTH:-"/usr/java/default/bin"}
 
-#define the script to use to start ditto
+#define the script to use to start baker
 JETTYSH=${JETTYSH:-"$JETTY_HOME/bin/start.sh"}
 
-SUBIT=""
+if [ "$JETTY_USER" = "RUNASIS" ]; then
+  SUBIT=""
+else
+  SUBIT="su - $JETTY_USER -s /bin/sh -c "
+fi
 
 JETTY_CONSOLE="/dev/null"
 
@@ -46,7 +53,7 @@ fi
 
 case "$1" in
 start)
-    echo Starting Ditto with JETTY_CMD_START=$JETTY_CMD_START
+    echo Starting Baker with JETTY_CMD_START=$JETTY_CMD_START
     cd $JETTY_HOME
     if [ -z "$SUBIT" ]; then
         eval $JETTY_CMD_START
@@ -56,7 +63,7 @@ start)
     touch $LOCKFILE
     ;;
 stop)
-    echo Stopping Ditto
+    echo Stopping Baker
     if [ -z "$SUBIT" ]; then
         $JETTY_CMD_STOP
     else
