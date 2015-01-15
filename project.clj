@@ -71,13 +71,6 @@
   :lein-release {:deploy-via :shell
                  :shell ["lein" "do" "clean," "uberjar," "pom," "rpm"]}
 
-  :ring {:handler ditto.web/app
-         :main ditto.setup
-         :port ~(Integer/valueOf  (get (System/getenv) "SERVICE_PORT" "8080"))
-         :init ditto.setup/setup
-         :browser-uri "/healthcheck"
-         :nrepl {:start? true}}
-
   :uberjar-name "ditto.jar"
 
   :rpm {:name "ditto"
