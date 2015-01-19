@@ -1,14 +1,18 @@
-(ns baker.entertainment-ami
+(ns baker.builders.bake-base-ami
   (:require [baker
+             [amis :as amis]
              [bake-common :refer :all]
-             [amis :as amis]]
-            [clojure.tools.logging :refer [info warn error]]
-            [environ.core :refer [env]]
+             [common :as common]
+             [dynamic-routes :as dynamic]
+             [packer :as packer]]
+            [cheshire.core :as json]
             [clj-time
              [core :as time-core]
              [format :as time-format]]
+            [clojure.data.codec.base64 :as b64]
             [clojure.java.io :as io]
-            [clojure.data.codec.base64 :as b64]))
+            [clojure.tools.logging :refer [info warn error]]
+            [environ.core :refer [env]]))
 
 (defn ent-ami-name
   "Returns the ami name for date/time now"
@@ -216,3 +220,18 @@
   (let [parent-ami (amis/parent-ami virt-type)]
     (info (format "Creating local base ami definition from parent: %s and Type: %s" parent-ami virt-type))
     (ebs-template parent-ami virt-type)))
+
+(defn bake-entertainment-base-ami
+  "Create a pair of new local base amis from the latest parent ami.
+   Takes a param of virt-type, either hvm or para.
+   If dry-run then only return the packer template, don't run it."
+  [virt-type dry-run]
+  {:pre [(#{:hvm :para} virt-type)]}
+  (let [template (create-base-ami virt-type)]
+    (if-not dry-run
+      (-> template
+          (packer/build)
+          (common/response))
+      (common/response (json/generate-string template)))))
+
+(dynamic/register-builder "lols" (fn [req] {:status 200 :body "LAKJFLKDFJSLJ"}))

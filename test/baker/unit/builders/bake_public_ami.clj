@@ -1,9 +1,9 @@
-(ns baker.unit.public-ami
+(ns baker.unit.builders.bake-public-ami
   (:require [baker
-             [public-ami :refer :all]
-             [entertainment-ami :as base]
              [bake-common :refer :all]
              [amis :as amis]]
+            [baker.builders
+             [bake-public-ami :refer :all]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
 

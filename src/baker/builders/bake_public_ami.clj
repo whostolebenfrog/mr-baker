@@ -1,11 +1,13 @@
-(ns baker.public-ami
+(ns baker.builders.bake-public-ami
   "Creates the public base ami instance, this is pretty much the base instance
    with puppet enabled so that real auth works. The base instance can't have puppet
    enabled as it turns on ldap based auth with breaks packers auth."
   (:require [baker
+             [amis :as amis]
              [bake-common :refer :all]
-             [entertainment-ami :as base]
-             [amis :as amis]]
+             [common :as common]
+             [packer :as packer]]
+            [cheshire.core :as json]
             [clj-time
              [core :as time-core]
              [format :as time-format]]
@@ -81,3 +83,15 @@
    Enabled puppet and sets the motd"
   [virt-type]
   (public-ami (amis/entertainment-base-ami-id virt-type) virt-type))
+
+(defn bake-entertainment-public-ami
+  "Create a new public entertainment ami from the latest ent base ami.
+   If dry-run then only return the packer template, don't run it."
+  [virt-type dry-run]
+  {:pre [(#{:hvm :para} virt-type)]}
+  (let [template (create-public-ami virt-type)]
+    (if-not dry-run
+      (-> template
+          (packer/build)
+          (common/response))
+      (common/response (json/generate-string template)))))

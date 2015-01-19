@@ -4,13 +4,14 @@
              [web :refer :all]
              [awsclient :as awsclient]
              [yum :as yum]
-             [bake-service-ami :as service-ami]
-             [public-ami :as public-ami]
              [packer :as packer]
              [scheduler :as scheduler]
              [amis :as amis]
-             [entertainment-ami :as base]
              [onix :as onix]]
+            [baker.builders
+             [bake-service-ami :as service-ami]
+             [bake-public-ami :as public-ami]
+             [bake-base-ami :as base]]
             [midje.sweet :refer :all]
             [cheshire.core :as json])
   (:import [java.io ByteArrayInputStream]))
@@ -37,24 +38,10 @@
  (fact "Ping pongs"
        (request :get "ping") => (contains {:body "pong" :status 200}))
 
- (fact "Status returns true if all dependencies met"
-       (against-background (scheduler/job-is-scheduled? "baker") => true
-                           (scheduler/job-is-scheduled? "killer") => true)
+ (fact "Status returns true"
        (let [{:keys [status body]} (request :get "status")]
          status => 200
-         body => (contains {:success true})))
-
- (fact "Status returns false if scheduler is down"
-       (against-background (scheduler/job-is-scheduled? "baker") => false
-                           (scheduler/job-is-scheduled? "killer") => true)
-       (let [{:keys [status body]} (request :get "status")]
-         status => 500
-         body => (contains {:success false})))
-
- (fact "Health check returns status"
-       (app {:request-method :get :uri "/healthcheck"}) => (contains {:status 200})
-       (provided (scheduler/job-is-scheduled? "baker") => true
-                 (scheduler/job-is-scheduled? "killer") => true)))
+         body => (contains {:success true}))))
 
 (fact-group
  :unit

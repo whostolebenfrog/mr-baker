@@ -1,14 +1,17 @@
 (ns baker.yum
   "Functions pertaining to our intergration with yum repo"
-  (:require [baker
-             [bake-service-ami :as bake-service]]
-            [environ.core :refer [env]]
+  (:require [environ.core :refer [env]]
             [clj-http.client :as client]))
+
+(defn rpm-full-name
+  [service-name service-version rpm-name]
+  (let [name (or rpm-name service-name)]
+    (format "%s-%s.noarch.rpm" name service-version)))
 
 (defn rpm-url
   "Returns the rpm url for a given service-name, version and iteration."
   [service-name rpm-name version]
-  (str (env :service-yum-url) "/" (bake-service/rpm-full-name service-name version rpm-name)))
+  (str (env :service-yum-url) "/" (rpm-full-name service-name version rpm-name)))
 
 (defn rpm-exists?
   "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."

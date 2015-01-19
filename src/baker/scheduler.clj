@@ -1,10 +1,11 @@
 (ns baker.scheduler
   (:require [baker
-             [entertainment-ami :as base]
              [awsclient :as awsclient]
-             [public-ami :as public-ami]
              [onix :as onix]
              [packer :as packer]]
+            [baker.builders
+             [bake-base-ami :as base]
+             [bake-public-ami :as public-ami]]
             [clj-time.core :as core-time]
             [clj-time.coerce :as coerce-time]
             [clj-http.client :as client]

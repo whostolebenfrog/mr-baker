@@ -1,10 +1,11 @@
-(ns baker.unit.bake-service-ami
+(ns baker.unit.builders.bake-service-ami
   (:require [baker
-             [bake-service-ami :refer :all]
              [bake-common :refer :all]
-             [entertainment-ami :as base]
              [amis :as amis]
-             [onix :as onix]]
+             [onix :as onix]
+             [yum :as yum]]
+            [baker.builders
+             [bake-service-ami :refer :all]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
 
@@ -13,22 +14,6 @@
         (service-ami-name "name" "version" "para") => "ent-name-version-para-2013-10-15_00-00-00"
         (provided
          (core-time/now) => (core-time/date-time 2013 10 15)))
-
-  (fact "rpm-full-name returns the rpm name"
-        (rpm-full-name "name" "version" nil) => "name-version.noarch.rpm")
-
-  (fact "rpm-full-name allows overriding of the default rpm name"
-        (rpm-full-name "name" "version" "rpm") => "rpm-version.noarch.rpm")
-
-  (fact "service-rpm installs the service"
-        (let [name (rpm-full-name "name" "version" nil)
-              {:keys [type inline]} (service-rpm "name" "version" nil)]
-
-          type => "shell"
-          (first inline) => (has-prefix "wget")
-          (first inline) => (has-suffix name)
-          (second inline) => (has-prefix "yum -y install")
-          (second inline) => (has-suffix name)))
 
   (fact "custom-shell-commands calls onix and uses that result"
         (against-background

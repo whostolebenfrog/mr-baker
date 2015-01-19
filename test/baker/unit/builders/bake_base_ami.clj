@@ -1,8 +1,9 @@
-(ns baker.unit.entertainment-ami
+(ns baker.unit.builders.bake-base-ami
   (:require [baker
-             [entertainment-ami :refer :all]
-             [bake-common :refer :all]
-             [amis :as amis]]
+             [amis :as amis]
+             [bake-common :refer :all]]
+            [baker.builders
+             [bake-base-ami :refer :all]]
             [midje.sweet :refer :all]
             [cheshire.core :as json]
             [clj-time.core :as core-time]))

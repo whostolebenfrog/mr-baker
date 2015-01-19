@@ -1,14 +1,18 @@
-(ns baker.bake-service-ami
+(ns baker.builders.bake-service-ami
   (:require [baker
-             [entertainment-ami :as base]
-             [bake-common :refer :all]
              [amis :as amis]
-             [onix :as onix]]
+             [bake-common :refer :all]
+             [common :as common]
+             [onix :as onix]
+             [packer :as packer]
+             [yum :as yum]]
+            [cheshire.core :as json]
             [clj-http.client :as client]
             [clj-time
              [core :as time-core]
              [format :as time-format]]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [radix.error :refer [error-response]]))
 
 (defn service-ami-name
   "Returns the ami name for the service with date/time now"
@@ -28,15 +32,10 @@
                   (time-format/unparse (time-format/formatters :date-time-no-ms) (time-core/now)))
           (format "echo -e \"\\nService: %s %s\\n\" >> /etc/motd" service-name service-version)))
 
-(defn rpm-full-name
-  [service-name service-version rpm-name]
-  (let [name (or rpm-name service-name)]
-    (format "%s-%s.noarch.rpm" name service-version)))
-
 (defn service-rpm
   "Install the service rpm on to the machine"
   [service-name service-version rpm-name]
-  (let [rpm-full-name (rpm-full-name service-name service-version rpm-name)]
+  (let [rpm-full-name (yum/rpm-full-name service-name service-version rpm-name)]
     (cshell (str "wget -nv http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
             (str "yum -y install " rpm-full-name)
             (str "rm -fv " rpm-full-name))))
@@ -135,3 +134,19 @@
   (chroot-service-template service-name service-version rpm-name
                            (amis/entertainment-base-ami-id virt-type)
                            virt-type embargo))
+
+;; TODO - yum needs to go inside builders
+(defn bake-chroot-service-ami
+  "Bake a new ami for the service name and version based on the latest base ent ami.
+   If dry-run then only return the packer template, don't run it."
+  [name version dry-run virt-type embargo]
+  {:pre [#{:para :hvm} virt-type]}
+  (if (not (onix/service-exists? name))
+    (error-response (str "The service '" name "' doesn't exist.") 404)
+    (let [rpm-name (onix/rpm-name name)]
+      (if-let [version (yum/get-latest-iteration name version rpm-name)]
+        (let [template (create-chroot-service-ami name version rpm-name virt-type embargo)]
+          (if dry-run
+            (common/response (json/generate-string template))
+            (common/response (packer/build template name))))
+        (error-response (format "Are you baking too soon? No RPM for '%s' '%s'." name version) 404)))))
