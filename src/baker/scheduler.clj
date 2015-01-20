@@ -25,7 +25,6 @@
         ((fn [the-day] (core-time/interval now the-day)))
         (core-time/in-millis))))
 
-;; TODO - move this and other stuff into a cleanup namespace
 (defn kill-amis-for-application
   "Deregisters amis for an application apart from the latest 5. Doesn't deregister any amis that are deployed.
    Note: amis are retrieved from AWS in latest first order."
