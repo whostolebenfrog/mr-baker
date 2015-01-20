@@ -6,6 +6,7 @@
             [clj-time.core :as core-time]
             [clj-time.coerce :as coerce-time]
             [clojure.tools.logging :refer [debug info warn error]]
+            [environ.core :refer [env]]
             [io.clj.logging :refer [with-logging-context]]
             [overtone.at-at :as at-at])
   (:import [org.joda.time DateTimeConstants]))
@@ -40,18 +41,17 @@
       (debug (str "Degregistering AMI: " ami))
       (awsclient/deregister-ami name ami))))
 
-;; TODO - wonder how many hard deps we have on lister? This could go away or at least have
-;; some kind of toggle off mode an baker could be idependent, probably worth doing
 (defn kill-amis
   "Deregister any sufficiently old amis"
   []
-  (info "Starting process to kill old amis for all services")
-  (doseq [app (onix/get-applications)]
-    (try
-      (kill-amis-for-application app)
-      (catch Exception e
-        (with-logging-context {:application app}
-          (error e "Error while killing AMIs for application"))))))
+  (when (Boolean/valueOf (env :lister-available))
+    (info "Starting process to kill old amis for all services")
+    (doseq [app (onix/get-applications)]
+      (try
+        (kill-amis-for-application app)
+        (catch Exception e
+          (with-logging-context {:application app}
+            (error e "Error while killing AMIs for application")))))))
 
 (defn start-builder-scheduler
   "Accepts a list of function calls to schedule in the form of a map:

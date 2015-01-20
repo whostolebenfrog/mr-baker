@@ -53,6 +53,8 @@
         :production "false"
         :auto-reload "true"
 
+        :lister-available "true"
+
         :service-aws-access-key "key"
         :service-aws-secret-key "secret"
 
