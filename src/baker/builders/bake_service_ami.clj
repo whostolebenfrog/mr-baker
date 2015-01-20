@@ -136,7 +136,6 @@
                            (amis/entertainment-base-ami-id virt-type)
                            virt-type embargo))
 
-;; TODO - yum needs to go inside builders
 (defn bake-chroot-service-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
