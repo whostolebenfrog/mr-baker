@@ -37,6 +37,7 @@
          {:endpoint region}
          proxy-details))
 
+;; TODO - possibly need to mess with this depending on what we do about naming
 (defn ami-name-comparator
   "Sort amis by date generated"
   [a b]
@@ -65,6 +66,7 @@
                   :images
                   seq))))
 
+;; TODO - this is specific, could live with or possibly update to a new more general prefix
 (defn service-amis
   "Returns the images for a service in the default environment and region"
   [name]
@@ -98,6 +100,7 @@
                       :tags (mapv (fn [[k v]] {:key (name k) :value v}) tags))
      (info "finished tagging ami")))
 
+;; TODO - update name once this ns has been made configurable
 (defn allow-prod-access-to-ami
   "Allows prod access to the supplied ami"
   ([ami tags]
@@ -117,6 +120,7 @@
    (comp allow-prod-access-to-ami :image-id)
    (service-amis service)))
 
+;; TODO - using eu-west-1
 (defn launch-configurations
   "Returns a list of all launch-configurations"
   ([]
@@ -136,6 +140,7 @@
              (set (map :image-id (launch-configurations environment region))))
            :ttl/threshold (* 1000 30)))
 
+;; TODO - very specific
 (defn all-active-amis
   "Returns a set of active amis from the set of amis provided"
   []

@@ -3,7 +3,6 @@
              [amis :as amis]
              [bake-common :refer :all]
              [common :as common]
-             [dynamic-routes :as dynamic]
              [packer :as packer]]
             [cheshire.core :as json]
             [clj-time
@@ -233,5 +232,3 @@
           (packer/build)
           (common/response))
       (common/response (json/generate-string template)))))
-
-(dynamic/register-builder "lols" (fn [req] {:status 200 :body "LAKJFLKDFJSLJ"}))

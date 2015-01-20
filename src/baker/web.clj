@@ -3,7 +3,6 @@
              [amis :as amis]
              [awsclient :as awsclient]
              [common :as common]
-             [dynamic-routes :as dynamic-routes]
              [packer :as packer]
              [scheduler :as scheduler]]
             [baker.builders

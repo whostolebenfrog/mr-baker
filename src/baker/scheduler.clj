@@ -21,6 +21,8 @@
 
 (def scheduler-pool (at-at/mk-pool))
 
+;; TODO: This holds up as a way of getting it to run weekly although the thursday part isn't any
+;; kind of requirement and looks a bit odd now. Could be configurable I guess.
 (defn ms-until-next-thursday
   "Returns the number of milliseconds until the next instance of Thursday at midnight"
   []
@@ -39,6 +41,7 @@
   (doseq [line (line-seq (clojure.java.io/reader stream))]
     (info line)))
 
+;; TODO - move into base
 (defn bake-base-ami
   "Bake the base ami"
   [virt-type]
@@ -47,6 +50,7 @@
       (packer/build)
       (output-piped-input-stream)))
 
+;; TODO: move into public
 (defn bake-public-ami
   "Bake the public ami"
   [virt-type]
@@ -55,6 +59,7 @@
       (packer/build)
       (output-piped-input-stream)))
 
+;; TODO: these need to be registered not here, besides that this ns mostly holds up
 (defn bake-amis
   "Bake a new base ami, followed by its public counterpart"
   []
@@ -81,6 +86,8 @@
       (debug (str "Degregistering AMI: " ami))
       (awsclient/deregister-ami name ami))))
 
+;; TODO - wonder how many hard deps we have on lister? This could go away or at least have
+;; some kind of toggle off mode an baker could be idependent, probably worth doing
 (defn kill-amis
   "Deregister any sufficiently old amis"
   []
@@ -95,7 +102,7 @@
 (defn start-bake-scheduler
   "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before
    the first bake of initial-delay-ms ms. No parameter variant sets the bakes to occur a the start
-   of every Thursday, as a new ami is made available every Wednesday. "
+   of every Thursday because that's the best day for baking. Obviously."
   ([time-ms initial-delay-ms]
      (info "Setting next base and public api bake time, initial-delay:" initial-delay-ms "interval:" time-ms)
      (at-at/every
@@ -117,8 +124,3 @@
       :initial-delay (* 60 1000)
       :desc "killer"))
   ([] (start-deregister-old-amis-scheduler half-an-hour-in-ms half-an-hour-in-ms)))
-
-(defn job-is-scheduled?
-  "Returns truthy if the named job is scheduled"
-  [name]
-  (some #(= (:desc %) name) (at-at/scheduled-jobs scheduler-pool)))
