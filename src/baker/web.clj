@@ -4,7 +4,6 @@
              [awsclient :as awsclient]
              [common :as common]
              [dynamic-routes :as dynamic-routes]
-             [onix :as onix]
              [packer :as packer]
              [scheduler :as scheduler]]
             [baker.builders
@@ -29,15 +28,18 @@
              [reload :refer [wrap-reload]]
              [setup :as setup]]))
 
+;; TODO - need to not version control all our resources
+
 (def version
   "The version of the app"
-  (setup/version "onix"))
+  (setup/version "baker"))
 
 (defn status
   "Returns the service status"
   []
   (common/response {:name "baker" :version version :success true} "application/json" 200))
 
+;; TODO: amis needs to move into builders I think, or at least be more configurable
 (defn latest-amis
   "Returns the latest amis that we know about"
   []
@@ -48,6 +50,7 @@
                       :ent-public-hvm (amis/entertainment-public-ami-id :hvm)
                       :ent-public-para (amis/entertainment-public-ami-id :para)}})
 
+;; TODO - move into amis namespace
 (defn latest-service-amis
   "Returns the list of amis for the supplied service name"
   [service-name]
@@ -56,6 +59,7 @@
        (reverse)
        (take 10)))
 
+;; TODO - move into amis namespace
 (defn remove-ami
   [service ami]
   "Reregister the supplied ami"
