@@ -9,6 +9,7 @@
             [clojure.tools.logging :refer [info]]
             [environ.core :refer [env]]))
 
+;; TODO - have to make this configurable, currently tied to our accounts
 (def environments
   {:poke {:account-id (env :aws-dev-account-id)
           :assume-role? false}
