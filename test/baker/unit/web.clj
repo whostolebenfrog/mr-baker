@@ -49,10 +49,10 @@
                                                    :public-para "public-para"} :in-any-order)
        (provided (amis/parent-ami :para) => "parent-para"
                  (amis/parent-ami :hvm) => "parent-hvm"
-                 (amis/entertainment-base-ami-id :hvm) =>  "base-hvm"
-                 (amis/entertainment-base-ami-id :para) =>  "base-para"
-                 (amis/entertainment-public-ami-id :hvm) => "public-hvm"
-                 (amis/entertainment-public-ami-id :para) => "public-para"))
+                 (amis/base-ami-id :hvm) =>  "base-hvm"
+                 (amis/base-ami-id :para) =>  "base-para"
+                 (amis/public-ami-id :hvm) => "public-hvm"
+                 (amis/public-ami-id :para) => "public-para"))
 
  (fact "latest service amis searches for service amis, returns the first
          10 of the reversed list"

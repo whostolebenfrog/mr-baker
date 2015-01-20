@@ -17,27 +17,27 @@
 ;; latest-service-amis - this would need to move to be under
 ;; the builders name space with a remove function for each type
 ;; of template. Nice but one for in the future.
-(defn ent-ami-name-base
+(defn ami-name-base
   "Returns the base part of an ami name"
   [virt-type]
   (format "entertainment-base-al-%s-" (name virt-type)))
 
-(defn ent-public-name-base
+(defn public-name-base
   "Returns the base part of the public ami name"
   [virt-type]
   (format "entertainment-public-al-%s-" (name virt-type)))
 
-(defn entertainment-base-ami-id
+(defn base-ami-id
   "Returns the id of the latest entertainment base ami"
   [virt-type]
-  (-> (awsclient/owned-amis-by-name (str (ent-ami-name-base virt-type) "*"))
+  (-> (awsclient/owned-amis-by-name (str (ami-name-base virt-type) "*"))
       last
       :image-id))
 
-(defn entertainment-public-ami-id
+(defn public-ami-id
   "Returns the id of the latest entertainment public ami"
   [virt-type]
-  (-> (awsclient/owned-amis-by-name (str (ent-public-name-base virt-type) "*"))
+  (-> (awsclient/owned-amis-by-name (str (public-name-base virt-type) "*"))
       last
       :image-id))
 
@@ -46,10 +46,10 @@
   []
   (common/response {:parent-hvm (parent-ami :hvm)
                     :parent-para (parent-ami :para)
-                    :base-hvm (entertainment-base-ami-id :hvm)
-                    :base-para (entertainment-base-ami-id :para)
-                    :public-hvm (entertainment-public-ami-id :hvm)
-                    :public-para (entertainment-public-ami-id :para)}
+                    :base-hvm (base-ami-id :hvm)
+                    :base-para (base-ami-id :para)
+                    :public-hvm (public-ami-id :hvm)
+                    :public-para (public-ami-id :para)}
                    "application/json" 200))
 
 (defn latest-service-amis

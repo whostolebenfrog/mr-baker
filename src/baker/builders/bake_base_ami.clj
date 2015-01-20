@@ -16,7 +16,7 @@
 (defn ent-ami-name
   "Returns the ami name for date/time now"
   [virt-type]
-  (str (amis/ent-ami-name-base virt-type)
+  (str (amis/ami-name-base virt-type)
        (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (def ent-yum-repo

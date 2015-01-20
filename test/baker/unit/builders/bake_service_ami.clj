@@ -64,5 +64,5 @@
   (fact "create-service-ami returns a json map of the packer template"
         (create-service-ami ..name.. ..version.. ..rpm.. ..virt-type.. nil) => ..json..
         (provided
-         (amis/entertainment-base-ami-id ..virt-type..) => ..source..
+         (amis/base-ami-id ..virt-type..) => ..source..
          (service-template ..name.. ..version.. ..rpm.. ..source.. ..virt-type.. nil) => ..json..)))

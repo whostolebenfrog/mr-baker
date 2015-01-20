@@ -16,9 +16,7 @@
 (defn ami-name
   [virt-type]
   "Returns the ami name for now"
-  (str "entertainment-public-"
-       (name virt-type)
-       "-"
+  (str (amis/public-name-base virt-type)
        (time-format/unparse (time-format/formatter "YYYY-MM-dd_HH-mm-ss") (time-core/now))))
 
 (defn motd
@@ -82,7 +80,7 @@
   "Creates a public ami from the latest base entertainment ami
    Enabled puppet and sets the motd"
   [virt-type]
-  (public-ami (amis/entertainment-base-ami-id virt-type) virt-type))
+  (public-ami (amis/base-ami-id virt-type) virt-type))
 
 (defn bake-entertainment-public-ami
   "Create a new public entertainment ami from the latest ent base ami.

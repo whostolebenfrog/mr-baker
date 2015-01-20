@@ -110,7 +110,7 @@
            :body
            (json/parse-string true)
            :builders) => vector?
-           (provided (amis/entertainment-base-ami-id anything) => "base-ami-id"
+           (provided (amis/base-ami-id anything) => "base-ami-id"
                      (onix/service-exists? "baker") => true
                      (onix/rpm-name "baker") => "bakerrpm"
                      (yum/get-latest-iteration "baker" "0.97" "bakerrpm") => "version"))
@@ -121,7 +121,7 @@
            (json/parse-string true)
            :builders
            first) => (contains {:source_ami "base-ami-id-hvm" :ami_name (contains "hvm")})
-           (provided (amis/entertainment-base-ami-id :hvm) => "base-ami-id-hvm"
+           (provided (amis/base-ami-id :hvm) => "base-ami-id-hvm"
                      (onix/service-exists? "baker") => true
                      (onix/rpm-name "baker") => "bakerrpm"
                      (yum/get-latest-iteration "baker" "0.97" "bakerrpm") => "version")))

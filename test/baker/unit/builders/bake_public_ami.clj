@@ -11,13 +11,13 @@
  :unit
 
  (fact "ami-name contains the name and time"
-       (ami-name :hvm) => "entertainment-public-hvm-2013-10-15_00-00-00"
+       (ami-name :hvm) => "entertainment-public-al-hvm-2013-10-15_00-00-00"
        (provided
         (core-time/now) => (core-time/date-time 2013 10 15)))
 
  (fact "public-ami generates a packer template"
        (against-background
-        (amis/entertainment-base-ami-id ..virt-type..) => ..source..
+        (amis/base-ami-id ..virt-type..) => ..source..
         (instance-type-for-virt-type ..virt-type..) => "t1.micro")
        (let [template (public-ami ..source.. ..virt-type..)
              {:keys [ami_name iam_instance_profile instance_type region
@@ -42,4 +42,4 @@
        (create-public-ami ..virt-type..) => ..json..
        (provided
         (public-ami ..source.. ..virt-type..) => ..json..
-        (amis/entertainment-base-ami-id ..virt-type..) => ..source..)))
+        (amis/base-ami-id ..virt-type..) => ..source..)))
