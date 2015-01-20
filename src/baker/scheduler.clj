@@ -3,74 +3,28 @@
              [awsclient :as awsclient]
              [onix :as onix]
              [packer :as packer]]
-            [baker.builders
-             [bake-base-ami :as base]
-             [bake-public-ami :as public-ami]]
             [clj-time.core :as core-time]
             [clj-time.coerce :as coerce-time]
-            [clj-http.client :as client]
             [clojure.tools.logging :refer [debug info warn error]]
-            [environ.core :refer [env]]
             [io.clj.logging :refer [with-logging-context]]
-            [overtone.at-at :as at-at]
-            [clojure.set :refer [difference]])
+            [overtone.at-at :as at-at])
   (:import [org.joda.time DateTimeConstants]))
-
-(def week-in-ms (* 60 60 24 7 1000))
-(def half-an-hour-in-ms (* 30 60 1000))
 
 (def scheduler-pool (at-at/mk-pool))
 
-;; TODO: This holds up as a way of getting it to run weekly although the thursday part isn't any
-;; kind of requirement and looks a bit odd now. Could be configurable I guess.
-(defn ms-until-next-thursday
+(defn ms-until-next-day
   "Returns the number of milliseconds until the next instance of Thursday at midnight"
-  []
+  [day]
   (let [now (core-time/now)]
     (-> (cond-> now
-                (>= (.getDayOfWeek now) (DateTimeConstants/THURSDAY))
+                (>= (.getDayOfWeek now) day)
                 (.plusWeeks 1))
-        (.withDayOfWeek (DateTimeConstants/THURSDAY))
+        (.withDayOfWeek day)
         (.toDateMidnight)
-        ((fn [thurs] (core-time/interval now thurs)))
+        ((fn [the-day] (core-time/interval now the-day)))
         (core-time/in-millis))))
 
-(defn output-piped-input-stream
-  "Writes the supplied output stream to the logger"
-  [stream]
-  (doseq [line (line-seq (clojure.java.io/reader stream))]
-    (info line)))
-
-;; TODO - move into base
-(defn bake-base-ami
-  "Bake the base ami"
-  [virt-type]
-  (info (str "Starting scheduled bake of base ami: " virt-type))
-  (-> (base/create-base-ami virt-type)
-      (packer/build)
-      (output-piped-input-stream)))
-
-;; TODO: move into public
-(defn bake-public-ami
-  "Bake the public ami"
-  [virt-type]
-  (info (str "Starting scheduled bake of public ami: " virt-type))
-  (-> (public-ami/create-public-ami virt-type)
-      (packer/build)
-      (output-piped-input-stream)))
-
-;; TODO: these need to be registered not here, besides that this ns mostly holds up
-(defn bake-amis
-  "Bake a new base ami, followed by its public counterpart"
-  []
-  (try
-    (bake-base-ami :hvm)
-    (bake-base-ami :para)
-    (bake-public-ami :hvm)
-    (bake-public-ami :para)
-    (catch Exception e
-      (error e "Error while baking shared AMIs"))))
-
+;; TODO - move this and other stuff into a cleanup namespace
 (defn kill-amis-for-application
   "Deregisters amis for an application apart from the latest 5. Doesn't deregister any amis that are deployed.
    Note: amis are retrieved from AWS in latest first order."
@@ -99,28 +53,18 @@
         (with-logging-context {:application app}
           (error e "Error while killing AMIs for application"))))))
 
-(defn start-bake-scheduler
-  "Start the baking scheduler, getting it to occur every time-ms ms with an initial delay before
-   the first bake of initial-delay-ms ms. No parameter variant sets the bakes to occur a the start
-   of every Thursday because that's the best day for baking. Obviously."
-  ([time-ms initial-delay-ms]
-     (info "Setting next base and public api bake time, initial-delay:" initial-delay-ms "interval:" time-ms)
-     (at-at/every
-      time-ms
-      bake-amis
-      scheduler-pool
-      :initial-delay initial-delay-ms
-      :desc "baker"))
-  ([] (start-bake-scheduler week-in-ms (ms-until-next-thursday))))
+(defn start-builder-scheduler
+  "Accepts a list of function calls to schedule in the form of a map:
+  {:handler 'function to call' :desc 'description' :run-weekly-on 'which day of the week to run on 1 (monday) - 7'}"
+  [scheduled-builders]
+  (doseq [{:keys [handler run-weekly-on desc]} scheduled-builders]
+    (let [initial-delay (ms-until-next-day run-weekly-on)]
+      (info (format "Scheduling '%s' to run weekly on day: %s which is in: %s ms"
+                    desc run-weekly-on initial-delay))
+      (at-at/every (* 60 60 24 7 1000) handler scheduler-pool :initial-delay initial-delay :desc "baker"))))
 
 (defn start-deregister-old-amis-scheduler
   "Starts a scheduler for a task that deregisters old amis for all services. The most recent 10 are kept
    along with, if different, the currently live ami."
-  ([time-ms initial-delay-ms]
-     (at-at/every
-      time-ms
-      kill-amis
-      scheduler-pool
-      :initial-delay (* 60 1000)
-      :desc "killer"))
-  ([] (start-deregister-old-amis-scheduler half-an-hour-in-ms half-an-hour-in-ms)))
+  []
+  (at-at/every (* 30 60 1000) kill-amis scheduler-pool :initial-delay (* 60 1000) :desc "killer"))

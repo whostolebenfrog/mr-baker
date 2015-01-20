@@ -2,6 +2,8 @@
   (:require [baker
              [web :as web]
              [scheduler :as scheduler]]
+            [baker.builders
+             [scheduler :as builders-scheduler]]
             [clojure.string :as cs :only (split)]
             [clojure.tools.logging :refer [info warn error]]
             [clojure.java.io :as io]
@@ -30,8 +32,8 @@
 (defn start []
   (setup/configure-logging)
   (setup/start-graphite-reporting {:graphite-prefix (cs/join "." [(env :environment-name) (env :service-name) (env :box-id setup/hostname)])})
-  (scheduler/start-bake-scheduler)
   (scheduler/start-deregister-old-amis-scheduler)
+  (scheduler/start-builder-scheduler builders-scheduler/scheduled-builders)
   (reset! server (start-server)))
 
 (defn stop []

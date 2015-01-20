@@ -1,10 +1,9 @@
 (ns baker.builders.routes
-  (:require [baker
-             [scheduler :as scheduler]]
-            [baker.builders
+  (:require [baker.builders
              [bake-base-ami :as base]
              [bake-public-ami :as public]
-             [bake-service-ami :as service]]
+             [bake-service-ami :as service]
+             [scheduler :as builders-scheduler]]
             [compojure.core :refer [GET PUT POST DELETE defroutes]]))
 
 (def lock (atom false))
@@ -40,7 +39,7 @@
         (lockable-bake #(public/bake-entertainment-public-ami (keyword virt-type) dryrun)))
 
   (POST "/base-amis" []
-        (lockable-bake #(scheduler/bake-amis))
+        (lockable-bake #(builders-scheduler/bake-amis))
         "OK")
 
   (POST "/:service-name/:service-version" [service-name service-version dryrun virt-type embargo]
