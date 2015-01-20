@@ -38,23 +38,21 @@
 
 ;; TODO - test lockable bakes etc in here, use a default route from our example
 
-
-
 (fact-group
  :unit
  (fact "Get latest amis returns amis for parent, base and public"
        (:body (request :get "amis")) => (contains {:parent-para "parent-para"
                                                    :parent-hvm "parent-hvm"
-                                                   :ent-base-hvm "ent-base-hvm"
-                                                   :ent-base-para "ent-base-para"
-                                                   :ent-public-hvm "ent-public-hvm"
-                                                   :ent-public-para "ent-public-para"} :in-any-order)
+                                                   :base-hvm "base-hvm"
+                                                   :base-para "base-para"
+                                                   :public-hvm "public-hvm"
+                                                   :public-para "public-para"} :in-any-order)
        (provided (amis/parent-ami :para) => "parent-para"
                  (amis/parent-ami :hvm) => "parent-hvm"
-                 (amis/entertainment-base-ami-id :hvm) =>  "ent-base-hvm"
-                 (amis/entertainment-base-ami-id :para) =>  "ent-base-para"
-                 (amis/entertainment-public-ami-id :hvm) => "ent-public-hvm"
-                 (amis/entertainment-public-ami-id :para) => "ent-public-para"))
+                 (amis/entertainment-base-ami-id :hvm) =>  "base-hvm"
+                 (amis/entertainment-base-ami-id :para) =>  "base-para"
+                 (amis/entertainment-public-ami-id :hvm) => "public-hvm"
+                 (amis/entertainment-public-ami-id :para) => "public-para"))
 
  (fact "latest service amis searches for service amis, returns the first
          10 of the reversed list"

@@ -38,34 +38,6 @@
   []
   (common/response {:name "baker" :version version :success true} "application/json" 200))
 
-;; TODO: amis needs to move into builders I think, or at least be more configurable
-(defn latest-amis
-  "Returns the latest amis that we know about"
-  []
-  {:status 200 :body {:parent-hvm (amis/parent-ami :hvm)
-                      :parent-para (amis/parent-ami :para)
-                      :ent-base-hvm (amis/entertainment-base-ami-id :hvm)
-                      :ent-base-para (amis/entertainment-base-ami-id :para)
-                      :ent-public-hvm (amis/entertainment-public-ami-id :hvm)
-                      :ent-public-para (amis/entertainment-public-ami-id :para)}})
-
-;; TODO - move into amis namespace
-(defn latest-service-amis
-  "Returns the list of amis for the supplied service name"
-  [service-name]
-  (->> (awsclient/service-amis service-name)
-       (map #(select-keys % [:name :image-id]))
-       (reverse)
-       (take 10)))
-
-;; TODO - move into amis namespace
-(defn remove-ami
-  [service ami]
-  "Reregister the supplied ami"
-  (if (awsclient/deregister-ami service ami)
-      (common/response (format "%s deleted successfully" ami) "application/json" 204)
-      (common/response (format "Failed to remove %s" ami) "application/json" 500)))
-
 (defroutes routes
 
   (GET "/healthcheck" []
@@ -77,11 +49,11 @@
    (GET "/status" []
         (status))
 
-   (GET "/amis" []
-        (latest-amis))
-
    (POST "/lock" req
          (builder-routes/lock-builders req))
+
+   (GET "/amis" []
+        (amis/latest-amis))
 
    (DELETE "/lock" []
         (builder-routes/unlock-builders))
@@ -98,13 +70,13 @@
         (common/response (awsclient/active-amis-for-service service (keyword environment) region)))
 
    (GET "/amis/:service" [service]
-        (latest-service-amis service))
+        (amis/latest-service-amis service))
 
    (POST "/make-public/:service" [service]
          (awsclient/allow-prod-access-to-service service))
 
    (DELETE "/:service-name/amis/:ami" [service-name ami]
-           (remove-ami service-name ami))
+           (amis/remove-ami service-name ami))
 
    (context "/bake" [] builder-routes/route-defs)
 
