@@ -2,10 +2,10 @@
   (:require [baker
              [bake-common :refer :all]
              [amis :as amis]
-             [onix :as onix]
-             [yum :as yum]]
+             [onix :as onix]]
             [baker.builders
-             [bake-service-ami :refer :all]]
+             [bake-service-ami :refer :all]
+             [yum :as yum]]
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
 

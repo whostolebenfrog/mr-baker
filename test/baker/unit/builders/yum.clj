@@ -1,7 +1,7 @@
-(ns baker.unit.yum
-  (:use baker.yum)
-  (:require [midje.sweet :refer :all]
-            [clj-http.client :as client]))
+(ns baker.unit.builders.yum
+  (:require [baker.builders.yum :refer :all]
+            [clj-http.client :as client]
+            [midje.sweet :refer :all]))
 
 (fact-group
  :unit

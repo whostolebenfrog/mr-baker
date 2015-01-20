@@ -1,4 +1,4 @@
-(ns baker.yum
+(ns baker.builders.yum
   "Functions pertaining to our intergration with yum repo"
   (:require [environ.core :refer [env]]
             [clj-http.client :as client]))

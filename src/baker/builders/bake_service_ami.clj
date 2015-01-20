@@ -4,7 +4,8 @@
              [bake-common :refer :all]
              [common :as common]
              [onix :as onix]
-             [packer :as packer]
+             [packer :as packer]]
+            [baker.builders
              [yum :as yum]]
             [cheshire.core :as json]
             [clj-http.client :as client]
