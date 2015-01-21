@@ -46,7 +46,7 @@
   :env {:environment-name "dev"
         :service-name "baker"
         :service-port "8080"
-        :graphite-host "graphite.brislabs.com"
+        :graphite-host "graphite.example.com"
         :graphite-port "8080"
         :graphite-post-interval-seconds "60"
         :graphite-enabled "DISABLED"
@@ -55,10 +55,10 @@
 
         :lister-available "true"
 
-        :service-aws-access-key "key"
-        :service-aws-secret-key "secret"
+        :aws-access-key "key"
+        :aws-secret-key "secret"
 
-        :service-packer-use-iam "true"
+        :packer-use-iam "true"
 
         :service-onix-url "http://onix.brislabs.com"
         :service-yum-url "http://yumrepo.brislabs.com/ovimusic"

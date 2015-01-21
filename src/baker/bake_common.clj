@@ -22,9 +22,9 @@
    packer templates the two required keys will need to be available as environment
    variables. Real keys should not be included in the project.clj for obvious reasons."
   [builder]
-  (merge builder (when-not (Boolean/valueOf (env :service-packer-use-iam))
-                   {:access_key (env :service-aws-access-key)
-                    :secret_key (env :service-aws-secret-key)})))
+  (merge builder (when-not (Boolean/valueOf (env :packer-use-iam))
+                   {:access_key (env :aws-access-key)
+                    :secret_key (env :aws-secret-key)})))
 
 (defn instance-type-for-virt-type
   "Provides the correct instance type to bake for a given virt-type, :hvm or :para"

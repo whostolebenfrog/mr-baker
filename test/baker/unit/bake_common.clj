@@ -19,11 +19,11 @@
         (maybe-with-keys {}) => (contains {:access_key ..access..
                                            :secret_key ..secret..})
         (provided
-         (env :service-packer-use-iam) => "false"
-         (env :service-aws-secret-key) => ..secret..
-         (env :service-aws-access-key) => ..access..))
+         (env :packer-use-iam) => "false"
+         (env :aws-secret-key) => ..secret..
+         (env :aws-access-key) => ..access..))
 
   (fact "maybe with keys does not add keys in iam mode"
         (maybe-with-keys {}) => {}
         (provided
-         (env :service-packer-use-iam) => "true")))
+         (env :packer-use-iam) => "true")))
