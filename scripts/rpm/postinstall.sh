@@ -11,8 +11,6 @@ fi
 
 ln -s /var/encrypted/logs/$APP_NAME /var/log/$APP_NAME
 
-chown -R $APP_NAME:$APP_NAME /usr/local/$APP_NAME
-
 chmod 755 /usr/local/$APP_NAME/bin
 
 /bin/echo "postinstall script finished"
