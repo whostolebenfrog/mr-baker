@@ -60,8 +60,8 @@
 
         :packer-use-iam "true"
 
-        :service-onix-url "http://onix.brislabs.com"
-        :service-yum-url "http://yumrepo.brislabs.com/ovimusic"
+        :onix-url "http://onix.brislabs.com"
+        :yum-url "http://yumrepo.brislabs.com/ovimusic"
 
         :service-prod-account "269544559808"
 

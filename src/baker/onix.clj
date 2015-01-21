@@ -3,7 +3,7 @@
             [clj-http.client :as client]))
 
 (def onix-base-url
-  (env :service-onix-url))
+  (env :onix-url))
 
 (defn service-exists?
   "Returns true if the service is known to onix; otherwise returns false."

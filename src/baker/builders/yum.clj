@@ -11,7 +11,7 @@
 (defn rpm-url
   "Returns the rpm url for a given service-name, version and iteration."
   [service-name rpm-name version]
-  (str (env :service-yum-url) "/" (rpm-full-name service-name version rpm-name)))
+  (str (env :yum-url) "/" (rpm-full-name service-name version rpm-name)))
 
 (defn rpm-exists?
   "Returns true if the ami exists in the brislabs yumrepo; otherwise returns false."
