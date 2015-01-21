@@ -63,11 +63,11 @@
         :onix-url "http://onix.brislabs.com"
         :yum-url "http://yumrepo.brislabs.com/ovimusic"
 
-        :service-prod-account "269544559808"
+        :home-aws-account "11111"
+        :home-aws-region "eu-west-1"
+        :additional-aws-accounts "{\"22222\" : \"arn:example\", \"33333\" : \"arn:again\"}"
 
-        :aws-dev-account-id "dev-account-id"
-        :aws-prod-account-id "prod-account-id"
-        :aws-prod-role-arn "prod-role-arn"
+        ;; TODO - change to example
         :aws-proxy-host "172.16.42.42"
         :aws-proxy-port "8080"}
 

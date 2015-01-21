@@ -11,10 +11,10 @@
  :unit
 
  (fact "alternative creds aren't merged if not required"
-       (alternative-credentials-if-necessary :poke) => nil)
+       (alternative-credentials-if-necessary "11111") => nil)
 
  (fact "alternative creds are added if required"
-       (alternative-credentials-if-necessary :prod) => ..creds..
+       (alternative-credentials-if-necessary "22222") => ..creds..
        (provided
         (sts/assume-role anything) => {:credentials ..creds..}))
 
@@ -55,8 +55,9 @@
        (provided
         (all-active-amis) => #{:active}))
 
- (fact "all-active-amis returns active amis from :poke and :prod"
-       (all-active-amis) => #{:poke-active :prod-active}
+ (fact "all-active-amis returns active amis from all environments"
+       (all-active-amis) => #{:active-1 :active-2 :active-3}
        (provided
-        (active-amis :poke anything) => #{:poke-active}
-        (active-amis :prod anything) => #{:prod-active})))
+        (active-amis "11111") => #{:active-1}
+        (active-amis "22222") => #{:active-2}
+        (active-amis "33333") => #{:active-3})))

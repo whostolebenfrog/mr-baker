@@ -103,7 +103,7 @@
   (when-let [ami (and line (last (re-matches #"(?is).*AMIs were created.+(ami-[\w]+)\s*" line)))]
     (info (str "Making AMI: " ami " available to prod account."))
     (try
-      (awsclient/allow-prod-access-to-ami ami tags)
+      (awsclient/make-ami-available-to-additional-accounts ami tags)
       (catch Exception e
         (with-logging-context {:ami ami :service-name service-name}
           (error e "Error while making AMI available to prod"))))

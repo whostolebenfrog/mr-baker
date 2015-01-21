@@ -9,15 +9,33 @@
             [clojure.tools.logging :refer [info]]
             [environ.core :refer [env]]))
 
-;; TODO - have to make this configurable, currently tied to our accounts
-(def environments
-  {:poke {:account-id (env :aws-dev-account-id)
-          :assume-role? false}
-   :prod {:account-id (env :aws-prod-account-id)
-          :account-arn (env :aws-prod-role-arn)
-          :assume-role? true}})
+(def home-account
+  "The home account for this service, created images will be owned by this account, and
+  nomally baker will be running here. It is required that no assume role is needed
+  to make calls against this account. That is it must be able to make calls via IAM
+  or access keys directly."
+  (env :home-aws-account))
+
+(def home-region
+  "The aws region of the home account"
+  (env :home-aws-region))
+
+(def additional-accounts
+  "Any other accounts that baker needs to be aware of, if you are deploying images created by
+  baker to these accounts then baker needs to know about them so that it can make the images
+  available to them and tag them appropriately. You will need to set up permissions such that
+  baker can assume role into these accounts and perform the requierd actions. See docs for
+  more info on the permissions required.
+
+  If you only have a single aws account then this can simply be nil or an empty array.
+
+  Additional accounts are defined as json objects in an array with the format of
+  {'account-number' : 'arn-for-assume-role', 'account-number2' .. snip ..}"
+  (when-let [add-accounts (env :additional-aws-accounts)]
+    (json/parse-string add-accounts)))
 
 (def ^:private proxy-details
+  "Proxy details if they are defined in the environment otherwise assumed as not required"
   (let [proxy-host (env :aws-proxy-host)
         proxy-port (env :aws-proxy-port)]
     (when (and proxy-host proxy-port)
@@ -26,18 +44,20 @@
 
 (defn alternative-credentials-if-necessary
   "Attempts to assume a role, if necessary, returning the credentials or nil if current role is to be used."
-  [environment-name]
-  (let [environment (environments environment-name)]
-    (when (:assume-role? environment)
-      (:credentials (sts/assume-role {:role-arn (:account-arn environment) :role-session-name "ditto"})))))
+  [account-number]
+  (when (not= account-number home-account)
+    (:credentials (sts/assume-role {:role-arn (additional-accounts account-number) :role-session-name "ditto"}))))
 
 (defn config
-  [environment region]
-  (merge (alternative-credentials-if-necessary environment)
-         {:endpoint region}
-         proxy-details))
+  "Returns a config map suitable for the request, combining proxy details, region and
+  assume role credentials if required."
+  ([] (config home-region))
+  ([region] (merge {:endpoint region} proxy-details))
+  ([region account-number]
+     (merge (alternative-credentials-if-necessary account-number)
+            {:endpoint region}
+            proxy-details)))
 
-;; TODO - possibly need to mess with this depending on what we do about naming
 (defn ami-name-comparator
   "Sort amis by date generated"
   [a b]
@@ -49,24 +69,21 @@
         (compare a b))))
 
 (defn owned-amis-by-name
-  "Returns a list of images owned by the current account and filtered by the supplied name.
+  "Returns a list of images owned by the home account and filtered by the supplied name.
    Accepts * as a wild card.
 
    Returns an array of matching images or nil.
 
    Images are returned sorted oldest first."
   ([name]
-     (owned-amis-by-name :poke "eu-west-1" name))
-  ([environment region name]
      (sort-by :name
               ami-name-comparator
-              (-> (ec2/describe-images (config environment region)
+              (-> (ec2/describe-images (config)
                                        :owner ["self"]
                                        :filters [{:name "name" :values [name]}])
                   :images
                   seq))))
 
-;; TODO - this is specific, could live with or possibly update to a new more general prefix
 (defn service-amis
   "Returns the images for a service in the default environment and region"
   [name]
@@ -80,72 +97,63 @@
 (defn deregister-ami
   "Deregister an ami. Returns true if successful, otherwise false"
   ([service image-id]
-     (deregister-ami :poke "eu-west-1" service image-id))
-  ([environment region service image-id]
      (info (format "Deregistering ami %s for service %s" image-id service))
      (try
-       (ec2/deregister-image (config environment region) :image-id image-id)
+       (ec2/deregister-image (config) :image-id image-id)
        true
        (catch Exception e false))))
 
 (defn tag-ami
   "Set tags on the instance in the environment we are allowing access to. Sadly
    amazon doesn't automatically copy tags when making an ami available."
-  ([ami tags]
-     (tag-ami ami tags :prod "eu-west-1"))
-  ([ami tags environment region]
-     (info (format "Tagging ami: %s with tags %s and env %s region %s" ami tags environment region))
-     (ec2/create-tags (config environment region)
-                      :resources [ami]
-                      :tags (mapv (fn [[k v]] {:key (name k) :value v}) tags))
-     (info "finished tagging ami")))
+  ([ami tags region account-number]
+     (when tags
+       (info (format "Tagging ami: %s with tags %s on account %s in region %s" ami tags account-number region))
+       (ec2/create-tags (config region account-number)
+                        :resources [ami]
+                        :tags (mapv (fn [[k v]] {:key (name k) :value v}) tags))
+       (info "finished tagging ami"))))
 
-;; TODO - update name once this ns has been made configurable
-(defn allow-prod-access-to-ami
+(defn make-ami-available-to-additional-accounts
   "Allows prod access to the supplied ami"
   ([ami tags]
-     (allow-prod-access-to-ami :poke "eu-west-1" ami tags))
-  ([environment region ami tags]
-     (ec2/modify-image-attribute (config environment region)
-                                 :image-id ami
-                                 :operation-type "add"
-                                 :user-ids [(env :service-prod-account)]
-                                 :attribute "launchPermission")
-     (tag-ami ami tags :prod region)))
+     (doseq [account-number (keys additional-accounts)]
+       (ec2/modify-image-attribute (config home-region account-number)
+                                   :image-id ami
+                                   :operation-type "add"
+                                   :user-ids [(env :service-prod-account)]
+                                   :attribute "launchPermission")
+       (tag-ami ami tags home-region account-number))))
 
 (defn allow-prod-access-to-service
   "Allows prod access to the amis for a service."
   [service]
-  (map
-   (comp allow-prod-access-to-ami :image-id)
-   (service-amis service)))
+  (doseq [ami (service-ami-ids service)]
+    (make-ami-available-to-additional-accounts ami nil)))
 
-;; TODO - using eu-west-1
 (defn launch-configurations
   "Returns a list of all launch-configurations"
-  ([]
-     (launch-configurations :poke "eu-west-1"))
-  ([environment region]
-     (let [lcs (autoscaling/describe-launch-configurations (config environment region))]
-       (concat (:launch-configurations lcs) (launch-configurations environment region (:next-token lcs)))))
-  ([environment region token]
+  ([region account-number]
+     (let [lcs (autoscaling/describe-launch-configurations (config region account-number))]
+       (concat (:launch-configurations lcs) (launch-configurations region account-number (:next-token lcs)))))
+  ([region account-number token]
      (when token
-       (let [lcs (autoscaling/describe-launch-configurations (config environment region)
+       (let [lcs (autoscaling/describe-launch-configurations (config region account-number)
                                                              :next-token token)]
-         (concat (:launch-configurations lcs) (launch-configurations environment region (:next-token lcs)))))))
+         (concat (:launch-configurations lcs) (launch-configurations region account-number (:next-token lcs)))))))
 
 (def active-amis
-  "Returns a list of active amis for the supplied environment and region"
-  (mem/ttl (fn [environment region]
-             (set (map :image-id (launch-configurations environment region))))
+  "Returns a list of active amis for the supplied account-number in the home region"
+  (mem/ttl (fn [account-number]
+             (set (map :image-id (launch-configurations home-region account-number))))
            :ttl/threshold (* 1000 30)))
 
-;; TODO - very specific
 (defn all-active-amis
   "Returns a set of active amis from the set of amis provided"
   []
-  (union (active-amis :poke "eu-west-1")
-                     (active-amis :prod "eu-west-1")))
+  (apply union
+         (active-amis home-account)
+         (map active-amis (keys additional-accounts))))
 
 (defn filter-active-amis
   "Returns the supplied set of amis with any in use amis removed"
