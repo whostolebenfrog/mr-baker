@@ -2,6 +2,26 @@
 
 ## Intro
 
+*******
+TODO: This needs a big rewrite, almost nothing in here makes much sense any more.
+
+Can set up example files and routes, can talk about those in here
+
+Need to talk about:
+- justification for existence over just using packer
+- assume role and accounts
+- keys and iam
+- packer
+- setting up roles and templates
+- keeping up-to-date with master
+- builders namespace being where changes are made
+- config properties and env
+- how to build
+- how to run
+- ditto optional
+
+*******
+
 Baker bakes amis (amazon machine images) by generating templates for packer and then invocing the packer command line tool on those json templates.
 
 It starts by taking the base mixradio ami and installing good things like ruby and puppet.  It runs puppet which installs more good things and in particular sets up auth using our fancy LDAP TOTP stuff.
