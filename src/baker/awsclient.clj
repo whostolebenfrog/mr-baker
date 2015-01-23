@@ -118,10 +118,10 @@
   "Allows prod access to the supplied ami"
   ([ami tags]
      (doseq [account-number (keys additional-accounts)]
-       (ec2/modify-image-attribute (config home-region account-number)
+       (ec2/modify-image-attribute (config)
                                    :image-id ami
                                    :operation-type "add"
-                                   :user-ids [(env :service-prod-account)]
+                                   :user-ids [account-number]
                                    :attribute "launchPermission")
        (tag-ami ami tags home-region account-number))))
 
