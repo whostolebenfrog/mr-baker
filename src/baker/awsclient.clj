@@ -1,5 +1,6 @@
 (ns baker.awsclient
-  (:require [amazonica.aws
+  (:require [baker.common :as common]
+            [amazonica.aws
              [ec2 :as ec2]
              [securitytoken :as sts]
              [autoscaling :as autoscaling]]
@@ -128,8 +129,9 @@
 (defn allow-prod-access-to-service
   "Allows prod access to the amis for a service."
   [service]
-  (doseq [ami (service-ami-ids service)]
-    (make-ami-available-to-additional-accounts ami nil)))
+  (common/response
+   (for [ami (service-ami-ids service)]
+        (make-ami-available-to-additional-accounts ami nil))))
 
 (defn launch-configurations
   "Returns a list of all launch-configurations"
