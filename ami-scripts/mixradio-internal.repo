@@ -1,8 +1,0 @@
-[ent-repo]
-name=mixradio-entertainment
-enabled=1
-protect=0
-gpgcheck=0
-baseurl=http://ent-aws-repo.s3.amazonaws.com/
-s3_enabled=1
-priority=5
