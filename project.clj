@@ -67,9 +67,9 @@
         :home-aws-region "eu-west-1"
         :additional-aws-accounts "{\"22222\" : \"arn:example\", \"33333\" : \"arn:again\"}"
 
-        ;; TODO - change to example
-        :aws-proxy-host "172.16.42.42"
-        :aws-proxy-port "8080"}
+        ;:aws-proxy-host "10.0.0.1"
+        ;:aws-proxy-port "8080"
+        }
 
   :lein-release {:deploy-via :shell
                  :shell ["lein" "do" "clean," "uberjar," "pom," "rpm"]}
