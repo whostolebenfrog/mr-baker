@@ -27,8 +27,6 @@
              [reload :refer [wrap-reload]]
              [setup :as setup]]))
 
-;; TODO - need to not version control all our resources
-
 (def version
   "The version of the app"
   (setup/version "baker"))
