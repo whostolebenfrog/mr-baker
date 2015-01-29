@@ -31,4 +31,4 @@
 (defroutes route-defs
 
   (POST "/example/:name/:version/:virt-type" [name version dry-run virt-type]
-        (example/bake-example-ami name version dry-run virt-type)))
+        (example/bake-example-ami name version dry-run (keyword virt-type))))

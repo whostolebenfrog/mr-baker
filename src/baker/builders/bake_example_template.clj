@@ -38,7 +38,7 @@
 
 (defn packer-template
   "Generates a new ami template for chroot bake of the service"
-  [name version source-ami virt-type embargo]
+  [name version source-ami virt-type]
   (let [builder (maybe-with-keys
                  {:ami_name (service-ami-name name version virt-type)
                   :tags {:name (format "%s AMI" name)
@@ -48,6 +48,8 @@
                   :type "amazon-chroot"})]
     {:builders [builder]
      :provisioners (provisioners name version)}))
+
+;; TODO - we need a non-chroot example as well I think
 
 (defn bake-example-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
