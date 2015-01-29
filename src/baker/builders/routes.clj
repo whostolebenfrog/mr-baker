@@ -1,5 +1,6 @@
 (ns baker.builders.routes
   (:require [baker.builders
+             [bake-example-template :as example]
              [scheduler :as builders-scheduler]]
             [compojure.core :refer [GET PUT POST DELETE defroutes]]))
 
@@ -29,5 +30,5 @@
 
 (defroutes route-defs
 
-  (comment (POST "/entertainment-ami/:virt-type" [virt-type dryrun]
-         (lockable-bake #(base/bake-entertainment-base-ami (keyword virt-type) dryrun)))))
+  (POST "/example/:name/:version/:virt-type" [name version dry-run virt-type]
+        (example/bake-example-ami name version dry-run virt-type)))
