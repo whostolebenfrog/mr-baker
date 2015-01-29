@@ -23,22 +23,19 @@
         (time-format/formatter "YYYY-MM-dd_HH-mm-ss")
         (time-core/now))))
 
-;; TODO - need to make an example service to bake here
-;; ideally lets still accept version and name
 (defn install-rpm
   "Install the service rpm on to the machine"
   [name version]
-  (let [rpm-full-name "some download path TODO"]
-    (cshell (str "wget -nv http://yumrepo.brislabs.com/ovimusic/" rpm-full-name)
-            (str "yum -y install " rpm-full-name)
-            (str "rm -fv " rpm-full-name))))
+  (let [rpm-name (str name "-" version)]
+   (cshell (str "wget -nv http://github.com/mixradio/baker/examples/" rpm-name)
+           (str "yum -y install " rpm-name)
+           (str "rm -fv " rpm-name))))
 
 (defn provisioners
   "Returns a list of provisioners for the bake."
   [name version]
   [(install-rpm name version)])
 
-;; TODO - rename
 (defn packer-template
   "Generates a new ami template for chroot bake of the service"
   [name version source-ami virt-type embargo]
@@ -52,7 +49,7 @@
     {:builders [builder]
      :provisioners (provisioners name version)}))
 
-(defn bake-chroot-service-ami
+(defn bake-example-ami
   "Bake a new ami for the service name and version based on the latest base ent ami.
    If dry-run then only return the packer template, don't run it."
   [name version dry-run virt-type]
