@@ -8,8 +8,6 @@
             [midje.sweet :refer :all]
             [clj-time.core :as core-time]))
 
-;; TODO - write some tests
-
 (fact-group :unit
   (fact "service-ami-name returns the service name with the date"
         (service-ami-name "name" "version" "para") => "ent-name-version-para-2013-10-15_00-00-00"

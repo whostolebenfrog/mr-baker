@@ -4,6 +4,8 @@
              [web :refer :all]
              [awsclient :as awsclient]
              [amis :as amis]]
+            [baker.builders
+             [bake-example-template :as example]]
             [midje.sweet :refer :all]
             [cheshire.core :as json])
   (:import [java.io ByteArrayInputStream]))
@@ -34,9 +36,6 @@
        (let [{:keys [status body]} (request :get "status")]
          status => 200
          body => (contains {:success true}))))
-
-
-;; TODO - test lockable bakes etc in here, use a default route from our example
 
 (fact-group
  :unit
@@ -75,3 +74,71 @@
  (fact "Resource returns 500 when the ami fails to be removed"
        (request :delete "service/amis/ami-id") => (contains {:status 500 :body (has-prefix "Failed to remove ")})
        (provided (awsclient/deregister-ami "service" "ami-id") => false)))
+
+(fact-group
+ :unit
+ "Bakes can be performed, locked and unlocked"
+
+ (fact "When lock is not set, bakes can be run"
+       (request :post "bake/example/test/1.0.1/hvm") => (contains {:status 200})
+       (provided (example/bake-example-ami "test" "1.0.1" nil :hvm) => {:status 200 :body "x"}))
+
+ (fact "Lock can be set and removed"
+       (request :post "lock" {:body {"message" "lock message"}
+                              :content-type "application/json"})
+       (request :post "bake/example/lockedtest/1.0.1/hvm") => (contains {:status 503
+                                                                         :body (has-suffix "lock message")})
+
+       (request :delete "lock") => (contains {:status 204})
+       (request :post "bake/example/unlockedtest/1.0.1/hvm") => (contains {:status 200})
+       (provided (example/bake-example-ami "unlockedtest" "1.0.1" nil :hvm) => {:status 200 :body "x"})))
+
+(fact-group
+ :unit
+ "Bakes generate templates"
+
+ (fact "Chroot example generates a template"
+       (let [response (request :post "bake/chroot-example/test/1.0.1/para" {:params {"dry-run" true}})
+             template (json/parse-string (:body response) true)
+             builder (-> template :builders first)
+             provisioner (-> template :provisioners first)]
+         (:ami_name builder) => (contains "para")
+         (:ami_name builder) => (contains "1.0.1")
+         (:ami_name builder) => (contains "test")
+         (:source_ami builder) => not-empty
+         (:ami_virtualization_type builder) => "paravirtual"
+         (:type builder) => "amazon-chroot"
+
+         (:type provisioner) => "shell"
+         (-> provisioner :inline first) => (contains "wget")
+         (-> provisioner :inline first) => (contains "test")
+         (-> provisioner :inline first) => (contains "1.0.1")
+         (-> provisioner :inline second) => (contains "yum -y install")))
+
+ (fact "EBS example generates a template"
+       (let [response (request :post "bake/example/test/1.0.1/hvm" {:params {"dry-run" true}})
+             template (json/parse-string (:body response) true)
+             builder (-> template :builders first)
+             provisioner (-> template :provisioners first)]
+
+         (prn builder)
+         (prn provisioner)
+         (:ami_name builder) => (contains "hvm")
+         (:ami_name builder) => (contains "1.0.1")
+         (:ami_name builder) => (contains "test")
+         (:iam_instance_profile builder) => "baking"
+         (:instance_type builder) => "t2.micro"
+         (:security_group_id builder) => "security-group-id-placeholder"
+         (:source_ami builder) => not-empty
+         (:ssh_timeout builder) => "5m"
+         (:ssh_username builder) => "ec2-user"
+         (:subnet_id builder) => "target-subnet-id-placeholder"
+         (:region builder) => "eu-west-1"
+         (:type builder) => "amazon-ebs"
+         (:vpc_id builder) => "vpc-id-placeholder"
+
+         (:type provisioner) => "shell"
+         (-> provisioner :inline first) => (contains "wget")
+         (-> provisioner :inline first) => (contains "test")
+         (-> provisioner :inline first) => (contains "1.0.1")
+         (-> provisioner :inline second) => (contains "yum -y install"))))

@@ -6,6 +6,8 @@
 
 (def lock (atom false))
 
+;; chuck these into another namespace just so that they can be altered without
+;; touching this file
 (defn lockable-bake
   "Bake the ami if the service isn't locked"
   [bake]
@@ -31,4 +33,7 @@
 (defroutes route-defs
 
   (POST "/example/:name/:version/:virt-type" [name version dry-run virt-type]
-        (example/bake-example-ami name version dry-run (keyword virt-type))))
+        (lockable-bake #(example/bake-example-ami name version dry-run (keyword virt-type))))
+
+  (POST "/chroot-example/:name/:version/:virt-type" [name version dry-run virt-type]
+        (lockable-bake #(example/bake-example-ami-chroot name version dry-run (keyword virt-type)))))
