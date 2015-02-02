@@ -121,8 +121,6 @@
              builder (-> template :builders first)
              provisioner (-> template :provisioners first)]
 
-         (prn builder)
-         (prn provisioner)
          (:ami_name builder) => (contains "hvm")
          (:ami_name builder) => (contains "1.0.1")
          (:ami_name builder) => (contains "test")

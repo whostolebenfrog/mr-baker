@@ -3,6 +3,7 @@
              [amis :as amis]
              [awsclient :as awsclient]
              [common :as common]
+             [lock :as lock]
              [packer :as packer]
              [scheduler :as scheduler]]
             [baker.builders
@@ -48,13 +49,13 @@
         (status))
 
    (POST "/lock" req
-         (builder-routes/lock-builders req))
+         (lock/lock-builders req))
+
+   (DELETE "/lock" []
+        (lock/unlock-builders))
 
    (GET "/amis" []
         (amis/latest-amis))
-
-   (DELETE "/lock" []
-        (builder-routes/unlock-builders))
 
    (GET "/inprogress" []
         (common/response (with-out-str (show-schedule packer/timeout-pool)) "text/plain"))
