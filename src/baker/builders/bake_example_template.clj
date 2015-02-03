@@ -27,7 +27,8 @@
   "Install the service rpm on to the machine"
   [name version]
   (let [rpm-name (str name "-" version)]
-   (cshell (str "wget -nv http://github.com/mixradio/baker/examples/" rpm-name)
+    (cshell (str "wget -nv https://github.com/whostolebenfrog/simple-service-example/raw/master/rpms/"
+                 rpm-name ".noarch.rpm")
            (str "yum -y install " rpm-name)
            (str "rm -fv " rpm-name))))
 
