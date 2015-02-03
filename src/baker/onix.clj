@@ -9,7 +9,7 @@
   []
   "If we are running in standalone mode without onix then effectively
    don't perform these checks"
-  (Boolean/valueOf (env :onix-available?)))
+  (Boolean/valueOf (env :onix-available)))
 
 (defn service-exists?
   "Returns true if the service is known to onix; otherwise returns false."
@@ -47,6 +47,5 @@
 (defn shell-commands
   "Returns a list of shell commands to run on the service"
   [service-name]
-  (if (onix-available?)
-    (service-property service-name "customBakeCommands")
-    []))
+  (when (onix-available?)
+    (service-property service-name "customBakeCommands")))

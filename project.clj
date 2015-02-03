@@ -60,7 +60,7 @@
 
         :packer-use-iam "true"
 
-        :onix-available? "false"
+        :onix-available "false"
         :onix-url "http://onix.brislabs.com"
         :yum-url "http://yumrepo.brislabs.com/ovimusic"
 
