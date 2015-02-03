@@ -26,9 +26,8 @@
 (defn install-rpm
   "Install the service rpm on to the machine"
   [name version]
-  (let [rpm-name (str name "-" version)]
-    (cshell (str "wget -nv https://github.com/whostolebenfrog/simple-service-example/raw/master/rpms/"
-                 rpm-name ".noarch.rpm")
+  (let [rpm-name (str name "-" version ".noarch.rpm")]
+    (cshell (str "wget -nv https://github.com/whostolebenfrog/simple-service-example/raw/master/rpms/" rpm-name)
            (str "yum -y install " rpm-name)
            (str "rm -fv " rpm-name))))
 
