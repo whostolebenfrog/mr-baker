@@ -2,33 +2,36 @@
 
 ## Intro
 
-*******
-TODO: This needs a big rewrite, almost nothing in here makes much sense any more.
+Baker is a clojure web service that acts as a wrapper around [packer](packer.io) and allows you to create virtual machine images. In particular baker is aimed at creating AMIs or Amazon Machine Images for use in AWS.
 
-Can set up example files and routes, can talk about those in here
+Wrapping packer gives us two advantages. Firstly it means that we can generate the templates and perform the bakes (generation of the images) via http calls. Secondly it means that we can control and generate the templates programatically using Clojure code. 
 
-Need to talk about:
-- justification for existence over just using packer
-- assume role and accounts
-- keys and iam
-- packer
-- setting up roles and templates
-- keeping up-to-date with master
-- builders namespace being where changes are made
-- config properties and env
-- how to build
-- how to run
-- ditto optional
+## An overview of how we deploy at MixRadio
 
-*******
+Baker forms part of our deployment infrastructure. For more information see this [blog post](http://dev.mixrad.io/blog/2014/10/31/How-we-deploy-at-MixRadio/)
 
-Baker bakes amis (amazon machine images) by generating templates for packer and then invocing the packer command line tool on those json templates.
+## How to use Baker
 
-It starts by taking the base mixradio ami and installing good things like ruby and puppet.  It runs puppet which installs more good things and in particular sets up auth using our fancy LDAP TOTP stuff.
+At MixRadio we use Baker to generate our deployable artifacts. That is we take a base machine image, deploy our services onto them via RPMs and create a machine image. We then deploy these machine images using autoscaling grounds via our deployment service [Maestro](github.com/mixradio/maestro). We actually generate our service images in two passes. First we create a base image with common components installed (e.g. puppet, common linux tools etc). Secondly we deploy our services onto this base image. Doing this in two parts saves quite a lot of time as installing everything onto the base image takes a few minutes and only needs to be done once a week.
 
-Baker then bakes this into our base ami.
+Your actual service templates will be fairly unique to you, as such our actual MixRadio templates aren't listed here. Instead we have two examples of installing an RPM via a packer template. The first uses an amazon-ebs builder which creates a new instance in AWS, and executes commands via SSH to fulfil our template. This is probably the simplest builder. The second uses the chroot-builder which builds the image directly on the box that Baker is running on. This is faster and cheaper but means that Baker must be running in AWS. At MixRadio we use chroot-builders.
 
-Finally, and most importantly baker produces services amis. These take the entertainemt base ami and yum install the service rpm. They then re-enable puppet and make the ami available to prod.
+## Creating your own templates
+
+As you will need to alter code to create templates a namespace has been provided for this purpose, anything in `baker.builders` is safe for you to edit. Templates are registered against http resources in `baker.builders.routes`. The example templates exist in `baker.builders.bake-example-template`.
+
+## Amazon authentication
+
+There are two options for authing against AWS, using a key and secret pair or via IAM. If you are running packer in AWS then simply create an IAM profile for the instance Baker is running on and don't set the key and secret. Alternatively create a new pair and add these to the config on the project.clj.
+
+## How to run
+
+The simplest way to run is via `lein run`
+
+
+## More info
+
+Look out for a new blog post on [dev.mixrad.io/blog](dev.mixrad.io/blog) in the next few weeks with an example of creating a new template.
 
 ## Resources
 
@@ -38,24 +41,18 @@ Performs a healthcheck.
 200 OK json response
 500 Healthcheck failed json response.
 
-GET /1.x/ping
+GET /ping
 200 pong
 
-GET /1.x/status
+GET /status
 200 OK json response
 500 Healthcheck failed json response.
 
-GET /1.x/amis
+GET /amis
 200 Returns a list of the latest base and public amis.
 
-GET /1.x/amis/:service-name
+GET /amis/:service-name
 200 Returns a list of the 10 latest amis baked for the supplied service name
 
-POST /1.x/bake/entertainment-ami
-200 Bakes a new version of the base ami based on the latest amazon linux ami. Streams a text response of packers output as it creates the ami.
-
-POST /1.x/bake/public-ami
-200 Bakes a new public ami based on the latest base ami. Streams a text response of packers output as it creates the ami.
-
-POST /1.x/:service-name/:service-version
-200 Bakes a new ami for the supplied service name and version. Finds the service rpm in yum repo. Looks up the rpm iteration automatically. Streams a text response of packers output as it creates the ami.
+POST /bake/example/:service-name/:service-version/:virtualisation
+200 Streaming response of packer output
