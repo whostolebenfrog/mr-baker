@@ -54,5 +54,5 @@ GET /amis
 GET /amis/:service-name
 200 Returns a list of the 10 latest amis baked for the supplied service name
 
-POST /bake/example/:service-name/:service-version/:virtualisation
-200 Streaming response of packer output
+POST /bake/chroot-example/simple-service/1.0.4/hvm
+200 Streaming response of packer output, bakes using an example rpm
