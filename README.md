@@ -35,6 +35,7 @@ Look out for a new blog post on [dev.mixrad.io/blog](dev.mixrad.io/blog) in the 
 
 ## Resources
 
+```
 GET /healthcheck
 
 Performs a healthcheck.
@@ -56,3 +57,4 @@ GET /amis/:service-name
 
 POST /bake/chroot-example/simple-service/1.0.4/hvm
 200 Streaming response of packer output, bakes using an example rpm
+```
