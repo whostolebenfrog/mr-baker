@@ -31,7 +31,7 @@ The simplest way to run is via `lein run`
 
 ## More info
 
-Look out for a new blog post on [dev.mixrad.io/blog](dev.mixrad.io/blog) in the next few weeks with an example of creating a new template.
+Look out for a new blog post on [dev.mixrad.io/blog](http://dev.mixrad.io/blog) in the next few weeks with an example of creating a new template.
 
 ## Resources
 
